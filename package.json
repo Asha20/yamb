@@ -6,11 +6,15 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "test": "jest"
   },
   "author": "Vukašin Stepanović <vukasinstepanovic@gmail.com>",
   "license": "MIT",
   "devDependencies": {
+    "@types/jest": "^26.0.7",
+    "jest": "^26.1.0",
+    "ts-jest": "^26.1.3",
     "typescript": "^3.9.7"
   }
 }
