@@ -7,9 +7,40 @@ export interface Dice {
 	6: number;
 }
 
-interface Row {
-	name: string;
+interface Row<T extends string> {
+	name: T;
 	score(dice: Dice, roll: number): number | undefined;
+}
+
+interface Column<T extends string> {
+	name: T;
+	score(roll: number): number | undefined;
+}
+
+interface Yamb<
+	TRows extends readonly Row<string>[],
+	TColumns extends readonly Column<string>[]
+> {
+	readonly rowNames: Readonly<Array<TRows[number]["name"]>>;
+	readonly columnNames: Readonly<Array<TColumns[number]["name"]>>;
+	active: boolean;
+	score: number;
+	canPlay(
+		dice: Dice,
+		roll: number,
+		row: TRows[number]["name"],
+		column: TColumns[number]["name"],
+	): boolean;
+	play(
+		dice: Dice,
+		roll: number,
+		row: TRows[number]["name"],
+		column: TColumns[number]["name"],
+	): void;
+	field(
+		row: TRows[number]["name"],
+		column: TColumns[number]["name"],
+	): number | undefined;
 }
 
 function findDie(
@@ -24,6 +55,10 @@ function findDie(
 	return undefined;
 }
 
+function array<T>(length: number, fn: (index: number) => T) {
+	return Array.from({ length }, (_, index) => fn(index));
+}
+
 function sumDice(dice: Dice) {
 	return (
 		1 * dice[1] +
@@ -35,7 +70,17 @@ function sumDice(dice: Dice) {
 	);
 }
 
-function row(name: Row["name"], score: Row["score"]): Row {
+function row<T extends string>(
+	name: Row<T>["name"],
+	score: Row<T>["score"],
+): Row<T> {
+	return { name, score };
+}
+
+function column<T extends string>(
+	name: Column<T>["name"],
+	score: Column<T>["score"],
+): Column<T> {
 	return { name, score };
 }
 
@@ -74,11 +119,7 @@ function findFullHouse(dice: Dice) {
 		(amount, key) => amount >= 2 && key !== threeOfAKind,
 	);
 
-	if (!twoOfAKind) {
-		return undefined;
-	}
-
-	return [threeOfAKind, twoOfAKind];
+	return twoOfAKind && ([threeOfAKind, twoOfAKind] as const);
 }
 
 export const threeOfAKind = row("three of a kind", dice => {
@@ -106,3 +147,124 @@ export const yahtzee = row("yahtzee", dice => {
 	const fiveOfAKind = findDie(dice, amount => amount >= 5);
 	return fiveOfAKind && 50 + 5 * fiveOfAKind;
 });
+
+const topDown = column("top down", () => 0);
+const free = column("free", () => 0);
+
+const ROWS = [
+	one,
+	two,
+	three,
+	four,
+	five,
+	six,
+
+	max,
+	min,
+
+	straight,
+	threeOfAKind,
+	fullHouse,
+	fourOfAKind,
+	yahtzee,
+] as const;
+
+const COLUMNS = [topDown, free] as const;
+
+function yamb<
+	TRows extends readonly Row<string>[],
+	TColumns extends readonly Column<string>[]
+>(rows: TRows, columns: TColumns): Yamb<TRows, TColumns> {
+	let turnsLeft = rows.length * columns.length;
+	const rowNames = Object.freeze(rows.map(x => x.name));
+	const columnNames = Object.freeze(columns.map(x => x.name));
+
+	const matrix: (number | undefined)[][] = array(rows.length, () =>
+		array(columns.length, () => undefined),
+	);
+
+	function getScore(dice: Dice, roll: number, row: number, column: number) {
+		if (matrix[row][column] !== undefined) {
+			return matrix[row][column];
+		}
+
+		const rowScore = rows[row].score(dice, roll);
+		const columnScore = columns[column].score(roll);
+		if (rowScore === undefined || columnScore === undefined) {
+			return undefined;
+		}
+		return rowScore + columnScore;
+	}
+
+	function field(row: TRows[number]["name"], column: TColumns[number]["name"]) {
+		const rowIndex = rowNames.findIndex(x => x === row);
+		const columnIndex = columnNames.findIndex(x => x === column);
+
+		if (rowIndex === -1 || columnIndex === -1) {
+			throw new Error(`Field (${row}, ${column}) is invalid.`);
+		}
+
+		return matrix[rowIndex][columnIndex];
+	}
+
+	function canPlay(
+		dice: Dice,
+		roll: number,
+		row: TRows[number]["name"],
+		column: TColumns[number]["name"],
+	) {
+		const rowIndex = rowNames.findIndex(x => x === row);
+		const columnIndex = columnNames.findIndex(x => x === column);
+
+		if (rowIndex === -1 || columnIndex === -1) {
+			throw new Error(`Field (${row}, ${column}) is invalid.`);
+		}
+
+		return getScore(dice, roll, rowIndex, columnIndex) !== undefined;
+	}
+
+	function play(
+		dice: Dice,
+		roll: number,
+		row: TRows[number]["name"],
+		column: TColumns[number]["name"],
+	) {
+		if (!canPlay(dice, roll, row, column)) {
+			return;
+		}
+
+		const rowIndex = rowNames.findIndex(x => x === row);
+		const columnIndex = columnNames.findIndex(x => x === column);
+
+		const score = getScore(dice, roll, rowIndex, columnIndex)!;
+		matrix[rowIndex][columnIndex] = score;
+		turnsLeft -= 1;
+	}
+
+	return {
+		rowNames,
+		columnNames,
+		canPlay,
+		play,
+		field,
+		get active() {
+			return turnsLeft > 0;
+		},
+		get score() {
+			let score = 0;
+			for (const row of matrix) {
+				for (const val of row) {
+					if (val !== undefined) {
+						score += val;
+					}
+				}
+			}
+
+			return score;
+		},
+	};
+}
+
+export function create() {
+	return yamb(ROWS, COLUMNS);
+}

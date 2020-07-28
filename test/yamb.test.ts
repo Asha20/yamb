@@ -105,3 +105,37 @@ describe("Rows", () => {
 		});
 	});
 });
+
+describe("Game logic", () => {
+	test("initialization", () => {
+		const game = yamb.create();
+
+		expect(game.score).toBe(0);
+		expect(game.active).toBeTruthy();
+	});
+
+	test("checking move validity", () => {
+		const game = yamb.create();
+
+		expect(game.canPlay(dice`111111`, 1, "one", "free")).toBeTruthy();
+		expect(game.canPlay(dice`123456`, 1, "max", "free")).toBeTruthy();
+		expect(game.canPlay(dice`111111`, 1, "straight", "free")).toBeFalsy();
+		expect(() =>
+			game.canPlay(dice`123456`, 1, "foo" as any, "foo" as any),
+		).toThrow();
+	});
+
+	test("scoring", () => {
+		const game = yamb.create();
+
+		game.play(dice`222333`, 1, "one", "free");
+		game.play(dice`223344`, 1, "two", "free");
+		game.play(dice`123456`, 1, "straight", "free");
+
+		expect(game.field("one", "free")).toBe(0);
+		expect(game.field("two", "free")).toBe(4);
+		expect(game.field("straight", "free")).toBe(66);
+
+		expect(game.score).toBe(70);
+	});
+});
