@@ -1,0 +1,11 @@
+.cell {
+  width: 3em;
+  height: 2em;
+  display: block;
+  margin: 0 auto;
+}
+
+.yamb th,
+.yamb td {
+  width: 100px;
+}

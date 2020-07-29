@@ -1,4 +1,4 @@
-import * as yamb from "../src/yamb";
+import * as yamb from "./yamb";
 
 function dice(strs: TemplateStringsArray): yamb.Dice {
 	const str = strs[0];
