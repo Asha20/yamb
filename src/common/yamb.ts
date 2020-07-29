@@ -1,3 +1,7 @@
+import { array } from "./util";
+
+export type DieSide = 1 | 2 | 3 | 4 | 5 | 6;
+
 export interface Dice {
 	1: number;
 	2: number;
@@ -37,6 +41,12 @@ interface Yamb<
 		row: TRows[number]["name"],
 		column: TColumns[number]["name"],
 	): void;
+	getScore(
+		dice: Dice,
+		roll: number,
+		row: TRows[number]["name"],
+		column: TColumns[number]["name"],
+	): number | undefined;
 	field(
 		row: TRows[number]["name"],
 		column: TColumns[number]["name"],
@@ -53,10 +63,6 @@ function findDie(
 		}
 	}
 	return undefined;
-}
-
-function array<T>(length: number, fn: (index: number) => T) {
-	return Array.from({ length }, (_, index) => fn(index));
 }
 
 function sumDice(dice: Dice) {
@@ -175,6 +181,9 @@ function yamb<
 	TRows extends readonly Row<string>[],
 	TColumns extends readonly Column<string>[]
 >(rows: TRows, columns: TColumns): Yamb<TRows, TColumns> {
+	type RowName = TRows[number]["name"];
+	type ColName = TColumns[number]["name"];
+
 	let turnsLeft = rows.length * columns.length;
 	const rowNames = Object.freeze(rows.map(x => x.name));
 	const columnNames = Object.freeze(columns.map(x => x.name));
@@ -183,60 +192,52 @@ function yamb<
 		array(columns.length, () => undefined),
 	);
 
-	function getScore(dice: Dice, roll: number, row: number, column: number) {
-		if (matrix[row][column] !== undefined) {
-			return matrix[row][column];
+	function getField(row: RowName, column: ColName) {
+		const rowIndex = rowNames.findIndex(x => x === row);
+		const columnIndex = columnNames.findIndex(x => x === column);
+
+		if (rowIndex === -1 || columnIndex === -1) {
+			throw new Error(`Field (${row}, ${column}) is invalid.`);
 		}
 
-		const rowScore = rows[row].score(dice, roll);
-		const columnScore = columns[column].score(roll);
+		return [rowIndex, columnIndex];
+	}
+
+	function getScore(dice: Dice, roll: number, row: RowName, column: ColName) {
+		if (roll === 0) {
+			return undefined;
+		}
+
+		const [rowIndex, columnIndex] = getField(row, column);
+
+		if (matrix[rowIndex][columnIndex] !== undefined) {
+			return matrix[rowIndex][columnIndex];
+		}
+
+		const rowScore = rows[rowIndex].score(dice, roll);
+		const columnScore = columns[columnIndex].score(roll);
 		if (rowScore === undefined || columnScore === undefined) {
 			return undefined;
 		}
 		return rowScore + columnScore;
 	}
 
-	function field(row: TRows[number]["name"], column: TColumns[number]["name"]) {
-		const rowIndex = rowNames.findIndex(x => x === row);
-		const columnIndex = columnNames.findIndex(x => x === column);
-
-		if (rowIndex === -1 || columnIndex === -1) {
-			throw new Error(`Field (${row}, ${column}) is invalid.`);
-		}
-
+	function field(row: RowName, column: ColName) {
+		const [rowIndex, columnIndex] = getField(row, column);
 		return matrix[rowIndex][columnIndex];
 	}
 
-	function canPlay(
-		dice: Dice,
-		roll: number,
-		row: TRows[number]["name"],
-		column: TColumns[number]["name"],
-	) {
-		const rowIndex = rowNames.findIndex(x => x === row);
-		const columnIndex = columnNames.findIndex(x => x === column);
-
-		if (rowIndex === -1 || columnIndex === -1) {
-			throw new Error(`Field (${row}, ${column}) is invalid.`);
-		}
-
-		return getScore(dice, roll, rowIndex, columnIndex) !== undefined;
+	function canPlay(dice: Dice, roll: number, row: RowName, column: ColName) {
+		return getScore(dice, roll, row, column) !== undefined;
 	}
 
-	function play(
-		dice: Dice,
-		roll: number,
-		row: TRows[number]["name"],
-		column: TColumns[number]["name"],
-	) {
+	function play(dice: Dice, roll: number, row: RowName, column: ColName) {
 		if (!canPlay(dice, roll, row, column)) {
 			return;
 		}
 
-		const rowIndex = rowNames.findIndex(x => x === row);
-		const columnIndex = columnNames.findIndex(x => x === column);
-
-		const score = getScore(dice, roll, rowIndex, columnIndex)!;
+		const score = getScore(dice, roll, row, column)!;
+		const [rowIndex, columnIndex] = getField(row, column);
 		matrix[rowIndex][columnIndex] = score;
 		turnsLeft -= 1;
 	}
@@ -247,6 +248,7 @@ function yamb<
 		canPlay,
 		play,
 		field,
+		getScore,
 		get active() {
 			return turnsLeft > 0;
 		},

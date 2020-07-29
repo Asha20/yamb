@@ -9,3 +9,14 @@
 .yamb td {
   width: 100px;
 }
+
+
+.die {
+  border: none;
+  background: none;
+  font-size: 3em;
+}
+
+.frozen {
+  color: brown;
+}
