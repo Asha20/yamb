@@ -32,7 +32,13 @@ module.exports = {
 	},
 	plugins: [new HtmlWebpackPlugin(), new MiniCssExtractPlugin()],
 
+	stats: "minimal",
 	devServer: {
 		stats: "minimal",
+		proxy: {
+			"/api": {
+				target: "http://localhost:3000",
+			},
+		},
 	},
 };

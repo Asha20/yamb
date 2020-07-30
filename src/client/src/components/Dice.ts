@@ -1,5 +1,5 @@
 import m from "mithril";
-import { state, actions } from "./state";
+import { state, actions } from "../state";
 
 const diceLook = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 

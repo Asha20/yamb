@@ -1,8 +1,13 @@
 import "../public/index.css";
 import m from "mithril";
-import { App } from "./App";
+import { Main } from "./pages/Main";
+import { Game } from "./pages/Game";
 import { state } from "./state";
 
-m.mount(document.body, App);
+m.route.prefix = "";
+m.route(document.body, "/", {
+	"/": Main,
+	"/game/:gameId": Game,
+});
 
 (window as any).state = state;
