@@ -21,7 +21,7 @@ interface Column<T extends string> {
 	score(roll: number): number | undefined;
 }
 
-interface Yamb<
+export interface Yamb<
 	TRows extends readonly Row<string>[],
 	TColumns extends readonly Column<string>[]
 > {
