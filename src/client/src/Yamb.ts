@@ -14,6 +14,13 @@ const Cell = {
 			return;
 		}
 
+		if (
+			state.game.getScore(countDice(state.dice), state.roll, row, column) ===
+			undefined
+		) {
+			return;
+		}
+
 		actions.play(row, column);
 		this.value = state.game.field(row, column);
 	},
