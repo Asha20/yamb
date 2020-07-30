@@ -7,7 +7,7 @@ import { state } from "./state";
 m.route.prefix = "";
 m.route(document.body, "/", {
 	"/": Main,
-	"/game/:gameId": Game,
+	"/game/:id": Game,
 });
 
 (window as any).state = state;

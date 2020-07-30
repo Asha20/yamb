@@ -9,6 +9,7 @@ module.exports = {
 	entry: "./src/main.ts",
 	output: {
 		path: path.resolve(__dirname, "dist"),
+		publicPath: "/public",
 		filename: "bundle.js",
 	},
 	resolve: {
