@@ -7,7 +7,7 @@ export const Main = {
 			method: "GET",
 			url: "/api/create-game",
 		}).then(response => {
-			m.route.set("/game/:gameId", { gameId: response.id });
+			m.route.set("/lobby/:id", { id: response.id });
 		});
 	},
 

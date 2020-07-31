@@ -1,5 +1,6 @@
 import * as path from "path";
 import * as express from "express";
+import * as wss from "./wss";
 import { router as apiRouter } from "./api";
 
 const PROJECT_SRC = path.resolve(__dirname, "..", "..");
@@ -16,9 +17,12 @@ const app = express();
 app.use("/public", express.static(root("client/dist")));
 
 app.get("/", mithrilRoute);
+app.get("/lobby/:id", mithrilRoute);
 app.get("/game/:id", mithrilRoute);
 app.use("/api", apiRouter);
 
 app.listen(3000, () => {
 	console.log("Listening");
 });
+
+wss.listen(3001);
