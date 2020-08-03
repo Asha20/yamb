@@ -1,6 +1,6 @@
 import * as WebSocket from "ws";
 import { nanoid } from "nanoid";
-import { SocketMessage, SocketMetadata } from "common/ws";
+import { ClientMessage, ServerMessage, SocketMetadata } from "common/ws";
 
 interface Room<T> {
 	members: T[];
@@ -33,13 +33,13 @@ function createRoom(): Room<SocketInfo> {
 	};
 }
 
-function sendMessage(client: WebSocket, msg: SocketMessage) {
+function sendMessage(client: WebSocket, msg: ServerMessage) {
 	if (client.readyState === WebSocket.OPEN) {
 		client.send(JSON.stringify(msg));
 	}
 }
 
-function broadcast(wss: WebSocket.Server, msg: SocketMessage) {
+function broadcast(wss: WebSocket.Server, msg: ServerMessage) {
 	wss.clients.forEach(ws => sendMessage(ws, msg));
 }
 
@@ -78,7 +78,7 @@ export function listen(port: number) {
 			});
 
 			ws.on("message", data => {
-				const message = JSON.parse(data.toString()) as SocketMessage;
+				const message = JSON.parse(data.toString()) as ClientMessage;
 				switch (message.type) {
 					case "setName":
 						if (room.members.some(x => x.data.name === message.name)) {
@@ -95,6 +95,7 @@ export function listen(port: number) {
 						break;
 					case "startGame":
 						broadcast(wss, { type: "gameStarted" });
+						break;
 				}
 
 				broadcast(wss, {

@@ -1,5 +1,5 @@
 import m from "mithril";
-import { SocketMessage, SocketMetadata } from "common/ws";
+import { ClientMessage, ServerMessage, SocketMetadata } from "common/ws";
 import { actions } from "../state";
 
 interface State {
@@ -20,7 +20,7 @@ const state: State = {
 
 const qs = document.querySelector.bind(document);
 
-function sendMessage(msg: SocketMessage) {
+function sendMessage(msg: ClientMessage) {
 	if (!state.socket) {
 		throw new Error("Missing socket");
 	}
@@ -83,7 +83,7 @@ export const Lobby = {
 		state.socket = socket;
 
 		socket.onmessage = e => {
-			const message = JSON.parse(e.data) as SocketMessage;
+			const message = JSON.parse(e.data) as ServerMessage;
 			console.log(message);
 
 			switch (message.type) {
