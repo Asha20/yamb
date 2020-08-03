@@ -5,9 +5,9 @@
     "sourceMap": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "baseUrl": "./",
+    "baseUrl": "..",
     "paths": {
-      "common/*": ["../common/*"]
+      "common/*": ["common/*"]
     }
   },
   "include": [
