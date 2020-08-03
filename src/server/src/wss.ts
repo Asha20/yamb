@@ -1,6 +1,9 @@
 import * as WebSocket from "ws";
 import { nanoid } from "nanoid";
 import { ClientMessage, ServerMessage, SocketMetadata } from "common/ws";
+import { Yamb, create as yamb } from "common/yamb";
+import { Dice, dice } from "common/dice";
+import { array } from "common/util";
 
 interface Room<T> {
 	members: T[];
@@ -12,6 +15,18 @@ interface SocketInfo {
 	id: string;
 	socket: WebSocket;
 	data: SocketMetadata;
+}
+
+interface Game {
+	yamb: Yamb<any, any>[];
+	dice: Dice;
+}
+
+function createGame(players: number): Game {
+	return {
+		yamb: array(players, yamb),
+		dice: dice(6, players),
+	};
 }
 
 function createRoom(): Room<SocketInfo> {
@@ -47,6 +62,7 @@ export function listen(port: number) {
 	const wss = new WebSocket.Server({ port });
 
 	const rooms = new Map<string, Room<SocketInfo>>();
+	const games = new Map<string, Game>();
 
 	const lobbyRegex = /^\/lobby\/(\d+)$/;
 
@@ -95,6 +111,7 @@ export function listen(port: number) {
 						break;
 					case "startGame":
 						broadcast(wss, { type: "gameStarted" });
+						games.set(roomId, createGame(room.members.length));
 						break;
 				}
 

@@ -1,12 +1,14 @@
 import m from "mithril";
-import { ClientMessage, ServerMessage, SocketMetadata } from "common/ws";
+import { SocketMetadata } from "common/ws";
+import * as socket from "../socket";
 import { actions } from "../state";
+
+socket.open();
 
 interface State {
 	name: string;
 	nameTaken: boolean;
 	owner: boolean;
-	socket: WebSocket | undefined;
 	members: SocketMetadata[];
 }
 
@@ -14,26 +16,15 @@ const state: State = {
 	name: "",
 	nameTaken: false,
 	owner: false,
-	socket: undefined,
 	members: [],
 };
 
 const qs = document.querySelector.bind(document);
 
-function sendMessage(msg: ClientMessage) {
-	if (!state.socket) {
-		throw new Error("Missing socket");
-	}
-
-	if (state.socket.readyState === WebSocket.OPEN) {
-		state.socket.send(JSON.stringify(msg));
-	}
-}
-
 const NamePrompt = {
 	submitName() {
 		const name = qs<HTMLInputElement>("#player-name")?.value ?? "";
-		sendMessage({ type: "setName", name });
+		socket.send({ type: "setName", name });
 	},
 
 	view() {
@@ -76,16 +67,7 @@ const Members = {
 
 export const Lobby = {
 	oninit() {
-		const wsUrl = location.href
-			.replace(location.protocol, "ws:")
-			.replace(location.port, "3001");
-		const socket = new WebSocket(wsUrl);
-		state.socket = socket;
-
-		socket.onmessage = e => {
-			const message = JSON.parse(e.data) as ServerMessage;
-			console.log(message);
-
+		socket.onMessage(message => {
 			switch (message.type) {
 				case "members":
 					state.members = message.members;
@@ -107,11 +89,11 @@ export const Lobby = {
 					break;
 			}
 			m.redraw();
-		};
+		});
 	},
 
 	startGame() {
-		sendMessage({ type: "startGame" });
+		socket.send({ type: "startGame" });
 	},
 
 	view() {
