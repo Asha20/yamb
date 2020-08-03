@@ -1,24 +1,14 @@
 import { array } from "./util";
-
-export type DieSide = 1 | 2 | 3 | 4 | 5 | 6;
-
-export interface Dice {
-	1: number;
-	2: number;
-	3: number;
-	4: number;
-	5: number;
-	6: number;
-}
+import { DiceCount, DieSide, Dice, DiceContext } from "./dice";
 
 interface Row<T extends string> {
 	name: T;
-	score(dice: Dice, roll: number): number | undefined;
+	score(context: DiceContext): number | undefined;
 }
 
 interface Column<T extends string> {
 	name: T;
-	score(roll: number): number | undefined;
+	score(context: DiceContext): number | undefined;
 }
 
 export interface Yamb<
@@ -30,20 +20,17 @@ export interface Yamb<
 	active: boolean;
 	score: number;
 	canPlay(
-		dice: Dice,
-		roll: number,
+		dice: DiceContext,
 		row: TRows[number]["name"],
 		column: TColumns[number]["name"],
 	): boolean;
 	play(
-		dice: Dice,
-		roll: number,
+		dice: DiceContext,
 		row: TRows[number]["name"],
 		column: TColumns[number]["name"],
 	): void;
 	getScore(
-		dice: Dice,
-		roll: number,
+		dice: DiceContext,
 		row: TRows[number]["name"],
 		column: TColumns[number]["name"],
 	): number | undefined;
@@ -54,8 +41,8 @@ export interface Yamb<
 }
 
 function findDie(
-	obj: Dice,
-	predicate: (value: Dice[keyof Dice], key: keyof Dice) => boolean,
+	obj: DiceCount,
+	predicate: (value: DiceCount[DieSide], key: DieSide) => boolean,
 ) {
 	for (const key of [6, 5, 4, 3, 2, 1] as const) {
 		if (predicate(obj[key], key)) {
@@ -65,7 +52,7 @@ function findDie(
 	return undefined;
 }
 
-function sumDice(dice: Dice) {
+function sumDice(dice: DiceCount) {
 	return (
 		1 * dice[1] +
 		2 * dice[2] +
@@ -90,19 +77,19 @@ function column<T extends string>(
 	return { name, score };
 }
 
-export const one = row("one", dice => 1 * dice[1]);
-export const two = row("two", dice => 2 * dice[2]);
-export const three = row("three", dice => 3 * dice[3]);
-export const four = row("four", dice => 4 * dice[4]);
-export const five = row("five", dice => 5 * dice[5]);
-export const six = row("six", dice => 6 * dice[6]);
+export const one = row("one", ({ count }) => 1 * count[1]);
+export const two = row("two", ({ count }) => 2 * count[2]);
+export const three = row("three", ({ count }) => 3 * count[3]);
+export const four = row("four", ({ count }) => 4 * count[4]);
+export const five = row("five", ({ count }) => 5 * count[5]);
+export const six = row("six", ({ count }) => 6 * count[6]);
 
-export const max = row("max", sumDice);
-export const min = row("min", dice => -sumDice(dice));
+export const max = row("max", ({ count }) => sumDice(count));
+export const min = row("min", ({ count }) => -sumDice(count));
 
-export const straight = row("straight", (dice, roll) => {
-	const oneToFive = dice[1] && dice[2] && dice[3] && dice[4] && dice[5];
-	const twoToSix = dice[2] && dice[3] && dice[4] && dice[5] && dice[6];
+export const straight = row("straight", ({ count, roll }) => {
+	const oneToFive = count[1] && count[2] && count[3] && count[4] && count[5];
+	const twoToSix = count[2] && count[3] && count[4] && count[5] && count[6];
 	if (!oneToFive && !twoToSix) {
 		return undefined;
 	}
@@ -113,7 +100,7 @@ export const straight = row("straight", (dice, roll) => {
 	throw new Error("Unreachable code");
 });
 
-function findFullHouse(dice: Dice) {
+function findFullHouse(dice: DiceCount) {
 	const threeOfAKind = findDie(dice, amount => amount >= 3);
 
 	if (!threeOfAKind) {
@@ -128,13 +115,13 @@ function findFullHouse(dice: Dice) {
 	return twoOfAKind && ([threeOfAKind, twoOfAKind] as const);
 }
 
-export const threeOfAKind = row("three of a kind", dice => {
-	const threeOfAKind = findDie(dice, amount => amount >= 3);
+export const threeOfAKind = row("three of a kind", ({ count }) => {
+	const threeOfAKind = findDie(count, amount => amount >= 3);
 	return threeOfAKind && 30 + 3 * threeOfAKind;
 });
 
-export const fullHouse = row("full house", dice => {
-	const fullHouse = findFullHouse(dice);
+export const fullHouse = row("full house", ({ count }) => {
+	const fullHouse = findFullHouse(count);
 
 	if (!fullHouse) {
 		return undefined;
@@ -144,13 +131,13 @@ export const fullHouse = row("full house", dice => {
 	return 40 + 3 * threeOfAKind + 2 * twoOfAKind;
 });
 
-export const fourOfAKind = row("four of a kind", dice => {
-	const fourOfAKind = findDie(dice, amount => amount >= 4);
+export const fourOfAKind = row("four of a kind", ({ count }) => {
+	const fourOfAKind = findDie(count, amount => amount >= 4);
 	return fourOfAKind && 50 + 4 * fourOfAKind;
 });
 
-export const yahtzee = row("yahtzee", dice => {
-	const fiveOfAKind = findDie(dice, amount => amount >= 5);
+export const yahtzee = row("yahtzee", ({ count }) => {
+	const fiveOfAKind = findDie(count, amount => amount >= 5);
 	return fiveOfAKind && 50 + 5 * fiveOfAKind;
 });
 
@@ -203,8 +190,8 @@ function yamb<
 		return [rowIndex, columnIndex];
 	}
 
-	function getScore(dice: Dice, roll: number, row: RowName, column: ColName) {
-		if (roll === 0) {
+	function getScore(dice: Dice, row: RowName, column: ColName) {
+		if (dice.roll === 0) {
 			return undefined;
 		}
 
@@ -214,8 +201,8 @@ function yamb<
 			return matrix[rowIndex][columnIndex];
 		}
 
-		const rowScore = rows[rowIndex].score(dice, roll);
-		const columnScore = columns[columnIndex].score(roll);
+		const rowScore = rows[rowIndex].score(dice);
+		const columnScore = columns[columnIndex].score(dice);
 		if (rowScore === undefined || columnScore === undefined) {
 			return undefined;
 		}
@@ -227,16 +214,16 @@ function yamb<
 		return matrix[rowIndex][columnIndex];
 	}
 
-	function canPlay(dice: Dice, roll: number, row: RowName, column: ColName) {
-		return getScore(dice, roll, row, column) !== undefined;
+	function canPlay(dice: Dice, row: RowName, column: ColName) {
+		return getScore(dice, row, column) !== undefined;
 	}
 
-	function play(dice: Dice, roll: number, row: RowName, column: ColName) {
-		if (!canPlay(dice, roll, row, column)) {
+	function play(dice: Dice, row: RowName, column: ColName) {
+		if (!canPlay(dice, row, column)) {
 			return;
 		}
 
-		const score = getScore(dice, roll, row, column)!;
+		const score = getScore(dice, row, column)!;
 		const [rowIndex, columnIndex] = getField(row, column);
 		matrix[rowIndex][columnIndex] = score;
 		turnsLeft -= 1;

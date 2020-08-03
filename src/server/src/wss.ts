@@ -1,6 +1,6 @@
 import * as WebSocket from "ws";
 import { nanoid } from "nanoid";
-import { SocketMessage } from "common/ws";
+import { SocketMessage, SocketMetadata } from "common/ws";
 
 interface Room<T> {
 	members: T[];
@@ -11,7 +11,7 @@ interface Room<T> {
 interface SocketInfo {
 	id: string;
 	socket: WebSocket;
-	name: string;
+	data: SocketMetadata;
 }
 
 function createRoom(): Room<SocketInfo> {
@@ -47,18 +47,19 @@ export function listen(port: number) {
 	const wss = new WebSocket.Server({ port });
 
 	const rooms = new Map<string, Room<SocketInfo>>();
-	const ids = new Map<string, SocketInfo>();
 
 	const lobbyRegex = /^\/lobby\/(\d+)$/;
 
 	wss.on("connection", (ws, req) => {
 		console.log("Got a connection:", req.url);
-		const self: SocketInfo = { id: nanoid(10), socket: ws, name: "" };
-		ids.set(self.id, { id: self.id, socket: ws, name: "" });
-
-		ws.on("close", () => {
-			ids.delete(self.id);
-		});
+		const self: SocketInfo = {
+			id: nanoid(10),
+			socket: ws,
+			data: {
+				name: "",
+				owner: false,
+			},
+		};
 
 		const lobbyMatch = req.url?.match(lobbyRegex);
 		if (lobbyMatch) {
@@ -68,31 +69,37 @@ export function listen(port: number) {
 			rooms.set(roomId, room);
 			room.addMember(self);
 
+			const isOwner = room.members.length === 1;
+			self.data.owner = isOwner;
+
 			broadcast(wss, {
 				type: "members",
-				members: room.members.map(x => x.name),
+				members: room.members.map(x => x.data),
 			});
 
 			ws.on("message", data => {
 				const message = JSON.parse(data.toString()) as SocketMessage;
 				switch (message.type) {
 					case "setName":
-						if (room.members.some(x => x.name === message.name)) {
+						if (room.members.some(x => x.data.name === message.name)) {
 							sendMessage(ws, { type: "nameResponse", available: false });
 						} else {
 							sendMessage(ws, {
 								type: "nameResponse",
 								available: true,
 								name: message.name,
+								owner: isOwner,
 							});
-							self.name = message.name;
+							self.data.name = message.name;
 						}
 						break;
+					case "startGame":
+						broadcast(wss, { type: "gameStarted" });
 				}
 
 				broadcast(wss, {
 					type: "members",
-					members: room.members.map(x => x.name),
+					members: room.members.map(x => x.data),
 				});
 			});
 
@@ -100,7 +107,7 @@ export function listen(port: number) {
 				rooms.get(roomId)?.removeMember(self);
 				broadcast(wss, {
 					type: "members",
-					members: room.members.map(x => x.name),
+					members: room.members.map(x => x.data),
 				});
 			});
 		}

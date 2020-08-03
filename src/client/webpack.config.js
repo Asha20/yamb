@@ -36,6 +36,7 @@ module.exports = {
 	stats: "minimal",
 	devServer: {
 		stats: "minimal",
+		writeToDisk: true,
 		proxy: {
 			"/api": {
 				target: "http://localhost:3000",

@@ -1,35 +1,39 @@
 import m from "mithril";
-import { SocketMessage } from "common/ws";
+import { SocketMessage, SocketMetadata } from "common/ws";
+import { actions } from "../state";
 
 interface State {
 	name: string;
 	nameTaken: boolean;
+	owner: boolean;
 	socket: WebSocket | undefined;
-	members: string[];
+	members: SocketMetadata[];
 }
 
 const state: State = {
 	name: "",
 	nameTaken: false,
+	owner: false,
 	socket: undefined,
 	members: [],
 };
 
 const qs = document.querySelector.bind(document);
 
-function sendMessage(socket: WebSocket, msg: SocketMessage) {
-	socket.send(JSON.stringify(msg));
+function sendMessage(msg: SocketMessage) {
+	if (!state.socket) {
+		throw new Error("Missing socket");
+	}
+
+	if (state.socket.readyState === WebSocket.OPEN) {
+		state.socket.send(JSON.stringify(msg));
+	}
 }
 
 const NamePrompt = {
 	submitName() {
-		if (!state.socket) {
-			throw new Error("Missing socket");
-		}
-
 		const name = qs<HTMLInputElement>("#player-name")?.value ?? "";
-
-		sendMessage(state.socket, { type: "setName", name });
+		sendMessage({ type: "setName", name });
 	},
 
 	view() {
@@ -48,11 +52,23 @@ const Members = {
 			m("h1", "Lobby"),
 			m("section", [
 				m("h2", "Members:"),
-				state.members.map(
-					member =>
-						member &&
-						m("li", member === state.name ? member + " (you)" : member),
-				),
+				m("ul", [
+					state.members.map(({ name, owner }) => {
+						if (!name) {
+							return undefined;
+						}
+
+						let displayName = name;
+						if (name === state.name) {
+							displayName += " (you)";
+						}
+						if (owner) {
+							displayName += " (owner)";
+						}
+
+						return m("li", displayName);
+					}),
+				]),
 			]),
 		];
 	},
@@ -78,6 +94,15 @@ export const Lobby = {
 					state.nameTaken = !message.available;
 					if (message.available) {
 						state.name = message.name;
+						state.owner = message.owner;
+					}
+					break;
+				case "gameStarted":
+					actions.startGame(state.members);
+					if (state.name) {
+						m.route.set("/game/:id", { id: m.route.param("id") });
+					} else {
+						m.route.set("/");
 					}
 					break;
 			}
@@ -85,7 +110,15 @@ export const Lobby = {
 		};
 	},
 
+	startGame() {
+		sendMessage({ type: "startGame" });
+	},
+
 	view() {
-		return [m(Members), !state.name && m(NamePrompt)];
+		return [
+			m(Members),
+			!state.name && m(NamePrompt),
+			state.owner && m("button", { onclick: this.startGame }, "Start the game"),
+		];
 	},
 };

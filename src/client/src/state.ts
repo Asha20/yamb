@@ -1,39 +1,38 @@
-import { DieSide, Yamb, create as createGame } from "common/yamb";
-import { array, countDice } from "common/util";
+import { Dice, dice } from "common/dice";
+import { Yamb, create as createGame } from "common/yamb";
+import { array } from "common/util";
+import { SocketMetadata } from "common/ws";
 
 interface State {
-	roll: number;
-	dice: DieSide[];
-	frozen: boolean[];
-	game: Yamb<any, any>;
+	dice: Dice;
+	games: Yamb<any, any>[];
+	players: SocketMetadata[];
 }
 
 const initialState = (): State => ({
-	roll: 0,
-	dice: array(6, () => 6),
-	frozen: array(6, () => false),
-	game: createGame(),
+	dice: dice(0, 0),
+	players: [],
+	games: [],
 });
 
 export const actions = {
 	toggleFreeze(index: number) {
-		state.frozen[index] = !state.frozen[index];
+		state.dice.toggleFreeze(index);
 	},
 
 	rollDice() {
-		for (let i = 0; i < state.dice.length; i++) {
-			if (!state.frozen[i]) {
-				state.dice[i] = (Math.floor(Math.random() * 6) + 1) as DieSide;
-			}
-		}
-		state.roll += 1;
+		state.dice.rollDice();
 	},
 
-	play(row: string, column: string) {
-		state.game.play(countDice(state.dice), state.roll, row, column);
+	play(player: number, row: string, column: string) {
+		state.games[player].play(state.dice, row, column);
+		state.dice.reset();
+	},
 
-		const { roll, dice, frozen } = initialState();
-		Object.assign(state, { roll, dice, frozen });
+	startGame(players: SocketMetadata[]) {
+		state.games = array(players.length, createGame);
+		state.dice = dice(6, players.length);
+		state.players = [...players];
 	},
 };
 
