@@ -6,7 +6,6 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "client:dev": "webpack-dev-server --config src/client/webpack.config.js --mode development -d --watch",
     "client:watch": "webpack --config src/client/webpack.config.js --mode development -d --watch",
     "client:build": "webpack --config src/client/webpack.config.js --mode production",
     "server:start": "npm run server:build && node src/server/dist/server.js",
@@ -33,7 +32,6 @@
     "typescript": "^3.9.7",
     "webpack": "^4.44.0",
     "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0",
     "webpack-node-externals": "^2.5.0"
   },
   "dependencies": {
@@ -42,7 +40,6 @@
     "nanoid": "^3.1.12",
     "ws": "^7.3.1"
   },
-
   "_moduleAliases": {
     "common": "src/common"
   }
