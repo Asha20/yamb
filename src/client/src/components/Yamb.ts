@@ -1,71 +1,93 @@
 import m from "mithril";
-import { state, actions } from "../state";
+import { state } from "../state";
+import * as socket from "../socket";
+import { classNames } from "common/util";
 
 interface CellAttrs {
+	filled: boolean;
 	player: number;
-	row: typeof state.games[0]["rowNames"][number];
-	column: typeof state.games[0]["columnNames"][number];
+	row: string;
+	column: string;
+	active: boolean;
+}
+
+interface YambAttrs {
+	player: number;
+	active: boolean;
 }
 
 const Cell = {
-	value: undefined as number | undefined,
-	play(player: number, row: CellAttrs["row"], column: CellAttrs["column"]) {
-		const game = state.games[player];
-
-		if (state.dice.roll === 0 || this.value !== undefined) {
-			return;
-		}
-
-		if (game.getScore(state.dice, row, column) === undefined) {
-			return;
-		}
-
-		actions.play(player, row, column);
-		this.value = game.field(row, column);
+	play(row: CellAttrs["row"], column: CellAttrs["column"]) {
+		socket.send({ type: "move", row, column });
 	},
 
 	cellValue(
+		filled: boolean,
 		player: number,
 		row: CellAttrs["row"],
 		column: CellAttrs["column"],
 	) {
-		return this.value ?? state.games[player].getScore(state.dice, row, column);
+		const score = state.gameManager.getScore(player, row, column);
+
+		if (state.gameManager.currentPlayer !== player) {
+			return filled ? score : undefined;
+		}
+
+		return filled || state.gameManager.roll > 0 ? score : undefined;
 	},
 
 	view(vnode: m.Vnode<CellAttrs>) {
-		const { row, column, player } = vnode.attrs;
+		const { filled, row, column, player, active } = vnode.attrs;
+
+		const potentialScore = state.gameManager.getScore(player, row, column);
+		const canPlay = active && !filled;
+		const legalMove =
+			potentialScore !== undefined && state.gameManager.roll > 0;
+
 		return m("td", [
 			m(
 				"button.cell",
 				{
-					class: this.value !== undefined ? "filled" : "",
-					disabled: state.dice.roll === 0 || this.value !== undefined,
-					onclick: () => this.play(player, row, column),
+					class: classNames({
+						filled,
+						illegal: canPlay && !legalMove,
+						legal: canPlay && legalMove,
+					}),
+					disabled: !active || !legalMove,
+					onclick: () => this.play(row, column),
 				},
-				this.cellValue(player, row, column),
+				this.cellValue(filled, player, row, column),
 			),
 		]);
 	},
 };
 
-export const Yamb: m.Component<{ player: number }> = {
-	view(vnode) {
-		const { player } = vnode.attrs;
-		const game = state.games[player];
+export const Yamb = {
+	view(vnode: m.Vnode<YambAttrs>) {
+		const { player, active } = vnode.attrs;
+		const { rowNames, columnNames } = state.gameManager;
 
-		return m("table.yamb", [
+		return m("table.yamb", { class: classNames({ active }) }, [
 			m("thead", [
 				m("tr", [
 					m("th", state.players[player].name),
-					game.columnNames.map(col => m("th", [col])),
+					columnNames.map(col => m("th", [col])),
 				]),
 			]),
 
 			m("tbody", [
-				game.rowNames.map(row =>
+				rowNames.map(row =>
 					m("tr", [
 						m("td", row),
-						...game.columnNames.map(column => m(Cell, { row, column, player })),
+						...columnNames.map(column =>
+							m(Cell, {
+								filled: state.gameManager.filled(player, row, column),
+								row,
+								column,
+								player,
+								active,
+							}),
+						),
 					]),
 				),
 			]),

@@ -3,8 +3,6 @@ import { SocketMetadata } from "common/ws";
 import * as socket from "../socket";
 import { actions } from "../state";
 
-socket.open();
-
 interface State {
 	name: string;
 	nameTaken: boolean;
@@ -67,6 +65,8 @@ const Members = {
 
 export const Lobby = {
 	oninit() {
+		socket.open();
+
 		socket.onMessage(message => {
 			switch (message.type) {
 				case "members":

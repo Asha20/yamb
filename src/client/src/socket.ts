@@ -7,6 +7,7 @@ export function send(msg: ClientMessage) {
 		throw new Error("Socket not ready");
 	}
 
+	console.log("Sending %o", msg);
 	socket.send(JSON.stringify(msg));
 }
 
@@ -15,6 +16,10 @@ export function open() {
 		.replace(location.protocol, "ws:")
 		.replace(location.port, "3001");
 	socket = new WebSocket(wsUrl);
+
+	onMessage(msg => {
+		console.log("Received: %o", msg);
+	});
 }
 
 export function get() {

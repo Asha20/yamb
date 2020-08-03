@@ -11,33 +11,27 @@ interface Column<T extends string> {
 	score(context: DiceContext): number | undefined;
 }
 
+type Name<
+	T extends readonly Row<string>[] | Column<string>[]
+> = T[number]["name"];
+
 export interface Yamb<
-	TRows extends readonly Row<string>[],
-	TColumns extends readonly Column<string>[]
+	TRows extends readonly Row<string>[] = readonly Row<string>[],
+	TColumns extends readonly Column<string>[] = readonly Column<string>[]
 > {
-	readonly rowNames: Readonly<Array<TRows[number]["name"]>>;
-	readonly columnNames: Readonly<Array<TColumns[number]["name"]>>;
+	readonly rowNames: Readonly<Name<TRows>[]>;
+	readonly columnNames: Readonly<Name<TColumns>[]>;
 	active: boolean;
 	score: number;
-	canPlay(
-		dice: DiceContext,
-		row: TRows[number]["name"],
-		column: TColumns[number]["name"],
-	): boolean;
-	play(
-		dice: DiceContext,
-		row: TRows[number]["name"],
-		column: TColumns[number]["name"],
-	): void;
+	canPlay(dice: DiceContext, row: Name<TRows>, column: Name<TColumns>): boolean;
+	play(dice: DiceContext, row: Name<TRows>, column: Name<TColumns>): void;
 	getScore(
 		dice: DiceContext,
-		row: TRows[number]["name"],
-		column: TColumns[number]["name"],
+		row: Name<TRows>,
+		column: Name<TColumns>,
 	): number | undefined;
-	field(
-		row: TRows[number]["name"],
-		column: TColumns[number]["name"],
-	): number | undefined;
+	filled(row: Name<TRows>, column: Name<TColumns>): boolean;
+	field(row: Name<TRows>, column: Name<TColumns>): number | undefined;
 }
 
 function findDie(
@@ -175,6 +169,10 @@ function yamb<
 	const rowNames = Object.freeze(rows.map(x => x.name));
 	const columnNames = Object.freeze(columns.map(x => x.name));
 
+	const cellFilled = array(rows.length, () =>
+		array(columns.length, () => false),
+	);
+
 	const matrix: (number | undefined)[][] = array(rows.length, () =>
 		array(columns.length, () => undefined),
 	);
@@ -191,10 +189,6 @@ function yamb<
 	}
 
 	function getScore(dice: Dice, row: RowName, column: ColName) {
-		if (dice.roll === 0) {
-			return undefined;
-		}
-
 		const [rowIndex, columnIndex] = getField(row, column);
 
 		if (matrix[rowIndex][columnIndex] !== undefined) {
@@ -214,8 +208,13 @@ function yamb<
 		return matrix[rowIndex][columnIndex];
 	}
 
+	function filled(row: RowName, column: ColName) {
+		const [rowIndex, columnIndex] = getField(row, column);
+		return cellFilled[rowIndex][columnIndex];
+	}
+
 	function canPlay(dice: Dice, row: RowName, column: ColName) {
-		return getScore(dice, row, column) !== undefined;
+		return !filled(row, column) && getScore(dice, row, column) !== undefined;
 	}
 
 	function play(dice: Dice, row: RowName, column: ColName) {
@@ -226,6 +225,7 @@ function yamb<
 		const score = getScore(dice, row, column)!;
 		const [rowIndex, columnIndex] = getField(row, column);
 		matrix[rowIndex][columnIndex] = score;
+		cellFilled[rowIndex][columnIndex] = true;
 		turnsLeft -= 1;
 	}
 
@@ -235,6 +235,7 @@ function yamb<
 		canPlay,
 		play,
 		field,
+		filled,
 		getScore,
 		get active() {
 			return turnsLeft > 0;

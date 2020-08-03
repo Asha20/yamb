@@ -1,33 +1,41 @@
 import m from "mithril";
-import { state, actions } from "../state";
+import { state } from "../state";
+import * as socket from "../socket";
 
 const diceLook = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
 export const Dice = {
+	oninit() {
+		socket.onMessage(msg => {
+			switch (msg.type) {
+				case "toggleFreezeResponse":
+					state.gameManager.toggleFreeze(msg.index);
+					break;
+				case "rollDiceResponse":
+					state.gameManager.loadDice(msg.dice);
+					break;
+			}
+			m.redraw();
+		});
+	},
+
 	onDieClick(index: number) {
-		if (state.dice.roll > 0) {
-			actions.toggleFreeze(index);
-		}
+		socket.send({ type: "toggleFreeze", index });
 	},
 
 	rollDice() {
-		const allFrozen = state.dice.frozen.every(isFrozen => isFrozen);
-		if (allFrozen || state.dice.roll >= 3) {
-			return;
-		}
-
-		actions.rollDice();
+		socket.send({ type: "rollDice" });
 	},
 
 	view() {
 		return m("section.dice", [
 			m(
 				"div",
-				state.dice.values.map((die, i) =>
+				state.gameManager.diceValues.map((die, i) =>
 					m(
 						"button.die",
 						{
-							class: state.dice.frozen[i] ? "frozen" : "",
+							class: state.gameManager.frozen[i] ? "frozen" : "",
 							onclick: () => this.onDieClick(i),
 						},
 						diceLook[die - 1],
@@ -36,10 +44,10 @@ export const Dice = {
 			),
 			m(
 				"button",
-				{ disabled: state.dice.roll >= 3, onclick: this.rollDice },
+				{ disabled: state.gameManager.roll >= 3, onclick: this.rollDice },
 				"Roll dice",
 			),
-			"Roll: " + state.dice.roll,
+			"Roll: " + state.gameManager.roll,
 		]);
 	},
 };

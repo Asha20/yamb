@@ -18,22 +18,23 @@ export interface DiceContext {
 }
 
 export interface Dice extends DiceContext {
-	turn: number;
 	frozen: boolean[];
 	toggleFreeze(index: number): void;
+	loadDice(dice: DieSide[]): void;
 	rollDice(): void;
 	reset(): void;
 }
 
 export function dice(amount: number, players: number): Dice {
-	let turn = 0;
 	let roll = 0;
 
 	let values = array(amount, (): DieSide => 6);
 	let frozen = array(amount, () => false);
 
 	function toggleFreeze(index: number) {
-		frozen[index] = !frozen[index];
+		if (roll > 0) {
+			frozen[index] = !frozen[index];
+		}
 	}
 
 	function rollDice() {
@@ -45,18 +46,18 @@ export function dice(amount: number, players: number): Dice {
 		roll += 1;
 	}
 
+	function loadDice(dice: DieSide[]) {
+		values = dice;
+		roll += 1;
+	}
+
 	function reset() {
 		values = array(amount, () => 6);
 		frozen = array(amount, () => false);
 		roll = 0;
-		turn = (turn + 1) % players;
 	}
 
 	return {
-		get turn() {
-			return turn;
-		},
-
 		get roll() {
 			return roll;
 		},
@@ -78,6 +79,7 @@ export function dice(amount: number, players: number): Dice {
 		},
 
 		toggleFreeze,
+		loadDice,
 		rollDice,
 		reset,
 	};

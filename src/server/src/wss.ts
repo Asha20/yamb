@@ -1,9 +1,7 @@
 import * as WebSocket from "ws";
 import { nanoid } from "nanoid";
 import { ClientMessage, ServerMessage, SocketMetadata } from "common/ws";
-import { Yamb, create as yamb } from "common/yamb";
-import { Dice, dice } from "common/dice";
-import { array } from "common/util";
+import { GameManager, gameManager } from "common/gameManager";
 
 interface Room<T> {
 	members: T[];
@@ -15,18 +13,6 @@ interface SocketInfo {
 	id: string;
 	socket: WebSocket;
 	data: SocketMetadata;
-}
-
-interface Game {
-	yamb: Yamb<any, any>[];
-	dice: Dice;
-}
-
-function createGame(players: number): Game {
-	return {
-		yamb: array(players, yamb),
-		dice: dice(6, players),
-	};
 }
 
 function createRoom(): Room<SocketInfo> {
@@ -62,7 +48,7 @@ export function listen(port: number) {
 	const wss = new WebSocket.Server({ port });
 
 	const rooms = new Map<string, Room<SocketInfo>>();
-	const games = new Map<string, Game>();
+	const games = new Map<string, GameManager>();
 
 	const lobbyRegex = /^\/lobby\/(\d+)$/;
 
@@ -93,6 +79,14 @@ export function listen(port: number) {
 				members: room.members.map(x => x.data),
 			});
 
+			function manager() {
+				if (!games.has(roomId)) {
+					throw new Error("Missing game");
+				}
+
+				return games.get(roomId)!;
+			}
+
 			ws.on("message", data => {
 				const message = JSON.parse(data.toString()) as ClientMessage;
 				switch (message.type) {
@@ -108,17 +102,41 @@ export function listen(port: number) {
 							});
 							self.data.name = message.name;
 						}
+						broadcast(wss, {
+							type: "members",
+							members: room.members.map(x => x.data),
+						});
 						break;
 					case "startGame":
 						broadcast(wss, { type: "gameStarted" });
-						games.set(roomId, createGame(room.members.length));
+						games.set(roomId, gameManager(room.members.length));
 						break;
+					case "toggleFreeze":
+						manager().toggleFreeze(message.index);
+						broadcast(wss, {
+							type: "toggleFreezeResponse",
+							index: message.index,
+						});
+						break;
+					case "rollDice":
+						manager().rollDice();
+						broadcast(wss, {
+							type: "rollDiceResponse",
+							roll: manager().roll,
+							dice: manager().diceValues,
+						});
+						break;
+					case "move":
+						const { row, column } = message;
+						const player = manager().currentPlayer;
+						manager().play(0, row, column); // TODO: Check for throw
+						broadcast(wss, {
+							type: "moveResponse",
+							player,
+							row,
+							column,
+						});
 				}
-
-				broadcast(wss, {
-					type: "members",
-					members: room.members.map(x => x.data),
-				});
 			});
 
 			ws.on("close", () => {
