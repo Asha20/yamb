@@ -23,7 +23,7 @@ export const Game = {
 		socket.onMessage(msg => {
 			switch (msg.type) {
 				case "moveResponse":
-					state.gameManager.play(msg.player, msg.row, msg.column);
+					state.gameManager.play(msg.row, msg.column);
 					break;
 			}
 			m.redraw();

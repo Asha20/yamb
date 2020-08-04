@@ -2,17 +2,18 @@ import m from "mithril";
 import { state } from "../state";
 import * as socket from "../socket";
 import { classNames } from "common/util";
+import { Player } from "common/ws";
 
 interface CellAttrs {
 	filled: boolean;
-	player: number;
+	player: Player;
 	row: string;
 	column: string;
 	active: boolean;
 }
 
 interface YambAttrs {
-	player: number;
+	player: Player;
 	active: boolean;
 }
 
@@ -23,16 +24,11 @@ const Cell = {
 
 	cellValue(
 		filled: boolean,
-		player: number,
+		player: Player,
 		row: CellAttrs["row"],
 		column: CellAttrs["column"],
 	) {
 		const score = state.gameManager.getScore(player, row, column);
-
-		if (state.gameManager.currentPlayer !== player) {
-			return filled ? score : undefined;
-		}
-
 		return filled || state.gameManager.roll > 0 ? score : undefined;
 	},
 

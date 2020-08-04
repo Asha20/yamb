@@ -1,6 +1,7 @@
 import { DieSide } from "./dice";
 
 export interface Player {
+	id: string;
 	name: string;
 	owner: boolean;
 }
@@ -17,6 +18,6 @@ export type ServerMessage =
 	| { type: "nameResponse"; available: false }
 	| { type: "nameResponse"; available: true; name: string; owner: boolean }
 	| { type: "gameStarted" }
-	| { type: "moveResponse"; player: number; row: string; column: string }
+	| { type: "moveResponse"; player: Player; row: string; column: string }
 	| { type: "toggleFreezeResponse"; index: number }
 	| { type: "rollDiceResponse"; roll: number; dice: DieSide[] };

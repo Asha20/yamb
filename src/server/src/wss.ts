@@ -54,10 +54,12 @@ export function listen(port: number) {
 
 	wss.on("connection", (ws, req) => {
 		console.log("Got a connection:", req.url);
+		const id = nanoid(10);
 		const self: SocketInfo = {
-			id: nanoid(10),
+			id,
 			socket: ws,
 			data: {
+				id,
 				name: "",
 				owner: false,
 			},
@@ -109,7 +111,7 @@ export function listen(port: number) {
 						break;
 					case "startGame":
 						broadcast(wss, { type: "gameStarted" });
-						games.set(roomId, gameManager(room.members.length));
+						games.set(roomId, gameManager(room.members.map(x => x.data)));
 						break;
 					case "toggleFreeze":
 						manager().toggleFreeze(message.index);
@@ -129,7 +131,7 @@ export function listen(port: number) {
 					case "move":
 						const { row, column } = message;
 						const player = manager().currentPlayer;
-						manager().play(0, row, column); // TODO: Check for throw
+						manager().play(row, column); // TODO: Check for throw
 						broadcast(wss, {
 							type: "moveResponse",
 							player,

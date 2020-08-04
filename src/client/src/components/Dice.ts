@@ -45,7 +45,10 @@ export const Dice = {
 			m("span.dice__roll", "Roll: " + state.gameManager.roll),
 			m(
 				"button.dice__roll-dice",
-				{ disabled: state.gameManager.roll >= 3, onclick: this.rollDice },
+				{
+					disabled: !state.ownTurn || state.gameManager.roll >= 3,
+					onclick: this.rollDice,
+				},
 				"Roll dice",
 			),
 		]);

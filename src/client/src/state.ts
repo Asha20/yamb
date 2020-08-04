@@ -5,12 +5,17 @@ interface State {
 	self: Player;
 	gameManager: GameManager;
 	players: Player[];
+	ownTurn: boolean;
 }
 
 const initialState = (): State => ({
-	self: { name: "", owner: false },
+	self: { id: "", name: "", owner: false },
 	players: [],
-	gameManager: gameManager(0),
+	gameManager: gameManager([]),
+
+	get ownTurn() {
+		return this.self.name === this.gameManager.currentPlayer.name;
+	},
 });
 
 export const state = initialState();
@@ -18,6 +23,6 @@ export const state = initialState();
 export const actions = {
 	startGame(players: Player[]) {
 		state.players = players;
-		state.gameManager = gameManager(players.length);
+		state.gameManager = gameManager(players);
 	},
 };

@@ -5,7 +5,7 @@ import { state } from "../state";
 type PlayerListAttrs =
 	| {
 			players: Player[];
-			currentPlayer: number;
+			currentPlayer: Player;
 			gameStarted: true;
 	  }
 	| {
@@ -14,7 +14,7 @@ type PlayerListAttrs =
 	  };
 
 export const PlayerList = {
-	playerName(attrs: PlayerListAttrs, player: Player, index: number) {
+	playerName(attrs: PlayerListAttrs, player: Player) {
 		let name = player.name;
 		if (player.name === state.self.name) {
 			name += " (you)";
@@ -24,7 +24,7 @@ export const PlayerList = {
 			name += " (owner)";
 		}
 
-		if (attrs.gameStarted && index === attrs.currentPlayer) {
+		if (attrs.gameStarted && player.name === attrs.currentPlayer.name) {
 			name += " (playing)";
 		}
 
@@ -36,8 +36,8 @@ export const PlayerList = {
 			m("h2", "Players"),
 			m(
 				"ul.players__ul",
-				vnode.attrs.players.map((player, i) =>
-					m("li", this.playerName(vnode.attrs, player, i)),
+				vnode.attrs.players.map(player =>
+					m("li", this.playerName(vnode.attrs, player)),
 				),
 			),
 		]);
