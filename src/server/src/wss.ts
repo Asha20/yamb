@@ -1,7 +1,7 @@
 import * as WebSocket from "ws";
 import { nanoid } from "nanoid";
-import { ClientMessage, ServerMessage, Player } from "common/ws";
-import { GameManager, gameManager } from "common/gameManager";
+import { ClientMessage, ServerMessage } from "common/ws";
+import { GameManager, gameManager, Player } from "common/gameManager";
 
 interface Room<T> {
 	members: T[];

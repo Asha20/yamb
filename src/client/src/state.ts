@@ -1,5 +1,5 @@
 import { GameManager, gameManager } from "common/gameManager";
-import { Player } from "common/ws";
+import { Player } from "common/gameManager";
 
 interface State {
 	self: Player;

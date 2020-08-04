@@ -1,5 +1,5 @@
 import m from "mithril";
-import { Player } from "common/ws";
+import { Player } from "common/gameManager";
 import { state } from "../state";
 
 type PlayerListAttrs =

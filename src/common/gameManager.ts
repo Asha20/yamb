@@ -1,6 +1,11 @@
 import { create as createYamb, Yamb } from "./yamb";
 import { dice as createDice } from "./dice";
-import { Player } from "./ws";
+
+export interface Player {
+	id: string;
+	name: string;
+	owner: boolean;
+}
 
 export function gameManager(players: Player[]) {
 	let currentPlayer = 0;

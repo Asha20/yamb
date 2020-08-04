@@ -2,7 +2,7 @@ import m from "mithril";
 import { state } from "../state";
 import * as socket from "../socket";
 import { classNames } from "common/util";
-import { Player } from "common/ws";
+import { Player } from "common/gameManager";
 
 interface CellAttrs {
 	filled: boolean;

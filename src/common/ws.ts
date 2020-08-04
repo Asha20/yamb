@@ -1,10 +1,5 @@
 import { DieSide } from "./dice";
-
-export interface Player {
-	id: string;
-	name: string;
-	owner: boolean;
-}
+import { Player } from "./gameManager";
 
 export type ClientMessage =
 	| { type: "setName"; name: string }
