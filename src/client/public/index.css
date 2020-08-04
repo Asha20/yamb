@@ -4,7 +4,6 @@
 
   --color-illegal: rosybrown;
   --color-legal: limegreen;
-  --color-frozen: var(--color-secondary);
 
   --color-light-gray: rgb(133, 133, 133);
   --color-gray: rgb(95, 95, 95);
@@ -106,14 +105,6 @@ aside {
   border: none;
   background: none;
   font-size: 3em;
-  color: var(--color-light-gray);
-}
-
-.dice__die:hover,
-.dice__die:focus {
-  cursor: pointer;
-  color: var(--color-gray);
-  transform: scale(1.2);
 }
 
 .dice__roll {
@@ -129,6 +120,26 @@ aside {
   padding: 10px
 }
 
-.frozen {
-  color: var(--color-frozen);
+.dice__die:not(.frozen) {
+  color: var(--color-light-gray);
+}
+
+.dice__die:not(.frozen):hover,
+.dice__die:not(.frozen):focus {
+  color: var(--color-gray);
+}
+
+.dice__die.frozen {
+  color: var(--color-secondary);
+}
+
+.dice__die.frozen:hover,
+.dice__die.frozen:focus {
+  color: var(--color-primary);
+}
+
+.dice__die:hover,
+.dice__die:focus {
+  cursor: pointer;
+  transform: scale(1.2);
 }
