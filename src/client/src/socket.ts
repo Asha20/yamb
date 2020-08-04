@@ -1,4 +1,4 @@
-import { ClientMessage, ServerMessage } from "common/ws";
+import { ClientMessage, ServerMessage } from "common";
 
 let socket: WebSocket | undefined;
 

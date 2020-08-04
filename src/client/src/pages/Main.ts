@@ -1,5 +1,5 @@
 import m from "mithril";
-import * as API from "common/api";
+import { API } from "common";
 
 export const Main = {
 	createGame() {

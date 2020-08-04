@@ -1,5 +1,4 @@
-import { GameManager, gameManager } from "common/gameManager";
-import { Player } from "common/gameManager";
+import { GameManager, gameManager, Player } from "common";
 
 interface State {
 	self: Player;

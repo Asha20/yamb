@@ -1,5 +1,5 @@
 import * as express from "express";
-import * as API from "common/api";
+import { API } from "common";
 
 export const router = express.Router();
 
