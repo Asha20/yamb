@@ -1,28 +1,18 @@
 import m from "mithril";
 import { Yamb } from "../components/Yamb";
 import { Dice } from "../components/Dice";
+import { PlayerList } from "../components/PlayerList";
 import { state } from "../state";
-import { array } from "common/util";
 import * as socket from "../socket";
 
 const Aside = {
 	view() {
 		return m("aside", [
-			m("section.players", [
-				m("h2", "Players"),
-				m(
-					"ul.players__ul",
-					state.players.map((player, i) =>
-						m(
-							"li",
-							i === state.gameManager.currentPlayer
-								? player.name + " (playing)"
-								: player.name,
-						),
-					),
-				),
-			]),
-
+			m(PlayerList, {
+				players: state.players,
+				currentPlayer: state.gameManager.currentPlayer,
+				gameStarted: true,
+			}),
 			m(Dice),
 		]);
 	},

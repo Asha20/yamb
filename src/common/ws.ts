@@ -1,6 +1,6 @@
 import { DieSide } from "./dice";
 
-export interface SocketMetadata {
+export interface Player {
 	name: string;
 	owner: boolean;
 }
@@ -13,7 +13,7 @@ export type ClientMessage =
 	| { type: "rollDice" };
 
 export type ServerMessage =
-	| { type: "members"; members: SocketMetadata[] }
+	| { type: "members"; members: Player[] }
 	| { type: "nameResponse"; available: false }
 	| { type: "nameResponse"; available: true; name: string; owner: boolean }
 	| { type: "gameStarted" }

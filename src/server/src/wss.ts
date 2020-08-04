@@ -1,6 +1,6 @@
 import * as WebSocket from "ws";
 import { nanoid } from "nanoid";
-import { ClientMessage, ServerMessage, SocketMetadata } from "common/ws";
+import { ClientMessage, ServerMessage, Player } from "common/ws";
 import { GameManager, gameManager } from "common/gameManager";
 
 interface Room<T> {
@@ -12,7 +12,7 @@ interface Room<T> {
 interface SocketInfo {
 	id: string;
 	socket: WebSocket;
-	data: SocketMetadata;
+	data: Player;
 }
 
 function createRoom(): Room<SocketInfo> {
