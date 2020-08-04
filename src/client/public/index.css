@@ -1,3 +1,23 @@
+:root {
+  --color-primary: rgb(59, 177, 255);
+  --color-secondary: rgb(129, 205, 255);
+
+  --color-illegal: rosybrown;
+  --color-legal: limegreen;
+  --color-frozen: var(--color-secondary);
+
+  --color-light-gray: rgb(133, 133, 133);
+  --color-gray: rgb(95, 95, 95);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 24px;
+}
+
 .cell {
   width: 3em;
   height: 2em;
@@ -10,25 +30,105 @@
   width: 100px;
 }
 
-
-.die {
-  border: none;
-  background: none;
-  font-size: 3em;
+.yamb {
+  table-layout: fixed;
+  flex: 1;
+  /* For some reason, height: 100% makes the table overflow. */
+  height: 100vh;
+  border-collapse: collapse;
 }
 
-.frozen {
-  color: brown;
+.yamb th, .yamb td {
+  border: 3px solid var(--color-primary);
+  text-align: center;
+  padding: 0;
+}
+
+.yamb th {
+  background-color: var(--color-secondary);
+}
+
+.cell {
+  border: none;
+  background: none;
+  width: 100%;
+  height: 100%;
+}
+
+.game {
+  width: 100%;
+  height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.rows {
+  width: 30%;
+}
+
+.columns {
+  width: 70%;
 }
 
 .legal {
-  background-color: limegreen;
+  /* background-color: var(--color-legal); */
+  opacity: 0.4;
+}
+
+.legal:hover, .legal:focus {
+  opacity: 1;
+  cursor: pointer;
 }
 
 .illegal {
-  background-color: rosybrown;
+  /* background-color: var(--color-illegal) */
 }
 
-.yamb.active {
-  border: 2px solid black;
+aside {
+  display: flex;
+  padding: 0px 1em;
+  flex-direction: column;
+  height: 100%;
+}
+
+.players__player {
+  flex: 1;
+}
+
+/* Dice */
+
+.dice__container {
+  display: flex;
+  justify-content: space-around;
+}
+
+.dice__die {
+  border: none;
+  background: none;
+  font-size: 3em;
+  color: var(--color-light-gray);
+}
+
+.dice__die:hover,
+.dice__die:focus {
+  cursor: pointer;
+  color: var(--color-gray);
+  transform: scale(1.2);
+}
+
+.dice__roll {
+  display: block;
+  text-align: center;
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+
+.dice__roll-dice {
+  display: block;
+  margin: 0 auto;
+  padding: 10px
+}
+
+.frozen {
+  color: var(--color-frozen);
 }

@@ -68,17 +68,17 @@ export const Yamb = {
 		const { rowNames, columnNames } = state.gameManager;
 
 		return m("table.yamb", { class: classNames({ active }) }, [
-			m("thead", [
-				m("tr", [
-					m("th", state.players[player].name),
-					columnNames.map(col => m("th", [col])),
-				]),
+			m("colgroup", [
+				m("col.rows"),
+				m("col.columns", { span: columnNames.length }),
 			]),
+
+			m("thead", [m("tr", [m("th"), columnNames.map(col => m("th", [col]))])]),
 
 			m("tbody", [
 				rowNames.map(row =>
 					m("tr", [
-						m("td", row),
+						m("th", row),
 						...columnNames.map(column =>
 							m(Cell, {
 								filled: state.gameManager.filled(player, row, column),

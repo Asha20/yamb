@@ -31,7 +31,13 @@ module.exports = {
 			},
 		],
 	},
-	plugins: [new HtmlWebpackPlugin(), new MiniCssExtractPlugin()],
+	plugins: [
+		new HtmlWebpackPlugin({
+			title: "Yamb",
+			template: "public/index.html",
+		}),
+		new MiniCssExtractPlugin(),
+	],
 
 	stats: "minimal",
 	devServer: {

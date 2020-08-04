@@ -30,10 +30,10 @@ export const Dice = {
 	view() {
 		return m("section.dice", [
 			m(
-				"div",
+				"div.dice__container",
 				state.gameManager.diceValues.map((die, i) =>
 					m(
-						"button.die",
+						"button.dice__die",
 						{
 							class: state.gameManager.frozen[i] ? "frozen" : "",
 							onclick: () => this.onDieClick(i),
@@ -42,12 +42,12 @@ export const Dice = {
 					),
 				),
 			),
+			m("span.dice__roll", "Roll: " + state.gameManager.roll),
 			m(
-				"button",
+				"button.dice__roll-dice",
 				{ disabled: state.gameManager.roll >= 3, onclick: this.rollDice },
 				"Roll dice",
 			),
-			"Roll: " + state.gameManager.roll,
 		]);
 	},
 };

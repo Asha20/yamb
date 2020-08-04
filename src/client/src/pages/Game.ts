@@ -5,6 +5,29 @@ import { state } from "../state";
 import { array } from "common/util";
 import * as socket from "../socket";
 
+const Aside = {
+	view() {
+		return m("aside", [
+			m("section.players", [
+				m("h2", "Players"),
+				m(
+					"ul.players__ul",
+					state.players.map((player, i) =>
+						m(
+							"li",
+							i === state.gameManager.currentPlayer
+								? player.name + " (playing)"
+								: player.name,
+						),
+					),
+				),
+			]),
+
+			m(Dice),
+		]);
+	},
+};
+
 export const Game = {
 	oninit() {
 		socket.onMessage(msg => {
@@ -18,12 +41,9 @@ export const Game = {
 	},
 
 	view() {
-		return [
-			...array(state.gameManager.players, id =>
-				m(Yamb, { player: id, active: state.gameManager.currentPlayer === id }),
-			),
-			m(Dice),
-			m("button", { onclick: () => m.redraw() }, "Redraw"),
-		];
+		return m(".game", [
+			m(Yamb, { player: state.gameManager.currentPlayer, active: true }),
+			m(Aside),
+		]);
 	},
 };
