@@ -9,6 +9,7 @@
     "client:watch": "webpack --config src/client/webpack.config.js --mode development -d --watch",
     "client:build": "webpack --config src/client/webpack.config.js --mode production",
     "server:start": "npm run server:build && node src/server/dist/server.js",
+    "server:debug": "webpack --config src/server/webpack.config.js --mode development",
     "server:build": "webpack --config src/server/webpack.config.js --mode production",
     "server:watch": "ts-node-dev -r module-alias/register --no-notify --transpile-only src/server/src/server.ts"
   },

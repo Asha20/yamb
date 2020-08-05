@@ -2,6 +2,9 @@ const path = require("path");
 const nodeExternals = require("webpack-node-externals");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
+function root(...pathNames) {
+	return path.resolve(PROJECT_ROOT, ...pathNames);
+}
 
 module.exports = {
 	target: "node",
@@ -9,16 +12,18 @@ module.exports = {
 		__dirname: false,
 		__filename: false,
 	},
+	devtool: "source-map",
 	context: path.resolve(__dirname),
 	entry: "./src/server.ts",
 	output: {
 		path: path.resolve(__dirname, "dist"),
 		filename: "server.js",
+		devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
 	},
 	resolve: {
 		extensions: [".js", ".ts"],
 		alias: {
-			common: path.resolve(PROJECT_ROOT, "src/common"),
+			common: root("src/common"),
 		},
 	},
 	module: {
