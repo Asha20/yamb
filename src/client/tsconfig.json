@@ -1,16 +1,6 @@
 {
-  "compilerOptions": {
-    "target": "es2015",
-    "strict": true,
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": "..",
-    "paths": {
-      "common/*": ["common/*"]
-    }
-  },
+  "extends": "../../tsconfig.json",
   "include": [
-    "src/**/*"
+    "src/"
   ]
 }

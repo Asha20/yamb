@@ -1,17 +1,7 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2015",
-    "module": "commonjs",
-    "lib": [],
-    "strict": true,
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "baseUrl": "..",
-    "paths": {
-      "common/*": ["common/*"]
-    },
-    "types": []
+    "module": "commonjs"
   },
   "include": [
     "src/"

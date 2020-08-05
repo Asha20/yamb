@@ -1,9 +1,0 @@
-{
-  "version": "2.0.0",
-  "tasks": [{
-      "label": "debug-server",
-      "command": "npm",
-      "args": ["run", "server:debug"],
-      "type": "shell"
-  }]
-}
