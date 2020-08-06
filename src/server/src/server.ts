@@ -21,8 +21,12 @@ app.get("/lobby/:id", mithrilRoute);
 app.get("/game/:id", mithrilRoute);
 app.use("/api", apiRouter);
 
-app.listen(3000, () => {
-	console.log("Listening");
+const EXPRESS_PORT = 3000;
+const WS_PORT = 3001;
+
+app.listen(EXPRESS_PORT, () => {
+	console.log("Express server open on port:", EXPRESS_PORT);
 });
 
-wss.listen(3001);
+wss.listen(WS_PORT);
+console.log("WebSocket server open on port:", WS_PORT);

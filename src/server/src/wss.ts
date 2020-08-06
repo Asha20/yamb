@@ -1,158 +1,89 @@
 import * as WebSocket from "ws";
-import { nanoid } from "nanoid";
-import {
-	ClientMessage,
-	ServerMessage,
-	GameManager,
-	gameManager,
-	Player,
-} from "common";
-
-interface Room<T> {
-	members: T[];
-	addMember(member: T): void;
-	removeMember(member: T): void;
-}
-
-interface SocketInfo {
-	id: string;
-	socket: WebSocket;
-	data: Player;
-}
-
-function createRoom(): Room<SocketInfo> {
-	const members: SocketInfo[] = [];
-
-	function addMember(member: SocketInfo) {
-		members.push(member);
-	}
-
-	function removeMember(member: SocketInfo) {
-		const index = members.findIndex(x => x.id === member.id);
-		members.splice(index, 1);
-	}
-
-	return {
-		members,
-		addMember,
-		removeMember,
-	};
-}
-
-function sendMessage(client: WebSocket, msg: ServerMessage) {
-	if (client.readyState === WebSocket.OPEN) {
-		client.send(JSON.stringify(msg));
-	}
-}
-
-function broadcast(wss: WebSocket.Server, msg: ServerMessage) {
-	wss.clients.forEach(ws => sendMessage(ws, msg));
-}
+import { gameManager, GameManager } from "common";
+import { Room, RoomManager } from "./roomManager";
 
 export function listen(port: number) {
 	const wss = new WebSocket.Server({ port });
 
-	const rooms = new Map<string, Room<SocketInfo>>();
-	const games = new Map<string, GameManager>();
+	const games = new Map<Room, GameManager>();
 
-	const lobbyRegex = /^\/lobby\/(\d+)$/;
+	const roomManager = new RoomManager(wss, url => {
+		const lobbyRegex = /^\/lobby\/(\d+)$/;
+		const lobbyMatch = url.match(lobbyRegex);
+		return lobbyMatch && lobbyMatch[1];
+	});
 
-	wss.on("connection", (ws, req) => {
-		console.log("Got a connection:", req.url);
-		const id = nanoid(10);
-		const self: SocketInfo = {
-			id,
-			socket: ws,
-			data: {
-				id,
-				name: "",
-				owner: false,
-			},
-		};
-
-		const lobbyMatch = req.url?.match(lobbyRegex);
-		if (lobbyMatch) {
-			const roomId = lobbyMatch[1];
-
-			const room = rooms.get(roomId) ?? createRoom();
-			rooms.set(roomId, room);
-			room.addMember(self);
-
-			const isOwner = room.members.length === 1;
-			self.data.owner = isOwner;
-
-			broadcast(wss, {
-				type: "members",
-				members: room.members.map(x => x.data),
-			});
-
-			function manager() {
-				if (!games.has(roomId)) {
-					throw new Error("Missing game");
-				}
-
-				return games.get(roomId)!;
-			}
-
-			ws.on("message", data => {
-				const message = JSON.parse(data.toString()) as ClientMessage;
-				switch (message.type) {
-					case "setName":
-						if (room.members.some(x => x.data.name === message.name)) {
-							sendMessage(ws, { type: "nameResponse", available: false });
-						} else {
-							sendMessage(ws, {
-								type: "nameResponse",
-								available: true,
-								name: message.name,
-								owner: isOwner,
-							});
-							self.data.name = message.name;
-						}
-						broadcast(wss, {
-							type: "members",
-							members: room.members.map(x => x.data),
-						});
-						break;
-					case "startGame":
-						broadcast(wss, { type: "gameStarted" });
-						games.set(roomId, gameManager(room.members.map(x => x.data)));
-						break;
-					case "toggleFreeze":
-						manager().toggleFreeze(message.index);
-						broadcast(wss, {
-							type: "toggleFreezeResponse",
-							index: message.index,
-						});
-						break;
-					case "rollDice":
-						manager().rollDice();
-						broadcast(wss, {
-							type: "rollDiceResponse",
-							roll: manager().roll,
-							dice: manager().diceValues,
-						});
-						break;
-					case "move":
-						const { row, column } = message;
-						const player = manager().currentPlayer;
-						manager().play(row, column); // TODO: Check for throw
-						broadcast(wss, {
-							type: "moveResponse",
-							player,
-							row,
-							column,
-						});
-				}
-			});
-
-			ws.on("close", () => {
-				rooms.get(roomId)?.removeMember(self);
-				broadcast(wss, {
-					type: "members",
-					members: room.members.map(x => x.data),
-				});
-			});
+	roomManager.onJoin(({ member, room, broadcast }) => {
+		console.log(`Player ${member.id} joined room ${room.id}`);
+		if (room.members.size === 1) {
+			member.player.owner = true;
 		}
+		broadcast({
+			type: "members",
+			members: room.players,
+		});
+	});
+
+	roomManager.onLeave(({ room, broadcast }) => {
+		broadcast({
+			type: "members",
+			members: room.players,
+		});
+	});
+
+	roomManager.onMessage({
+		setName({ msg, member, room, reply, broadcast }) {
+			if (room.players.some(x => x.name === msg.name)) {
+				reply({ type: "nameResponse", available: false });
+			} else {
+				member.player.name = msg.name;
+				reply({
+					type: "nameResponse",
+					available: true,
+					name: member.player.name,
+					owner: member.player.owner,
+				});
+			}
+			broadcast({
+				type: "members",
+				members: room.players,
+			});
+		},
+
+		startGame({ room, broadcast }) {
+			broadcast({ type: "gameStarted" });
+			games.set(room, gameManager(room.players));
+		},
+
+		toggleFreeze({ msg, room, broadcast }) {
+			games.get(room)?.toggleFreeze(msg.index);
+			broadcast({
+				type: "toggleFreezeResponse",
+				index: msg.index,
+			});
+		},
+
+		rollDice({ room, broadcast }) {
+			const game = games.get(room)!;
+			game.rollDice();
+			broadcast({
+				type: "rollDiceResponse",
+				roll: game.roll,
+				dice: game.diceValues,
+			});
+		},
+
+		move({ msg, room, broadcast }) {
+			const { row, column } = msg;
+			const game = games.get(room)!;
+			const player = game.currentPlayer;
+			game.play(row, column); // TODO: Check for throw
+			broadcast({
+				type: "moveResponse",
+				player,
+				row,
+				column,
+			});
+		},
 	});
 }
