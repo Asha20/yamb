@@ -37,6 +37,7 @@ type RoomJoinLeaveHandler = (params: OnJoinLeaveParams) => void;
 export interface Room {
 	id: string;
 	members: Set<SocketInfo>;
+	owner: Player | null;
 	players: Player[];
 }
 
@@ -64,8 +65,9 @@ export class RoomManager {
 		const room: Room = {
 			id,
 			members: new Set(),
+			owner: null,
 			get players() {
-				return [...this.members].map(x => x.player);
+				return [...this.members].map(x => x.player).filter(x => x.name);
 			},
 		};
 		if (createIfMissing) {
@@ -85,7 +87,7 @@ export class RoomManager {
 
 			const room = this.getRoom(roomId);
 
-			const id = nanoid(10);
+			const id = nanoid();
 			const socketInfo: SocketInfo = {
 				id,
 				socket: ws,

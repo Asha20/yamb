@@ -15,38 +15,29 @@ export function listen(port: number) {
 
 	roomManager.onJoin(({ member, room, broadcast }) => {
 		console.log(`Player ${member.id} joined room ${room.id}`);
-		if (room.members.size === 1) {
-			member.player.owner = true;
-		}
-		broadcast({
-			type: "members",
-			members: room.players,
-		});
+		broadcast({ type: "players", players: room.players });
 	});
 
 	roomManager.onLeave(({ room, broadcast }) => {
-		broadcast({
-			type: "members",
-			members: room.players,
-		});
+		broadcast({ type: "players", players: room.players });
 	});
 
 	roomManager.onMessage({
 		setName({ msg, member, room, reply, broadcast }) {
 			if (room.players.some(x => x.name === msg.name)) {
 				reply({ type: "nameResponse", available: false });
-			} else {
-				member.player.name = msg.name;
-				reply({
-					type: "nameResponse",
-					available: true,
-					player: member.player,
-				});
+				return;
 			}
-			broadcast({
-				type: "members",
-				members: room.players,
-			});
+
+			if (!room.owner) {
+				room.owner = member.player;
+				member.player.owner = true;
+			}
+
+			member.player.name = msg.name;
+			reply({ type: "nameResponse", available: true, player: member.player });
+
+			broadcast({ type: "players", players: room.players });
 		},
 
 		startGame({ msg, room, broadcast }) {
@@ -60,10 +51,7 @@ export function listen(port: number) {
 		toggleFreeze({ msg, room, broadcast }) {
 			if (games.get(room)?.currentPlayer.id === msg.sender) {
 				games.get(room)?.toggleFreeze(msg.index);
-				broadcast({
-					type: "toggleFreezeResponse",
-					index: msg.index,
-				});
+				broadcast({ type: "toggleFreezeResponse", index: msg.index });
 			}
 		},
 
@@ -92,12 +80,7 @@ export function listen(port: number) {
 			}
 
 			game.play(row, column); // TODO: Check for throw
-			broadcast({
-				type: "moveResponse",
-				player,
-				row,
-				column,
-			});
+			broadcast({ type: "moveResponse", player, row, column });
 		},
 	});
 }

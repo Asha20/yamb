@@ -41,8 +41,8 @@ export const Lobby = {
 
 		socket.onMessage(message => {
 			switch (message.type) {
-				case "members":
-					state.players = message.members;
+				case "players":
+					state.players = message.players;
 					break;
 				case "nameResponse":
 					this.nameTaken = !message.available;

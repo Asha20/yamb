@@ -24,7 +24,7 @@ export type ClientMessage =
 	| RollDice;
 
 export type ServerMessage =
-	| { type: "members"; members: Player[] }
+	| { type: "players"; players: Player[] }
 	| { type: "nameResponse"; available: false }
 	| { type: "nameResponse"; available: true; player: Player }
 	| { type: "gameStarted" }

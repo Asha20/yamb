@@ -4,6 +4,7 @@ import { Main } from "./pages/Main";
 import { Lobby } from "./pages/Lobby";
 import { Game } from "./pages/Game";
 import { state } from "./state";
+import { send } from "./socket";
 
 m.route.prefix = "";
 m.route(document.body, "/", {
@@ -13,3 +14,4 @@ m.route(document.body, "/", {
 });
 
 (window as any).state = state;
+(window as any).send = send;
