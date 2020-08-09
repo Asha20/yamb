@@ -1,6 +1,7 @@
 import * as WebSocket from "ws";
-import { ClientMessage, ServerMessage, Player } from "common";
 import { nanoid } from "nanoid";
+import { ClientMessage, ServerMessage, Player, jsonParse } from "common";
+import { isClientMessage } from "./validate";
 
 interface SocketInfo {
 	id: string;
@@ -18,14 +19,18 @@ type OnMessageParams<T extends ClientMessage> = {
 
 type OnJoinLeaveParams = Omit<OnMessageParams<any>, "msg">;
 
-type MessageHandler<T extends ClientMessage> = (
+type MessageHandlerFunction<T extends ClientMessage> = (
 	params: OnMessageParams<T>,
 ) => void;
 type MessageHandlerObject = {
-	[P in ClientMessage["type"]]?: MessageHandler<
+	[P in ClientMessage["type"]]?: MessageHandlerFunction<
 		Extract<ClientMessage, { type: P }>
 	>;
 };
+
+type MessageHandler =
+	| MessageHandlerFunction<ClientMessage>
+	| MessageHandlerObject;
 
 type RoomJoinLeaveHandler = (params: OnJoinLeaveParams) => void;
 
@@ -48,7 +53,7 @@ export class RoomManager {
 	handlers = {
 		join: [] as Array<RoomJoinLeaveHandler>,
 		leave: [] as Array<RoomJoinLeaveHandler>,
-		message: [] as MessageHandlerObject[],
+		message: [] as MessageHandler[],
 	};
 
 	private getRoom(id: string, createIfMissing = true) {
@@ -101,9 +106,18 @@ export class RoomManager {
 			this.handlers.join.forEach(handler => handler(params));
 
 			ws.on("message", data => {
-				const msg = JSON.parse(data.toString()) as ClientMessage;
+				const msg = jsonParse(data.toString(), {}) as ClientMessage;
+
+				if (!isClientMessage(msg)) {
+					return;
+				}
+
 				this.handlers.message.forEach(handler => {
-					handler[msg.type]?.({ ...params, msg: msg as never });
+					if (typeof handler === "function") {
+						handler({ ...params, msg });
+					} else {
+						handler[msg.type]?.({ ...params, msg: msg as never });
+					}
 				});
 			});
 
@@ -122,7 +136,7 @@ export class RoomManager {
 		this.handlers.leave.push(handler);
 	}
 
-	onMessage(handler: MessageHandlerObject) {
+	onMessage(handler: MessageHandler) {
 		this.handlers.message.push(handler);
 	}
 

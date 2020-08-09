@@ -1,17 +1,32 @@
 import { DieSide } from "./dice";
 import { Player } from "./gameManager";
 
+export type SetName = { type: "setName"; sender: string; name: string };
+export type StartGame = { type: "startGame"; sender: string };
+export type Move = {
+	type: "move";
+	sender: string;
+	row: string;
+	column: string;
+};
+export type ToggleFreeze = {
+	type: "toggleFreeze";
+	sender: string;
+	index: number;
+};
+export type RollDice = { type: "rollDice"; sender: string };
+
 export type ClientMessage =
-	| { type: "setName"; name: string }
-	| { type: "startGame" }
-	| { type: "move"; row: string; column: string }
-	| { type: "toggleFreeze"; index: number }
-	| { type: "rollDice" };
+	| SetName
+	| StartGame
+	| Move
+	| ToggleFreeze
+	| RollDice;
 
 export type ServerMessage =
 	| { type: "members"; members: Player[] }
 	| { type: "nameResponse"; available: false }
-	| { type: "nameResponse"; available: true; name: string; owner: boolean }
+	| { type: "nameResponse"; available: true; player: Player }
 	| { type: "gameStarted" }
 	| { type: "moveResponse"; player: Player; row: string; column: string }
 	| { type: "toggleFreezeResponse"; index: number }

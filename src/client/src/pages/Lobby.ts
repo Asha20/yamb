@@ -47,8 +47,7 @@ export const Lobby = {
 				case "nameResponse":
 					this.nameTaken = !message.available;
 					if (message.available) {
-						state.self.name = message.name;
-						state.self.owner = message.owner;
+						state.self = message.player;
 					}
 					break;
 				case "gameStarted":

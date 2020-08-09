@@ -1,14 +1,16 @@
-import { ClientMessage, ServerMessage } from "common";
+import { ClientMessage, ServerMessage, DistributeOmit } from "common";
+import { state } from "./state";
 
 let socket: WebSocket | undefined;
 
-export function send(msg: ClientMessage) {
+export function send(msg: DistributeOmit<ClientMessage, "sender">) {
 	if (!socket || socket.readyState !== WebSocket.OPEN) {
 		throw new Error("Socket not ready");
 	}
 
-	console.log("Sending %o", msg);
-	socket.send(JSON.stringify(msg));
+	const msgWithSender = { ...msg, sender: state.self.id };
+	console.log("Sending %o", msgWithSender);
+	socket.send(JSON.stringify(msgWithSender));
 }
 
 export function open() {

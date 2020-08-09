@@ -10,7 +10,7 @@ export interface Player {
 export function gameManager(players: Player[]) {
 	let currentPlayer = 0;
 
-	const { rowNames, columnNames } = createYamb();
+	const { rowNames, columnNames }: Yamb = createYamb();
 
 	const games = players.reduce((acc, player) => {
 		acc.set(player.id, createYamb());

@@ -40,8 +40,7 @@ export function listen(port: number) {
 				reply({
 					type: "nameResponse",
 					available: true,
-					name: member.player.name,
-					owner: member.player.owner,
+					player: member.player,
 				});
 			}
 			broadcast({
@@ -50,33 +49,48 @@ export function listen(port: number) {
 			});
 		},
 
-		startGame({ room, broadcast }) {
-			broadcast({ type: "gameStarted" });
-			games.set(room, gameManager(room.players));
+		startGame({ msg, room, broadcast }) {
+			const player = room.players.find(x => x.id === msg.sender);
+			if (player && player.owner) {
+				broadcast({ type: "gameStarted" });
+				games.set(room, gameManager(room.players));
+			}
 		},
 
 		toggleFreeze({ msg, room, broadcast }) {
-			games.get(room)?.toggleFreeze(msg.index);
-			broadcast({
-				type: "toggleFreezeResponse",
-				index: msg.index,
-			});
+			if (games.get(room)?.currentPlayer.id === msg.sender) {
+				games.get(room)?.toggleFreeze(msg.index);
+				broadcast({
+					type: "toggleFreezeResponse",
+					index: msg.index,
+				});
+			}
 		},
 
-		rollDice({ room, broadcast }) {
+		rollDice({ msg, room, broadcast }) {
 			const game = games.get(room)!;
-			game.rollDice();
-			broadcast({
-				type: "rollDiceResponse",
-				roll: game.roll,
-				dice: game.diceValues,
-			});
+			if (game.currentPlayer.id === msg.sender) {
+				game.rollDice();
+				broadcast({
+					type: "rollDiceResponse",
+					roll: game.roll,
+					dice: game.diceValues,
+				});
+			}
 		},
 
 		move({ msg, room, broadcast }) {
-			const { row, column } = msg;
+			const { row, column, sender } = msg;
 			const game = games.get(room)!;
 			const player = game.currentPlayer;
+			if (game.currentPlayer.id !== sender || game.roll === 0) {
+				return;
+			}
+
+			if (!game.rowNames.includes(row) || !game.columnNames.includes(column)) {
+				return;
+			}
+
 			game.play(row, column); // TODO: Check for throw
 			broadcast({
 				type: "moveResponse",
