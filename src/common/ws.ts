@@ -25,8 +25,11 @@ export type ClientMessage =
 
 export type ServerMessage =
 	| { type: "players"; players: Player[] }
-	| { type: "nameResponse"; available: false }
-	| { type: "nameResponse"; available: true; player: Player }
+	| {
+			type: "nameResponse";
+			status: "unavailable" | "invalid" | "name-missing" | "too-long";
+	  }
+	| { type: "nameResponse"; status: "ok"; player: Player }
 	| { type: "gameStarted" }
 	| { type: "moveResponse"; player: Player; row: string; column: string }
 	| { type: "toggleFreezeResponse"; index: number }

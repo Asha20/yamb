@@ -11,12 +11,17 @@ const NamePrompt = {
 		socket.send({ type: "setName", name });
 	},
 
-	view(vnode: m.Vnode<{ nameTaken: boolean }>) {
+	view(vnode: m.Vnode<{ status: string }>) {
+		const { status } = vnode.attrs;
+
 		return [
 			m("label[for=player-name]", "Enter a name:"),
 			m("input[type=text][id=player-name]"),
 			m("button", { onclick: this.submitName }, "Submit"),
-			vnode.attrs.nameTaken && m("p", "Name has already been taken."),
+			status === "unavailable" && m("p", "Name has already been taken."),
+			status === "invalid" && m("p", "Name cannot contain special characters."),
+			status === "name-missing" && m("p", "You must enter a name."),
+			status === "too-long" && m("p", "Maximum name length is 16 characters."),
 		];
 	},
 };
@@ -34,7 +39,7 @@ const Members = {
 };
 
 export const Lobby = {
-	nameTaken: false,
+	status: "ok",
 
 	oninit() {
 		socket.open();
@@ -45,8 +50,8 @@ export const Lobby = {
 					state.players = message.players;
 					break;
 				case "nameResponse":
-					this.nameTaken = !message.available;
-					if (message.available) {
+					this.status = message.status;
+					if (message.status === "ok") {
 						state.self = message.player;
 					}
 					break;
@@ -70,7 +75,7 @@ export const Lobby = {
 	view() {
 		return [
 			m(Members),
-			!state.self.name && m(NamePrompt, { nameTaken: this.nameTaken }),
+			!state.self.name && m(NamePrompt, { status: this.status }),
 			state.self.owner &&
 				m("button", { onclick: this.startGame }, "Start the game"),
 		];

@@ -2,6 +2,8 @@ import * as WebSocket from "ws";
 import { gameManager, GameManager } from "common";
 import { Room, RoomManager } from "./roomManager";
 
+const nameRegex = /^[\w\s]+$/;
+
 export function listen(port: number) {
 	const wss = new WebSocket.Server({ port });
 
@@ -24,8 +26,22 @@ export function listen(port: number) {
 
 	roomManager.onMessage({
 		setName({ msg, member, room, reply, broadcast }) {
-			if (room.players.some(x => x.name === msg.name)) {
-				reply({ type: "nameResponse", available: false });
+			const name = msg.name.trim();
+
+			if (msg.name.length === 0) {
+				reply({ type: "nameResponse", status: "name-missing" });
+				return;
+			}
+			if (msg.name.length > 16) {
+				reply({ type: "nameResponse", status: "too-long" });
+				return;
+			}
+			if (name.length === 0 || !nameRegex.test(msg.name)) {
+				reply({ type: "nameResponse", status: "invalid" });
+				return;
+			}
+			if (room.players.some(x => x.name === name)) {
+				reply({ type: "nameResponse", status: "unavailable" });
 				return;
 			}
 
@@ -34,9 +50,8 @@ export function listen(port: number) {
 				member.player.owner = true;
 			}
 
-			member.player.name = msg.name;
-			reply({ type: "nameResponse", available: true, player: member.player });
-
+			member.player.name = name;
+			reply({ type: "nameResponse", status: "ok", player: member.player });
 			broadcast({ type: "players", players: room.players });
 		},
 
