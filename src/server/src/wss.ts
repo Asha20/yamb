@@ -4,8 +4,10 @@ import { Room, RoomManager } from "./roomManager";
 
 const nameRegex = /^[\w\s]+$/;
 
+let wss: WebSocket.Server;
+
 export function listen(port: number) {
-	const wss = new WebSocket.Server({ port });
+	wss = new WebSocket.Server({ port });
 
 	const games = new Map<Room, GameManager>();
 
@@ -98,4 +100,8 @@ export function listen(port: number) {
 			broadcast({ type: "moveResponse", player, row, column });
 		},
 	});
+}
+
+export function close() {
+	wss?.close();
 }

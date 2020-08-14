@@ -1,14 +1,21 @@
 import { array } from "./util";
 import { DiceCount, DieSide, Dice, DiceContext } from "./dice";
 
+interface ScoreContext<R extends string = string, C extends string = string>
+	extends DiceContext {
+	row: string;
+	column: string;
+	game: Yamb;
+}
+
 interface Row<T extends string> {
 	name: T;
-	score(context: DiceContext): number | undefined;
+	score(context: ScoreContext): number | undefined;
 }
 
 interface Column<T extends string> {
 	name: T;
-	score(context: DiceContext): number | undefined;
+	score(context: ScoreContext): number | undefined;
 }
 
 type Name<
@@ -32,6 +39,7 @@ export interface Yamb<
 	): number | undefined;
 	filled(row: Name<TRows>, column: Name<TColumns>): boolean;
 	field(row: Name<TRows>, column: Name<TColumns>): number | undefined;
+	getField(row: Name<TRows>, column: Name<TColumns>): [number, number];
 }
 
 function findDie(
@@ -135,8 +143,25 @@ export const yahtzee = row("yahtzee", ({ count }) => {
 	return fiveOfAKind && 50 + 5 * fiveOfAKind;
 });
 
-const topDown = column("top down", () => 0);
+const topDown = column("top down", ({ row, column, game }) => {
+	const rowIndex = game.rowNames.findIndex(x => x === row);
+	if (rowIndex > 0) {
+		const prevRowName = game.rowNames[rowIndex - 1];
+		return game.filled(prevRowName, column) ? 0 : undefined;
+	}
+	return 0;
+});
+
 const free = column("free", () => 0);
+
+const bottomUp = column("bottom up", ({ row, column, game }) => {
+	const rowIndex = game.rowNames.findIndex(x => x === row);
+	if (rowIndex < game.rowNames.length - 1) {
+		const nextRowName = game.rowNames[rowIndex + 1];
+		return game.filled(nextRowName, column) ? 0 : undefined;
+	}
+	return 0;
+});
 
 const ROWS = [
 	one,
@@ -156,7 +181,7 @@ const ROWS = [
 	yahtzee,
 ] as const;
 
-const COLUMNS = [topDown, free] as const;
+const COLUMNS = [topDown, free, bottomUp] as const;
 
 function yamb<
 	TRows extends readonly Row<string>[],
@@ -177,6 +202,8 @@ function yamb<
 		array(columns.length, () => undefined),
 	);
 
+	const game = {} as Yamb<TRows, TColumns>;
+
 	function getField(row: RowName, column: ColName) {
 		const rowIndex = rowNames.findIndex(x => x === row);
 		const columnIndex = columnNames.findIndex(x => x === column);
@@ -188,6 +215,14 @@ function yamb<
 		return [rowIndex, columnIndex];
 	}
 
+	function scoreContext(
+		row: string,
+		column: string,
+		diceContext: DiceContext,
+	): ScoreContext {
+		return { ...diceContext, row, column, game };
+	}
+
 	function getScore(dice: Dice, row: RowName, column: ColName) {
 		const [rowIndex, columnIndex] = getField(row, column);
 
@@ -195,8 +230,10 @@ function yamb<
 			return matrix[rowIndex][columnIndex];
 		}
 
-		const rowScore = rows[rowIndex].score(dice);
-		const columnScore = columns[columnIndex].score(dice);
+		const rowScore = rows[rowIndex].score(scoreContext(row, column, dice));
+		const columnScore = columns[columnIndex].score(
+			scoreContext(row, column, dice),
+		);
 		if (rowScore === undefined || columnScore === undefined) {
 			return undefined;
 		}
@@ -229,7 +266,7 @@ function yamb<
 		turnsLeft -= 1;
 	}
 
-	return {
+	return Object.assign(game, {
 		rowNames,
 		columnNames,
 		canPlay,
@@ -237,6 +274,7 @@ function yamb<
 		field,
 		filled,
 		getScore,
+		getField,
 		get active() {
 			return turnsLeft > 0;
 		},
@@ -252,7 +290,7 @@ function yamb<
 
 			return score;
 		},
-	};
+	});
 }
 
 export function create() {
