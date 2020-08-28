@@ -93,7 +93,7 @@ export const straight = row("straight", ({ count, roll }) => {
 	const oneToFive = count[1] && count[2] && count[3] && count[4] && count[5];
 	const twoToSix = count[2] && count[3] && count[4] && count[5] && count[6];
 	if (!oneToFive && !twoToSix) {
-		return undefined;
+		return 0;
 	}
 
 	if (roll === 1) return 66;
@@ -119,14 +119,14 @@ function findFullHouse(dice: DiceCount) {
 
 export const threeOfAKind = row("three of a kind", ({ count }) => {
 	const threeOfAKind = findDie(count, amount => amount >= 3);
-	return threeOfAKind && 30 + 3 * threeOfAKind;
+	return threeOfAKind ? 30 + 3 * threeOfAKind : 0;
 });
 
 export const fullHouse = row("full house", ({ count }) => {
 	const fullHouse = findFullHouse(count);
 
 	if (!fullHouse) {
-		return undefined;
+		return 0;
 	}
 
 	const [threeOfAKind, twoOfAKind] = fullHouse;
@@ -135,12 +135,12 @@ export const fullHouse = row("full house", ({ count }) => {
 
 export const fourOfAKind = row("four of a kind", ({ count }) => {
 	const fourOfAKind = findDie(count, amount => amount >= 4);
-	return fourOfAKind && 50 + 4 * fourOfAKind;
+	return fourOfAKind ? 50 + 4 * fourOfAKind : 0;
 });
 
 export const yahtzee = row("yahtzee", ({ count }) => {
 	const fiveOfAKind = findDie(count, amount => amount >= 5);
-	return fiveOfAKind && 50 + 5 * fiveOfAKind;
+	return fiveOfAKind ? 50 + 5 * fiveOfAKind : 0;
 });
 
 const topDown = column("top down", ({ row, column, game }) => {
