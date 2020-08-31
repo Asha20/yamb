@@ -2,7 +2,8 @@ import m from "mithril";
 import { Yamb } from "../components/Yamb";
 import { Dice } from "../components/Dice";
 import { PlayerList } from "../components/PlayerList";
-import { state } from "../state";
+import { GameOver } from "../components/GameOver";
+import { state, actions } from "../state";
 import * as socket from "../socket";
 
 const Aside = {
@@ -25,15 +26,20 @@ export const Game = {
 				case "moveResponse":
 					state.gameManager.play(msg.row, msg.column);
 					break;
+				case "gameEnded":
+					actions.endGame();
+					break;
 			}
 			m.redraw();
 		});
 	},
 
 	view() {
-		return m(".game", [
-			m(Yamb, { player: state.gameManager.currentPlayer, active: true }),
-			m(Aside),
-		]);
+		return state.gameState === "finished"
+			? m(GameOver)
+			: m(".game", [
+					m(Yamb, { player: state.gameManager.currentPlayer, active: true }),
+					m(Aside),
+			  ]);
 	},
 };

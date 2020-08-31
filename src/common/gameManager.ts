@@ -68,6 +68,9 @@ export function gameManager(players: Player[]) {
 		get roll() {
 			return dice.roll;
 		},
+		get active() {
+			return [...games.values()].some(x => x.active());
+		},
 		players,
 		rowNames,
 		columnNames,

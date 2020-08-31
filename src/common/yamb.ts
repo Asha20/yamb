@@ -28,8 +28,8 @@ export interface Yamb<
 > {
 	readonly rowNames: Readonly<Name<TRows>[]>;
 	readonly columnNames: Readonly<Name<TColumns>[]>;
-	active: boolean;
-	score: number;
+	active(): boolean;
+	score(): number;
 	canPlay(dice: DiceContext, row: Name<TRows>, column: Name<TColumns>): boolean;
 	play(dice: DiceContext, row: Name<TRows>, column: Name<TColumns>): void;
 	getScore(
@@ -167,7 +167,7 @@ const ROWS = [
 	one,
 	two,
 	three,
-	four,
+	/* four,
 	five,
 	six,
 
@@ -178,10 +178,10 @@ const ROWS = [
 	threeOfAKind,
 	fullHouse,
 	fourOfAKind,
-	yahtzee,
+	yahtzee, */
 ] as const;
 
-const COLUMNS = [topDown, free, bottomUp] as const;
+const COLUMNS = [topDown /* free, bottomUp */] as const;
 
 function yamb<
 	TRows extends readonly Row<string>[],
@@ -275,10 +275,10 @@ function yamb<
 		filled,
 		getScore,
 		getField,
-		get active() {
+		active() {
 			return turnsLeft > 0;
 		},
-		get score() {
+		score() {
 			let score = 0;
 			for (const row of matrix) {
 				for (const val of row) {

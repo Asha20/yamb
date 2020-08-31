@@ -33,4 +33,5 @@ export type ServerMessage =
 	| { type: "gameStarted" }
 	| { type: "moveResponse"; player: Player; row: string; column: string }
 	| { type: "toggleFreezeResponse"; index: number }
-	| { type: "rollDiceResponse"; roll: number; dice: DieSide[] };
+	| { type: "rollDiceResponse"; roll: number; dice: DieSide[] }
+	| { type: "gameEnded" };

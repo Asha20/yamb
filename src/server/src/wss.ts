@@ -108,6 +108,10 @@ export function listen(port: number) {
 
 			game.play(row, column); // TODO: Check for throw
 			broadcast({ type: "moveResponse", player, row, column });
+
+			if (!game.active) {
+				broadcast({ type: "gameEnded" });
+			}
 		},
 	});
 }

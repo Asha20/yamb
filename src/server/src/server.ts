@@ -12,15 +12,17 @@ const mithrilRoute = (_: any, res: express.Response<any>) => {
 	res.sendFile(root("client/dist/index.html"));
 };
 
+const redirect = (to: string) => (_: any, res: express.Response<any>) => {
+	res.redirect(to);
+};
+
 const app = express();
 
 app.use("/public", express.static(root("client/dist")));
 
 app.get("/", mithrilRoute);
 app.get("/lobby/:id", mithrilRoute);
-app.get("/game/:id", (_, res) => {
-	res.redirect("/");
-});
+app.get("/game/:id", redirect("/"));
 app.use("/api", apiRouter);
 
 const EXPRESS_PORT = 3000;
