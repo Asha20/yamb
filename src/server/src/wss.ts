@@ -22,7 +22,12 @@ export function listen(port: number) {
 		broadcast({ type: "players", players: room.players });
 	});
 
-	roomManager.onLeave(({ room, broadcast }) => {
+	roomManager.onLeave(({ room, member, broadcast }) => {
+		if (member.player.owner && room.players.length) {
+			const nextOwner = room.players[0];
+			room.owner = nextOwner;
+			nextOwner.owner = true;
+		}
 		broadcast({ type: "players", players: room.players });
 	});
 

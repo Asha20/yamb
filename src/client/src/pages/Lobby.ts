@@ -48,6 +48,10 @@ export const Lobby = {
 			switch (message.type) {
 				case "players":
 					state.players = message.players;
+					const newSelf = message.players.find(x => x.id === state.self.id);
+					if (newSelf) {
+						state.self = newSelf;
+					}
 					break;
 				case "nameResponse":
 					this.status = message.status;

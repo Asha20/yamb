@@ -17,7 +17,7 @@ type OnMessageParams<T extends ClientMessage> = {
 	broadcast(msg: ServerMessage): void;
 };
 
-type OnJoinLeaveParams = Omit<OnMessageParams<any>, "msg">;
+type OnJoinLeaveParams = Omit<OnMessageParams<ClientMessage>, "msg">;
 
 type MessageHandlerFunction<T extends ClientMessage> = (
 	params: OnMessageParams<T>,
