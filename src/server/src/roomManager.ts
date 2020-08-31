@@ -130,6 +130,10 @@ export class RoomManager {
 		});
 	}
 
+	deleteRoom(id: string) {
+		return this.rooms.delete(id);
+	}
+
 	onJoin(handler: RoomManager["handlers"]["join"][number]) {
 		this.handlers.join.push(handler);
 	}

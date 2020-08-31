@@ -29,6 +29,11 @@ export function listen(port: number) {
 			nextOwner.owner = true;
 		}
 		broadcast({ type: "players", players: room.players });
+
+		if (!room.players.length) {
+			roomManager.deleteRoom(room.id);
+			games.delete(room);
+		}
 	});
 
 	roomManager.onMessage({
@@ -65,8 +70,8 @@ export function listen(port: number) {
 		startGame({ msg, room, broadcast }) {
 			const player = room.players.find(x => x.id === msg.sender);
 			if (player && player.owner) {
-				broadcast({ type: "gameStarted" });
 				games.set(room, gameManager(room.players));
+				broadcast({ type: "gameStarted" });
 			}
 		},
 
