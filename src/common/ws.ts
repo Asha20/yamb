@@ -34,4 +34,5 @@ export type ServerMessage =
 	| { type: "moveResponse"; player: Player; row: string; column: string }
 	| { type: "toggleFreezeResponse"; index: number }
 	| { type: "rollDiceResponse"; roll: number; dice: DieSide[] }
+	| { type: "findNextAvailablePlayer" }
 	| { type: "gameEnded" };

@@ -23,8 +23,15 @@ export const Game = {
 	oninit() {
 		socket.onMessage(msg => {
 			switch (msg.type) {
+				case "players":
+					state.players = msg.players;
+					break;
 				case "moveResponse":
-					state.gameManager.play(msg.row, msg.column);
+					state.gameManager.play(msg.row, msg.column, state.players);
+					break;
+				case "findNextAvailablePlayer":
+					state.gameManager.findNextAvailablePlayer(state.players);
+					state.gameManager.resetDice();
 					break;
 				case "gameEnded":
 					actions.endGame();

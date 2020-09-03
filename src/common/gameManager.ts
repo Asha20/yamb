@@ -33,10 +33,10 @@ export function gameManager(players: Player[]) {
 		return getGame(player).canPlay(dice, row, column);
 	}
 
-	function play(row: string, column: string) {
+	function play(row: string, column: string, onlinePlayers: Player[]) {
 		getGame(players[currentPlayer]).play(dice, row, column);
 		dice.reset();
-		currentPlayer = (currentPlayer + 1) % players.length;
+		findNextAvailablePlayer(onlinePlayers);
 	}
 
 	function field(player: Player, row: string, column: string) {
@@ -55,6 +55,18 @@ export function gameManager(players: Player[]) {
 		return getGame(player).getScore(dice, row, column);
 	}
 
+	function findNextAvailablePlayer(onlinePlayers: Player[]) {
+		const playersSet = new Set(onlinePlayers.map(x => x.id));
+		for (let i = 1; i < players.length; i++) {
+			const nextAvailablePlayer = (currentPlayer + i) % players.length;
+			if (playersSet.has(players[nextAvailablePlayer].id)) {
+				currentPlayer = nextAvailablePlayer;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	return {
 		get currentPlayer() {
 			return { ...players[currentPlayer] };
@@ -68,8 +80,12 @@ export function gameManager(players: Player[]) {
 		get roll() {
 			return dice.roll;
 		},
-		get active() {
-			return [...games.values()].some(x => x.active());
+		active(onlinePlayers: Player[]) {
+			const playersSet = new Set(onlinePlayers.map(x => x.id));
+			console.log(playersSet);
+			return [...games].some(([playerId, game]) => {
+				return playersSet.has(playerId) && game.active();
+			});
 		},
 		players,
 		rowNames,
@@ -79,6 +95,8 @@ export function gameManager(players: Player[]) {
 		field,
 		rollDice: dice.rollDice,
 		loadDice: dice.loadDice,
+		resetDice: dice.reset,
+		findNextAvailablePlayer,
 		toggleFreeze,
 		filled,
 		getScore,

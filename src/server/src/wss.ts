@@ -28,7 +28,16 @@ export function listen(port: number) {
 			room.owner = nextOwner;
 			nextOwner.owner = true;
 		}
+
 		broadcast({ type: "players", players: room.players });
+
+		const game = games.get(room);
+
+		if (game?.currentPlayer.id === member.id) {
+			game?.findNextAvailablePlayer(room.players);
+			game?.resetDice();
+			broadcast({ type: "findNextAvailablePlayer" });
+		}
 
 		if (!room.players.length) {
 			roomManager.deleteRoom(room.id);
@@ -106,10 +115,10 @@ export function listen(port: number) {
 				return;
 			}
 
-			game.play(row, column); // TODO: Check for throw
+			game.play(row, column, room.players); // TODO: Check for throw
 			broadcast({ type: "moveResponse", player, row, column });
 
-			if (!game.active) {
+			if (!game.active(room.players)) {
 				broadcast({ type: "gameEnded" });
 			}
 		},
