@@ -80,9 +80,11 @@ export function gameManager(players: Player[]) {
 		get roll() {
 			return dice.roll;
 		},
+		score(player: Player) {
+			return getGame(player).score();
+		},
 		active(onlinePlayers: Player[]) {
 			const playersSet = new Set(onlinePlayers.map(x => x.id));
-			console.log(playersSet);
 			return [...games].some(([playerId, game]) => {
 				return playersSet.has(playerId) && game.active();
 			});

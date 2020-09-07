@@ -1,21 +1,14 @@
 import m from "mithril";
 import { Yamb } from "../components/Yamb";
 import { Dice } from "../components/Dice";
-import { PlayerList } from "../components/PlayerList";
+import { Scoreboard } from "../components/Scoreboard";
 import { GameOver } from "../components/GameOver";
 import { state, actions } from "../state";
 import * as socket from "../socket";
 
 const Aside = {
 	view() {
-		return m("aside", [
-			m(PlayerList, {
-				players: state.players,
-				currentPlayer: state.gameManager.currentPlayer,
-				gameStarted: true,
-			}),
-			m(Dice),
-		]);
+		return m("aside", [m(Scoreboard), m(Dice)]);
 	},
 };
 

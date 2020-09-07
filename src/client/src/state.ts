@@ -5,6 +5,7 @@ export type GameState = "inactive" | "active" | "finished";
 interface State {
 	self: Player;
 	gameManager: GameManager;
+	initialPlayers: Player[];
 	players: Player[];
 	gameState: GameState;
 	ownTurn: boolean;
@@ -12,6 +13,7 @@ interface State {
 
 const initialState = (): State => ({
 	self: { id: "", name: "", owner: false },
+	initialPlayers: [],
 	players: [],
 	gameManager: gameManager([]),
 	gameState: "inactive",
@@ -25,6 +27,7 @@ export const state = initialState();
 
 export const actions = {
 	startGame(players: Player[]) {
+		state.initialPlayers = players;
 		state.players = players;
 		state.gameManager = gameManager(players);
 		state.gameState = "active";
