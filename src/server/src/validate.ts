@@ -5,6 +5,7 @@ import {
 	ToggleFreeze,
 	RollDice,
 	ClientMessage,
+	SendChatMessage,
 } from "common";
 
 interface Message<T extends string> {
@@ -46,8 +47,28 @@ function rollDice(x: unknown): x is RollDice {
 	return message(x, "rollDice");
 }
 
+function chatMessage(x: unknown): x is SendChatMessage {
+	if (!message(x, "chatMessage")) {
+		return false;
+	}
+	const msg: any = x.message;
+	if (typeof msg !== "object" || msg === null) {
+		return false;
+	}
+	return (
+		typeof msg.sender === "string" &&
+		typeof msg.sent === "number" &&
+		typeof msg.content === "string"
+	);
+}
+
 export function isClientMessage(x: unknown): x is ClientMessage {
 	return (
-		setName(x) || startGame(x) || move(x) || toggleFreeze(x) || rollDice(x)
+		setName(x) ||
+		startGame(x) ||
+		move(x) ||
+		toggleFreeze(x) ||
+		rollDice(x) ||
+		chatMessage(x)
 	);
 }

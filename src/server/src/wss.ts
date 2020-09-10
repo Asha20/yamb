@@ -1,5 +1,5 @@
 import * as WebSocket from "ws";
-import { gameManager, GameManager } from "common";
+import { gameManager, GameManager, ChatMessage } from "common";
 import { Room, RoomManager } from "./roomManager";
 
 const nameRegex = /^[\w\s]+$/;
@@ -10,6 +10,7 @@ export function listen(port: number) {
 	wss = new WebSocket.Server({ port });
 
 	const games = new Map<Room, GameManager>();
+	const chatLogs = new Map<Room, ChatMessage[]>();
 
 	const roomManager = new RoomManager(wss, url => {
 		const lobbyRegex = /^\/lobby\/(\d+)$/;
@@ -17,9 +18,16 @@ export function listen(port: number) {
 		return lobbyMatch && lobbyMatch[1];
 	});
 
-	roomManager.onJoin(({ member, room, broadcast }) => {
+	roomManager.onJoin(({ member, room, reply, broadcast }) => {
 		console.log(`Player ${member.id} joined room ${room.id}`);
 		broadcast({ type: "players", players: room.players });
+
+		if (!chatLogs.has(room)) {
+			chatLogs.set(room, []);
+		}
+
+		const chatLog = chatLogs.get(room)!;
+		reply({ type: "chatSync", messages: chatLog });
 	});
 
 	roomManager.onLeave(({ room, member, broadcast }) => {
@@ -42,6 +50,7 @@ export function listen(port: number) {
 		if (!room.players.length) {
 			roomManager.deleteRoom(room.id);
 			games.delete(room);
+			chatLogs.delete(room);
 		}
 	});
 
@@ -74,6 +83,12 @@ export function listen(port: number) {
 			member.player.name = name;
 			reply({ type: "nameResponse", status: "ok", player: member.player });
 			broadcast({ type: "players", players: room.players });
+		},
+
+		chatMessage({ msg, room, broadcast }) {
+			const chatLog = chatLogs.get(room)!;
+			chatLog.push(msg.message);
+			broadcast({ type: "receiveChatMessage", message: msg.message });
 		},
 
 		startGame({ msg, room, broadcast }) {

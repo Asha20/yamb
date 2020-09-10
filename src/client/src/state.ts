@@ -1,4 +1,5 @@
-import { GameManager, gameManager, Player } from "common";
+import { GameManager, gameManager, Player, ChatMessage } from "common";
+import * as socket from "./socket";
 
 export type GameState = "inactive" | "active" | "finished";
 
@@ -9,6 +10,7 @@ interface State {
 	players: Player[];
 	gameState: GameState;
 	ownTurn: boolean;
+	chat: ChatMessage[];
 }
 
 const initialState = (): State => ({
@@ -17,6 +19,7 @@ const initialState = (): State => ({
 	players: [],
 	gameManager: gameManager([]),
 	gameState: "inactive",
+	chat: [],
 
 	get ownTurn() {
 		return this.self.name === this.gameManager.currentPlayer.name;
@@ -35,5 +38,14 @@ export const actions = {
 
 	endGame() {
 		state.gameState = "finished";
+	},
+
+	sendMessage(content: string) {
+		const message: ChatMessage = {
+			sender: state.self.id,
+			sent: Date.now(),
+			content,
+		};
+		socket.send({ type: "chatMessage", message });
 	},
 };

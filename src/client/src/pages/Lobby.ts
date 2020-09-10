@@ -2,6 +2,7 @@ import m from "mithril";
 import * as socket from "../socket";
 import { state, actions } from "../state";
 import { PlayerList } from "../components/PlayerList";
+import { Chat } from "../components/Chat";
 
 const qs = document.querySelector.bind(document);
 
@@ -67,6 +68,12 @@ export const Lobby = {
 						m.route.set("/");
 					}
 					break;
+				case "chatSync":
+					state.chat = message.messages;
+					break;
+				case "receiveChatMessage":
+					state.chat.push(message.message);
+					break;
 			}
 			m.redraw();
 		});
@@ -80,6 +87,7 @@ export const Lobby = {
 		return [
 			m(Members),
 			!state.self.name && m(NamePrompt, { status: this.status }),
+			m(Chat, { canSend: !!state.self.name }),
 			state.self.owner &&
 				m("button", { onclick: this.startGame }, "Start the game"),
 		];

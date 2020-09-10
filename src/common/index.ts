@@ -4,3 +4,4 @@ export * from "./gameManager";
 export * from "./util";
 export * from "./ws";
 export * from "./yamb";
+export * from "./chat";

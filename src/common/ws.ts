@@ -1,5 +1,6 @@
 import { DieSide } from "./dice";
 import { Player } from "./gameManager";
+import { ChatMessage } from "./chat";
 
 export type SetName = { type: "setName"; sender: string; name: string };
 export type StartGame = { type: "startGame"; sender: string };
@@ -15,13 +16,19 @@ export type ToggleFreeze = {
 	index: number;
 };
 export type RollDice = { type: "rollDice"; sender: string };
+export type SendChatMessage = {
+	type: "chatMessage";
+	sender: string;
+	message: ChatMessage;
+};
 
 export type ClientMessage =
 	| SetName
 	| StartGame
 	| Move
 	| ToggleFreeze
-	| RollDice;
+	| RollDice
+	| SendChatMessage;
 
 export type ServerMessage =
 	| { type: "players"; players: Player[] }
@@ -35,4 +42,6 @@ export type ServerMessage =
 	| { type: "toggleFreezeResponse"; index: number }
 	| { type: "rollDiceResponse"; roll: number; dice: DieSide[] }
 	| { type: "findNextAvailablePlayer" }
-	| { type: "gameEnded" };
+	| { type: "gameEnded" }
+	| { type: "chatSync"; messages: ChatMessage[] }
+	| { type: "receiveChatMessage"; message: ChatMessage };
