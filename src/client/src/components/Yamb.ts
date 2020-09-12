@@ -69,17 +69,15 @@ export const Yamb = {
 			]),
 
 			m("thead", [
-				m("tr", [
-					m("th"),
-					columnNames.map(col => m("th", { key: col }, [col])),
-				]),
+				m("tr", [m("th"), columnNames.map(col => m("th", { key: col }, col))]),
 			]),
 
-			m("tbody", [
+			m(
+				"tbody",
 				rowNames.map(row =>
 					m("tr", { key: row }, [
 						m("th", row),
-						...columnNames.map(column =>
+						columnNames.map(column =>
 							m(Cell, {
 								key: column,
 								filled: state.gameManager.filled(player, row, column),
@@ -91,7 +89,7 @@ export const Yamb = {
 						),
 					]),
 				),
-			]),
+			),
 		]);
 	},
 };
