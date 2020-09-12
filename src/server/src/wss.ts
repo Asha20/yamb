@@ -92,6 +92,10 @@ export function listen(port: number) {
 		},
 
 		startGame({ msg, room, broadcast }) {
+			if (games.has(room)) {
+				return;
+			}
+
 			const player = room.players.find(x => x.id === msg.sender);
 			if (player && player.owner) {
 				games.set(room, gameManager(room.players));
