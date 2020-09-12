@@ -1,7 +1,12 @@
 import * as WebSocket from "ws";
 import { nanoid } from "nanoid";
-import { ClientMessage, ServerMessage, Player, jsonParse } from "common";
-import { isClientMessage } from "./validate";
+import {
+	ClientMessage,
+	ServerMessage,
+	Player,
+	jsonParse,
+	isClientMessage,
+} from "common";
 
 interface SocketInfo {
 	id: string;
