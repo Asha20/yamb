@@ -1,7 +1,9 @@
 import { array } from "./util";
 import { DiceCount, DieSide, Dice, DiceContext } from "./dice";
 
-interface ScoreContext<R extends string = string, C extends string = string>
+type RowContext = DiceContext;
+
+interface ColumnContext<R extends string = string, C extends string = string>
 	extends DiceContext {
 	row: string;
 	column: string;
@@ -10,12 +12,12 @@ interface ScoreContext<R extends string = string, C extends string = string>
 
 interface Row<T extends string> {
 	name: T;
-	score(context: ScoreContext): number | undefined;
+	score(context: RowContext): number | undefined;
 }
 
 interface Column<T extends string> {
 	name: T;
-	score(context: ScoreContext): number | undefined;
+	score(context: ColumnContext): number | undefined;
 }
 
 type Name<
@@ -167,7 +169,7 @@ const ROWS = [
 	one,
 	two,
 	three,
-	/* four,
+	four,
 	five,
 	six,
 
@@ -178,10 +180,10 @@ const ROWS = [
 	threeOfAKind,
 	fullHouse,
 	fourOfAKind,
-	yahtzee, */
+	yahtzee,
 ] as const;
 
-const COLUMNS = [topDown /* free, bottomUp */] as const;
+const COLUMNS = [topDown, free, bottomUp] as const;
 
 function yamb<
 	TRows extends readonly Row<string>[],
@@ -219,7 +221,7 @@ function yamb<
 		row: string,
 		column: string,
 		diceContext: DiceContext,
-	): ScoreContext {
+	): ColumnContext {
 		return { ...diceContext, row, column, game };
 	}
 

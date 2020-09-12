@@ -63,8 +63,8 @@ describe("Rows", () => {
 
 	describe("Special", () => {
 		test("straight", () => {
-			expect(yamb.straight.score(d`11111`)).toBeUndefined();
-			expect(yamb.straight.score(d`12346`)).toBeUndefined();
+			expect(yamb.straight.score(d`11111`)).toBe(0);
+			expect(yamb.straight.score(d`12346`)).toBe(0);
 
 			expect(yamb.straight.score(d("12345", 1))).toBe(66);
 			expect(yamb.straight.score(d("12345", 2))).toBe(56);
@@ -76,8 +76,8 @@ describe("Rows", () => {
 		});
 
 		test("three of a kind", () => {
-			expect(yamb.threeOfAKind.score(d`112233`)).toBeUndefined();
-			expect(yamb.threeOfAKind.score(d`123456`)).toBeUndefined();
+			expect(yamb.threeOfAKind.score(d`112233`)).toBe(0);
+			expect(yamb.threeOfAKind.score(d`123456`)).toBe(0);
 
 			expect(yamb.threeOfAKind.score(d`111234`)).toBe(33);
 			expect(yamb.threeOfAKind.score(d`111666`)).toBe(48); // Prefer larger score
@@ -85,17 +85,17 @@ describe("Rows", () => {
 		});
 
 		test("straight house", () => {
-			expect(yamb.fullHouse.score(d`112233`)).toBeUndefined();
-			expect(yamb.fullHouse.score(d`666666`)).toBeUndefined(); // No overlapping
-			expect(yamb.fullHouse.score(d`123456`)).toBeUndefined();
+			expect(yamb.fullHouse.score(d`112233`)).toBe(0);
+			expect(yamb.fullHouse.score(d`666666`)).toBe(0); // No overlapping
+			expect(yamb.fullHouse.score(d`123456`)).toBe(0);
 
 			expect(yamb.fullHouse.score(d`112223`)).toBe(48);
 			expect(yamb.fullHouse.score(d`555666`)).toBe(68); // Prefer larger score
 		});
 
 		test("four of a kind", () => {
-			expect(yamb.fourOfAKind.score(d`112333`)).toBeUndefined();
-			expect(yamb.fourOfAKind.score(d`123456`)).toBeUndefined();
+			expect(yamb.fourOfAKind.score(d`112333`)).toBe(0);
+			expect(yamb.fourOfAKind.score(d`123456`)).toBe(0);
 
 			expect(yamb.fourOfAKind.score(d`111156`)).toBe(54);
 			expect(yamb.fourOfAKind.score(d`11116666`)).toBe(74); // Prefer larger score
@@ -103,8 +103,8 @@ describe("Rows", () => {
 		});
 
 		test("yahtzee", () => {
-			expect(yamb.yahtzee.score(d`111156`)).toBeUndefined();
-			expect(yamb.yahtzee.score(d`123456`)).toBeUndefined();
+			expect(yamb.yahtzee.score(d`111156`)).toBe(0);
+			expect(yamb.yahtzee.score(d`123456`)).toBe(0);
 
 			expect(yamb.yahtzee.score(d`555556`)).toBe(75);
 			expect(yamb.yahtzee.score(d`1111166666`)).toBe(80); // Prefer larger score
@@ -117,16 +117,21 @@ describe("Game logic", () => {
 	test("initialization", () => {
 		const game = yamb.create();
 
-		expect(game.score).toBe(0);
-		expect(game.active).toBeTruthy();
+		expect(game.score()).toBe(0);
+		expect(game.active()).toBeTruthy();
 	});
 
 	test("checking move validity", () => {
 		const game = yamb.create();
 
-		expect(game.canPlay(d`111111`, "one", "free")).toBeTruthy();
+		expect(game.canPlay(d`111111`, "min", "free")).toBeTruthy();
 		expect(game.canPlay(d`123456`, "max", "free")).toBeTruthy();
-		expect(game.canPlay(d`111111`, "straight", "free")).toBeFalsy();
+
+		expect(game.canPlay(d`111111`, "one", "top down")).toBeTruthy();
+		expect(game.canPlay(d`123456`, "yahtzee", "bottom up")).toBeTruthy();
+
+		expect(game.canPlay(d`111111`, "straight", "top down")).toBeFalsy();
+		expect(game.canPlay(d`111111`, "straight", "bottom up")).toBeFalsy();
 		expect(() => game.canPlay(d`123456`, "foo" as any, "foo" as any)).toThrow();
 	});
 
@@ -141,6 +146,6 @@ describe("Game logic", () => {
 		expect(game.field("two", "free")).toBe(4);
 		expect(game.field("straight", "free")).toBe(66);
 
-		expect(game.score).toBe(70);
+		expect(game.score()).toBe(70);
 	});
 });
