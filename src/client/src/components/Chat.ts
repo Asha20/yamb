@@ -1,9 +1,22 @@
 import m from "mithril";
 import { state, actions } from "../state";
-import { ChatMessage } from "common";
+import { ChatMessage, Player } from "common";
 
 interface ChatAttrs {
 	canSend: boolean;
+}
+
+const nameMap = new Map<string, string>();
+
+function getName(sender: Player["id"]) {
+	const cachedName = nameMap.get(sender);
+	if (cachedName) {
+		return cachedName;
+	}
+
+	const name = state.players.find(x => x.id === sender)!.name;
+	nameMap.set(sender, name);
+	return name;
 }
 
 function formatMessage(msg: ChatMessage) {
@@ -13,7 +26,7 @@ function formatMessage(msg: ChatMessage) {
 	const s = String(date.getSeconds()).padStart(2, "0");
 	const timestamp = `[${h}:${m}:${s}]`;
 
-	const name = state.players.find(x => x.id === msg.sender)!.name;
+	const name = getName(msg.sender);
 
 	return `${timestamp} ${name}: ${msg.content}`;
 }
