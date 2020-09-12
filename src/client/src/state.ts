@@ -1,3 +1,4 @@
+import * as m from "mithril";
 import { GameManager, gameManager, Player, ChatMessage } from "common";
 import * as socket from "./socket";
 
@@ -49,3 +50,24 @@ export const actions = {
 		socket.send({ type: "chatMessage", message });
 	},
 };
+
+export function init() {
+	socket.onMessage(message => {
+		switch (message.type) {
+			case "players":
+				state.players = message.players;
+				const newSelf = message.players.find(x => x.id === state.self.id);
+				if (newSelf) {
+					state.self = newSelf;
+				}
+				break;
+			case "chatSync":
+				state.chat = message.messages;
+				break;
+			case "receiveChatMessage":
+				state.chat.push(message.message);
+				break;
+		}
+		m.redraw();
+	});
+}

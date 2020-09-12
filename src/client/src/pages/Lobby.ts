@@ -1,6 +1,6 @@
 import m from "mithril";
 import * as socket from "../socket";
-import { state, actions } from "../state";
+import { state, actions, init as initState } from "../state";
 import { PlayerList, Chat } from "../components";
 
 const qs = document.querySelector.bind(document);
@@ -40,19 +40,14 @@ const Members = {
 
 export const Lobby = {
 	status: "ok",
+	unsubscribe: null as null | (() => void),
 
 	oninit() {
 		socket.open();
+		initState();
 
-		socket.onMessage(message => {
+		this.unsubscribe = socket.onMessage(message => {
 			switch (message.type) {
-				case "players":
-					state.players = message.players;
-					const newSelf = message.players.find(x => x.id === state.self.id);
-					if (newSelf) {
-						state.self = newSelf;
-					}
-					break;
 				case "nameResponse":
 					this.status = message.status;
 					if (message.status === "ok") {
@@ -67,15 +62,12 @@ export const Lobby = {
 						m.route.set("/");
 					}
 					break;
-				case "chatSync":
-					state.chat = message.messages;
-					break;
-				case "receiveChatMessage":
-					state.chat.push(message.message);
-					break;
 			}
-			m.redraw();
 		});
+	},
+
+	onremove() {
+		this.unsubscribe?.();
 	},
 
 	startGame() {

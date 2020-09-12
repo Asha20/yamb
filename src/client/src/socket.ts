@@ -19,6 +19,8 @@ export function open() {
 		.replace(location.port, "3001");
 	socket = new WebSocket(wsUrl);
 
+	console.log("Socket opened");
+
 	onMessage(msg => {
 		console.log("Received: %o", msg);
 	});
@@ -32,9 +34,12 @@ export function get() {
 	return socket;
 }
 
-export function onMessage(handler: (msg: ServerMessage) => void) {
-	get().addEventListener("message", e => {
+export function onMessage(fn: (msg: ServerMessage) => void) {
+	const handler = (e: MessageEvent) => {
 		const message = JSON.parse(e.data) as ServerMessage;
-		handler(message);
-	});
+		fn(message);
+	};
+	get().addEventListener("message", handler);
+
+	return () => get().removeEventListener("message", handler);
 }
