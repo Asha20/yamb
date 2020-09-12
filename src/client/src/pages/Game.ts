@@ -1,9 +1,5 @@
 import m from "mithril";
-import { Yamb } from "../components/Yamb";
-import { Dice } from "../components/Dice";
-import { Scoreboard } from "../components/Scoreboard";
-import { GameOver } from "../components/GameOver";
-import { Chat } from "../components/Chat";
+import { Yamb, Dice, Scoreboard, GameOver, Chat } from "../components";
 import { state, actions } from "../state";
 import * as socket from "../socket";
 

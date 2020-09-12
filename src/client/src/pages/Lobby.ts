@@ -1,8 +1,7 @@
 import m from "mithril";
 import * as socket from "../socket";
 import { state, actions } from "../state";
-import { PlayerList } from "../components/PlayerList";
-import { Chat } from "../components/Chat";
+import { PlayerList, Chat } from "../components";
 
 const qs = document.querySelector.bind(document);
 
