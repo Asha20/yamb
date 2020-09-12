@@ -68,14 +68,20 @@ export const Yamb = {
 				m("col.columns", { span: columnNames.length }),
 			]),
 
-			m("thead", [m("tr", [m("th"), columnNames.map(col => m("th", [col]))])]),
+			m("thead", [
+				m("tr", [
+					m("th"),
+					columnNames.map(col => m("th", { key: col }, [col])),
+				]),
+			]),
 
 			m("tbody", [
 				rowNames.map(row =>
-					m("tr", [
+					m("tr", { key: row }, [
 						m("th", row),
 						...columnNames.map(column =>
 							m(Cell, {
+								key: column,
 								filled: state.gameManager.filled(player, row, column),
 								row,
 								column,

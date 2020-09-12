@@ -33,7 +33,7 @@ export const Scoreboard = {
 			m(
 				"tbody",
 				state.initialPlayers.map(player =>
-					m("tr", [
+					m("tr", { key: player.id }, [
 						m("td", this.playerName(player)),
 						m("td", state.gameManager.score(player)),
 					]),

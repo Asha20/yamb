@@ -35,6 +35,7 @@ export const Dice = {
 					m(
 						"button.dice__die",
 						{
+							key: i,
 							class: state.gameManager.frozen[i] ? "frozen" : "",
 							disabled: !state.ownTurn,
 							onclick: () => this.onDieClick(i),

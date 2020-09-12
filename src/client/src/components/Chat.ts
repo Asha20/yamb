@@ -56,7 +56,9 @@ export const Chat = {
 		return m("section.chat", [
 			m(
 				"ul.chat__log",
-				state.chat.map(msg => m("li.chat__message", formatMessage(msg))),
+				state.chat.map(msg =>
+					m("li.chat__message", { key: msg.sent }, formatMessage(msg)),
+				),
 			),
 			m("section.chat__send", [
 				m("input[type=text].chat__input", {

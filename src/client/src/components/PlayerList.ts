@@ -37,7 +37,7 @@ export const PlayerList = {
 			m(
 				"ul.players__ul",
 				vnode.attrs.players.map(player =>
-					m("li", this.playerName(vnode.attrs, player)),
+					m("li", { key: player.id }, this.playerName(vnode.attrs, player)),
 				),
 			),
 		]);
