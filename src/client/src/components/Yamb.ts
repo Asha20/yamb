@@ -8,12 +8,10 @@ interface CellAttrs {
 	player: Player;
 	row: string;
 	column: string;
-	active: boolean;
 }
 
 interface YambAttrs {
 	player: Player;
-	active: boolean;
 }
 
 const Cell = {
@@ -32,10 +30,10 @@ const Cell = {
 	},
 
 	view(vnode: m.Vnode<CellAttrs>) {
-		const { filled, row, column, player, active } = vnode.attrs;
+		const { filled, row, column, player } = vnode.attrs;
 
 		const potentialScore = state.gameManager.getScore(player, row, column);
-		const canPlay = active && !filled;
+		const canPlay = !filled;
 		const legalMove =
 			potentialScore !== undefined && state.gameManager.roll > 0;
 
@@ -48,7 +46,7 @@ const Cell = {
 						illegal: canPlay && !legalMove,
 						legal: canPlay && legalMove,
 					}),
-					disabled: !active || !legalMove || !state.ownTurn,
+					disabled: filled || !legalMove || !state.ownTurn,
 					onclick: () => this.play(row, column),
 				},
 				this.cellValue(filled, player, row, column),
@@ -59,10 +57,10 @@ const Cell = {
 
 export const Yamb = {
 	view(vnode: m.Vnode<YambAttrs>) {
-		const { player, active } = vnode.attrs;
+		const { player } = vnode.attrs;
 		const { rowNames, columnNames } = state.gameManager;
 
-		return m("table.yamb", { class: classNames({ active }) }, [
+		return m("table.yamb", [
 			m("colgroup", [
 				m("col.rows"),
 				m("col.columns", { span: columnNames.length }),
@@ -84,7 +82,6 @@ export const Yamb = {
 								row,
 								column,
 								player,
-								active,
 							}),
 						),
 					]),

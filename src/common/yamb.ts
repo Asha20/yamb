@@ -258,7 +258,7 @@ function yamb<
 
 	function play(dice: Dice, row: RowName, column: ColName) {
 		if (!canPlay(dice, row, column)) {
-			return;
+			throw new Error("Invalid move");
 		}
 
 		const score = getScore(dice, row, column)!;

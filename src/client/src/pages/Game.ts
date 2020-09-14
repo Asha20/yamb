@@ -35,7 +35,7 @@ export const Game = {
 		return state.gameState === "finished"
 			? m(GameOver)
 			: m(".game", [
-					m(Yamb, { player: state.gameManager.currentPlayer, active: true }),
+					m(Yamb, { player: state.gameManager.currentPlayer }),
 					m(Aside),
 			  ]);
 	},
