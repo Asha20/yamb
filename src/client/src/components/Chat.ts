@@ -26,8 +26,11 @@ function formatMessage(msg: ChatMessage) {
 	const s = String(date.getSeconds()).padStart(2, "0");
 	const timestamp = `[${h}:${m}:${s}]`;
 
-	const name = getName(msg.sender);
+	if (msg.sender === "Server") {
+		return `${timestamp} ${msg.content}`;
+	}
 
+	const name = getName(msg.sender);
 	return `${timestamp} ${name}: ${msg.content}`;
 }
 

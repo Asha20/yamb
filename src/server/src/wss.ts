@@ -1,5 +1,5 @@
 import * as WebSocket from "ws";
-import { gameManager, GameManager, ChatMessage } from "common";
+import { gameManager, GameManager, ChatMessage, ServerMessage } from "common";
 import { Room, RoomManager } from "./roomManager";
 
 const nameRegex = /^[\w\s]+$/;
@@ -17,6 +17,23 @@ export function listen(port: number) {
 		const lobbyMatch = url.match(lobbyRegex);
 		return lobbyMatch && lobbyMatch[1];
 	});
+
+	function serverMessage(
+		room: Room,
+		broadcast: (msg: ServerMessage) => void,
+		content: string,
+	) {
+		const chatLog = chatLogs.get(room);
+		const message: ChatMessage = {
+			sender: "Server",
+			sent: Date.now(),
+			content,
+		};
+		if (chatLog) {
+			chatLog.push(message);
+			broadcast({ type: "receiveChatMessage", message });
+		}
+	}
 
 	roomManager.onJoin(({ member, room, reply, broadcast }) => {
 		if (games.has(room)) {
@@ -57,6 +74,8 @@ export function listen(port: number) {
 			games.delete(room);
 			chatLogs.delete(room);
 		}
+
+		serverMessage(room, broadcast, `${member.player.name} left.`);
 	});
 
 	roomManager.onMessage({
@@ -88,6 +107,7 @@ export function listen(port: number) {
 			member.player.name = name;
 			reply({ type: "nameResponse", status: "ok", player: member.player });
 			broadcast({ type: "players", players: room.players });
+			serverMessage(room, broadcast, `${name} joined.`);
 		},
 
 		chatMessage({ msg, room, broadcast }) {
@@ -105,6 +125,7 @@ export function listen(port: number) {
 			if (player && player.owner) {
 				games.set(room, gameManager(room.players));
 				broadcast({ type: "gameStarted" });
+				serverMessage(room, broadcast, "Game has started.");
 			}
 		},
 
