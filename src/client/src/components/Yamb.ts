@@ -48,7 +48,7 @@ const Cell = {
 						illegal: canPlay && !legalMove,
 						legal: canPlay && legalMove,
 					}),
-					disabled: !active || !legalMove,
+					disabled: !active || !legalMove || !state.ownTurn,
 					onclick: () => this.play(row, column),
 				},
 				this.cellValue(filled, player, row, column),
