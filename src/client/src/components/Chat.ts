@@ -39,6 +39,12 @@ export const Chat = {
 		this.content = this.inputField?.value ?? "";
 	},
 
+	sendOnEnter(e: KeyboardEvent) {
+		if (e.key === "Enter" || e.key === "Return") {
+			this.sendMessage();
+		}
+	},
+
 	sendMessage() {
 		if (!this.content.trim().length) {
 			return;
@@ -64,6 +70,7 @@ export const Chat = {
 				m("input[type=text].chat__input", {
 					oncreate: ({ dom }) => (this.inputField = dom as HTMLInputElement),
 					oninput: (e: InputEvent) => this.onInput(e),
+					onkeydown: (e: KeyboardEvent) => this.sendOnEnter(e),
 					disabled: !canSend,
 					readonly: !canSend,
 				}),
