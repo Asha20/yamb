@@ -43,3 +43,8 @@ export function onMessage(fn: (msg: ServerMessage) => void) {
 
 	return () => get().removeEventListener("message", handler);
 }
+
+export function onClose(fn: (e: CloseEvent) => void) {
+	get().addEventListener("close", fn);
+	return () => get().removeEventListener("close", fn);
+}

@@ -19,6 +19,11 @@ export function listen(port: number) {
 	});
 
 	roomManager.onJoin(({ member, room, reply, broadcast }) => {
+		if (games.has(room)) {
+			member.socket.close();
+			return;
+		}
+
 		console.log(`Player ${member.id} joined room ${room.id}`);
 		broadcast({ type: "players", players: room.players });
 
