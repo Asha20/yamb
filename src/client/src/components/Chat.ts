@@ -35,8 +35,15 @@ function formatMessage(msg: ChatMessage) {
 }
 
 export const Chat = {
+	chatLog: null as Element | null,
 	inputField: null as HTMLInputElement | null,
 	content: "",
+
+	onupdate() {
+		if (this.chatLog && !this.content) {
+			this.chatLog.scrollTop = this.chatLog.scrollHeight;
+		}
+	},
 
 	onInput(e: InputEvent) {
 		this.content = this.inputField?.value ?? "";
@@ -65,6 +72,7 @@ export const Chat = {
 		return m("section.chat", [
 			m(
 				"ul.chat__log",
+				{ oncreate: ({ dom }) => (this.chatLog = dom) },
 				state.chat.map(msg =>
 					m("li.chat__message", { key: msg.sent }, formatMessage(msg)),
 				),
