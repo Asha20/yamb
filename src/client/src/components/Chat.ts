@@ -20,18 +20,12 @@ function getName(sender: Player["id"]) {
 }
 
 function formatMessage(msg: ChatMessage) {
-	const date = new Date(msg.sent);
-	const h = String(date.getHours()).padStart(2, "0");
-	const m = String(date.getMinutes()).padStart(2, "0");
-	const s = String(date.getSeconds()).padStart(2, "0");
-	const timestamp = `[${h}:${m}:${s}]`;
-
 	if (msg.sender === "Server") {
-		return `${timestamp} ${msg.content}`;
+		return msg.content;
 	}
 
 	const name = getName(msg.sender);
-	return `${timestamp} ${name}: ${msg.content}`;
+	return `${name}: ${msg.content}`;
 }
 
 export const Chat = {

@@ -1,4 +1,5 @@
 import * as WebSocket from "ws";
+import { Server } from "http";
 import { gameManager, GameManager, ChatMessage, ServerMessage } from "common";
 import { Room, RoomManager } from "./roomManager";
 
@@ -6,8 +7,8 @@ const nameRegex = /^[\w\s]+$/;
 
 let wss: WebSocket.Server;
 
-export function listen(port: number) {
-	wss = new WebSocket.Server({ port });
+export function listen(server: Server) {
+	wss = new WebSocket.Server({ server });
 
 	const games = new Map<Room, GameManager>();
 	const chatLogs = new Map<Room, ChatMessage[]>();
@@ -160,12 +161,14 @@ export function listen(port: number) {
 				return;
 			}
 
-			game.play(row, column, room.players); // TODO: Check for throw
-			broadcast({ type: "moveResponse", player, row, column });
+			try {
+				game.play(row, column, room.players); // TODO: Check for throw
+				broadcast({ type: "moveResponse", player, row, column });
 
-			if (!game.active(room.players)) {
-				broadcast({ type: "gameEnded" });
-			}
+				if (!game.active(room.players)) {
+					broadcast({ type: "gameEnded" });
+				}
+			} catch (e) {}
 		},
 	});
 }

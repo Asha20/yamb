@@ -1,3 +1,4 @@
+import * as http from "http";
 import * as path from "path";
 import * as express from "express";
 import * as wss from "./wss";
@@ -25,12 +26,11 @@ app.get("/lobby/:id", mithrilRoute);
 app.get("/game/:id", redirect("/"));
 app.use("/api", apiRouter);
 
-const EXPRESS_PORT = 3000;
-const WS_PORT = 3001;
+const server = http.createServer(app);
+wss.listen(server);
 
-app.listen(EXPRESS_PORT, () => {
+const EXPRESS_PORT = process.env.PORT || 3000;
+
+server.listen(EXPRESS_PORT, () => {
 	console.log("Express server open on port:", EXPRESS_PORT);
 });
-
-wss.listen(WS_PORT);
-console.log("WebSocket server open on port:", WS_PORT);

@@ -14,9 +14,7 @@ export function send(msg: DistributeOmit<ClientMessage, "sender">) {
 }
 
 export function open() {
-	const wsUrl = location.href
-		.replace(location.protocol, "ws:")
-		.replace(location.port, "3001");
+	const wsUrl = location.href.replace(location.protocol, "ws:");
 	socket = new WebSocket(wsUrl);
 
 	console.log("Socket opened");
