@@ -70,8 +70,4 @@ export function init() {
 		}
 		m.redraw();
 	});
-
-	socket.onClose(() => {
-		m.route.set("/");
-	});
 }

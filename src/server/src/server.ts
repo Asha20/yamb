@@ -22,7 +22,12 @@ const app = express();
 app.use("/public", express.static(root("client/dist")));
 
 app.get("/", mithrilRoute);
-app.get("/lobby/:id", mithrilRoute);
+app.get("/lobby/:id", (req, res) => {
+	if (wss.gamesSet.has(req.params.id)) {
+		return redirect("/")(req, res);
+	}
+	return mithrilRoute(req, res);
+});
 app.get("/game/:id", redirect("/"));
 app.use("/api", apiRouter);
 

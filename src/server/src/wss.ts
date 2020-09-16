@@ -7,11 +7,12 @@ const nameRegex = /^[\w\s]+$/;
 
 let wss: WebSocket.Server;
 
+export const gamesSet = new Set<string>();
+export const games = new Map<Room, GameManager>();
+export const chatLogs = new Map<Room, ChatMessage[]>();
+
 export function listen(server: Server) {
 	wss = new WebSocket.Server({ server });
-
-	const games = new Map<Room, GameManager>();
-	const chatLogs = new Map<Room, ChatMessage[]>();
 
 	const roomManager = new RoomManager(wss, url => {
 		const lobbyRegex = /^\/lobby\/(\d+)$/;
@@ -74,6 +75,7 @@ export function listen(server: Server) {
 			roomManager.deleteRoom(room.id);
 			games.delete(room);
 			chatLogs.delete(room);
+			gamesSet.delete(room.id);
 		}
 
 		serverMessage(room, broadcast, `${member.player.name} left.`);
@@ -127,6 +129,7 @@ export function listen(server: Server) {
 				games.set(room, gameManager(room.players));
 				broadcast({ type: "gameStarted" });
 				serverMessage(room, broadcast, "Game has started.");
+				gamesSet.add(room.id);
 			}
 		},
 
