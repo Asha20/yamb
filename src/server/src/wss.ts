@@ -168,11 +168,26 @@ export function listen(server: Server) {
 			}
 
 			try {
-				game.play(row, column, room.players); // TODO: Check for throw
+				game.play(row, column, room.players);
 				broadcast({ type: "moveResponse", player, row, column });
 
 				if (!game.active(room.players)) {
 					broadcast({ type: "gameEnded" });
+				}
+			} catch (e) {}
+		},
+
+		requestCall({ msg, room, broadcast }) {
+			const game = games.get(room)!;
+
+			if (game.currentPlayer.id !== msg.sender || game.roll !== 1) {
+				return;
+			}
+
+			try {
+				const success = game.call(msg.row);
+				if (success) {
+					broadcast({ type: "confirmCall", row: msg.row });
 				}
 			} catch (e) {}
 		},

@@ -17,6 +17,10 @@ button {
   padding: 0;
 }
 
+button:disabled {
+  color: inherit;
+}
+
 html {
   font-size: 24px;
 }

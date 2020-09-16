@@ -49,6 +49,10 @@ export const actions = {
 		};
 		socket.send({ type: "chatMessage", message });
 	},
+
+	call(row: string) {
+		socket.send({ type: "requestCall", row });
+	},
 };
 
 export function init() {
@@ -66,6 +70,9 @@ export function init() {
 				break;
 			case "receiveChatMessage":
 				state.chat.push(message.message);
+				break;
+			case "confirmCall":
+				state.gameManager.call(message.row);
 				break;
 		}
 		m.redraw();

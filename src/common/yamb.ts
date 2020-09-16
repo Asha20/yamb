@@ -32,6 +32,8 @@ export interface Yamb<
 > {
 	readonly rows: TRows;
 	readonly columns: TColumns;
+	calling(): null | Name<TRows>;
+	call(dice: Dice, row: Name<TRows>): boolean;
 	active(): boolean;
 	score(): number;
 	canPlay(dice: DiceContext, row: Name<TRows>, column: Name<TColumns>): boolean;
@@ -169,7 +171,7 @@ export const yahtzee = row("Yahtzee", "Five same dice", ({ count }) => {
 	return fiveOfAKind ? 50 + 5 * fiveOfAKind : 0;
 });
 
-const topDown = column("↓", "Top-down", ({ row, column, game }) => {
+export const topDown = column("↓", "Top-down", ({ row, column, game }) => {
 	const rowIndex = game.rows.findIndex(x => x.name === row);
 	if (rowIndex > 0) {
 		const prevRowName = game.rows[rowIndex - 1].name;
@@ -178,15 +180,22 @@ const topDown = column("↓", "Top-down", ({ row, column, game }) => {
 	return 0;
 });
 
-const free = column("↓↑", "Free", () => 0);
+export const free = column("↓↑", "Free", () => 0);
 
-const bottomUp = column("↑", "Bottom-up", ({ row, column, game }) => {
+export const bottomUp = column("↑", "Bottom-up", ({ row, column, game }) => {
 	const rowIndex = game.rows.findIndex(x => x.name === row);
 	if (rowIndex < game.rows.length - 1) {
 		const nextRowName = game.rows[rowIndex + 1].name;
 		return game.filled(nextRowName, column) ? 0 : undefined;
 	}
 	return 0;
+});
+
+export const call = column("C", "Call", ({ game }) => {
+	if (game.calling()) {
+		return 0;
+	}
+	return undefined;
 });
 
 const ROWS = [
@@ -207,7 +216,7 @@ const ROWS = [
 	yahtzee,
 ] as const;
 
-const COLUMNS = [topDown, free, bottomUp] as const;
+const COLUMNS = [topDown, free, bottomUp, call] as const;
 
 function yamb<
 	TRows extends readonly Row<string>[],
@@ -217,6 +226,7 @@ function yamb<
 	type ColName = TColumns[number]["name"];
 
 	let turnsLeft = rows.length * columns.length;
+	let calling: null | RowName = null;
 
 	const cellFilled = array(rows.length, () =>
 		array(columns.length, () => false),
@@ -254,6 +264,10 @@ function yamb<
 			return matrix[rowIndex][columnIndex];
 		}
 
+		if (calling && (column !== "C" || row !== calling)) {
+			return undefined;
+		}
+
 		const rowScore = rows[rowIndex].score(scoreContext(row, column, dice));
 		const columnScore = columns[columnIndex].score(
 			scoreContext(row, column, dice),
@@ -262,6 +276,15 @@ function yamb<
 			return undefined;
 		}
 		return rowScore + columnScore;
+	}
+
+	function call(dice: Dice, row: RowName) {
+		if (dice.roll !== 1 || calling || filled(row, "C")) {
+			return false;
+		}
+
+		calling = row;
+		return true;
 	}
 
 	function field(row: RowName, column: ColName) {
@@ -275,6 +298,10 @@ function yamb<
 	}
 
 	function canPlay(dice: Dice, row: RowName, column: ColName) {
+		if (calling) {
+			return row === calling && column === "C";
+		}
+
 		return !filled(row, column) && getScore(dice, row, column) !== undefined;
 	}
 
@@ -288,6 +315,10 @@ function yamb<
 		matrix[rowIndex][columnIndex] = score;
 		cellFilled[rowIndex][columnIndex] = true;
 		turnsLeft -= 1;
+
+		if (calling && calling === row) {
+			calling = null;
+		}
 	}
 
 	return Object.assign(game, {
@@ -299,6 +330,10 @@ function yamb<
 		filled,
 		getScore,
 		getField,
+		call,
+		calling() {
+			return calling;
+		},
 		active() {
 			return turnsLeft > 0;
 		},

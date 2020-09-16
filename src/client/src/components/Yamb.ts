@@ -1,5 +1,5 @@
 import m from "mithril";
-import { state } from "../state";
+import { state, actions } from "../state";
 import * as socket from "../socket";
 import { classNames, Player } from "common";
 import { Tooltip } from "./Tooltip";
@@ -30,8 +30,33 @@ const Cell = {
 		return filled || state.gameManager.roll > 0 ? score : undefined;
 	},
 
+	call(row: string) {
+		actions.call(row);
+		if (document.activeElement instanceof HTMLElement) {
+			document.activeElement?.blur();
+		}
+	},
+
 	view(vnode: m.Vnode<CellAttrs>) {
 		const { filled, row, column, player } = vnode.attrs;
+
+		if (
+			!filled &&
+			column === "C" &&
+			!state.gameManager.calling() &&
+			state.gameManager.roll === 1
+		) {
+			return m("td", [
+				m(
+					"button.cell.legal",
+					{
+						disabled: !state.ownTurn,
+						onclick: () => this.call(row),
+					},
+					"Call",
+				),
+			]);
+		}
 
 		const potentialScore = state.gameManager.getScore(player, row, column);
 		const canPlay = !filled;

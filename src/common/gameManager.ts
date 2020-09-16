@@ -89,6 +89,12 @@ export function gameManager(players: Player[]) {
 				return playersSet.has(playerId) && game.active();
 			});
 		},
+		call(row: string) {
+			return getGame(players[currentPlayer]).call(dice, row);
+		},
+		calling() {
+			return getGame(players[currentPlayer]).calling();
+		},
 		players,
 		rows,
 		columns,

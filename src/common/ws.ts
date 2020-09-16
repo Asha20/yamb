@@ -8,11 +8,18 @@ export type Move = { type: "move"; row: string; column: string };
 export type ToggleFreeze = { type: "toggleFreeze"; index: number };
 export type RollDice = { type: "rollDice" };
 export type SendChatMessage = { type: "chatMessage"; message: ChatMessage };
+export type RequestCall = { type: "requestCall"; row: string };
 
 type WithSender<T> = T & { sender: string };
 
 export type ClientMessage = WithSender<
-	SetName | StartGame | Move | ToggleFreeze | RollDice | SendChatMessage
+	| SetName
+	| StartGame
+	| Move
+	| ToggleFreeze
+	| RollDice
+	| SendChatMessage
+	| RequestCall
 >;
 
 interface Message {
@@ -63,6 +70,10 @@ function chatMessage(x: Message): x is SendChatMessage {
 	);
 }
 
+function requestCall(x: Message): x is RequestCall {
+	return x.type === "requestCall" && typeof x.row === "string";
+}
+
 export function isClientMessage(x: unknown): x is ClientMessage {
 	if (!message(x)) {
 		return false;
@@ -78,7 +89,8 @@ export function isClientMessage(x: unknown): x is ClientMessage {
 		move(x) ||
 		toggleFreeze(x) ||
 		rollDice(x) ||
-		chatMessage(x)
+		chatMessage(x) ||
+		requestCall(x)
 	);
 }
 
@@ -96,4 +108,5 @@ export type ServerMessage =
 	| { type: "findNextAvailablePlayer" }
 	| { type: "gameEnded" }
 	| { type: "chatSync"; messages: ChatMessage[] }
-	| { type: "receiveChatMessage"; message: ChatMessage };
+	| { type: "receiveChatMessage"; message: ChatMessage }
+	| { type: "confirmCall"; row: string };
