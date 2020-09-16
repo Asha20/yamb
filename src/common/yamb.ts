@@ -12,11 +12,13 @@ interface ColumnContext<R extends string = string, C extends string = string>
 
 interface Row<T extends string> {
 	name: T;
+	tip: string;
 	score(context: RowContext): number | undefined;
 }
 
 interface Column<T extends string> {
 	name: T;
+	tip: string;
 	score(context: ColumnContext): number | undefined;
 }
 
@@ -28,8 +30,8 @@ export interface Yamb<
 	TRows extends readonly Row<string>[] = readonly Row<string>[],
 	TColumns extends readonly Column<string>[] = readonly Column<string>[]
 > {
-	readonly rowNames: Readonly<Name<TRows>[]>;
-	readonly columnNames: Readonly<Name<TColumns>[]>;
+	readonly rows: TRows;
+	readonly columns: TColumns;
 	active(): boolean;
 	score(): number;
 	canPlay(dice: DiceContext, row: Name<TRows>, column: Name<TColumns>): boolean;
@@ -69,40 +71,50 @@ function sumDice(dice: DiceCount) {
 
 function row<T extends string>(
 	name: Row<T>["name"],
+	tip: string,
 	score: Row<T>["score"],
 ): Row<T> {
-	return { name, score };
+	return { name, tip, score };
 }
 
 function column<T extends string>(
 	name: Column<T>["name"],
+	tip: string,
 	score: Column<T>["score"],
 ): Column<T> {
-	return { name, score };
+	return { name, tip, score };
 }
 
-export const one = row("1", ({ count }) => 1 * count[1]);
-export const two = row("2", ({ count }) => 2 * count[2]);
-export const three = row("3", ({ count }) => 3 * count[3]);
-export const four = row("4", ({ count }) => 4 * count[4]);
-export const five = row("5", ({ count }) => 5 * count[5]);
-export const six = row("6", ({ count }) => 6 * count[6]);
+export const one = row("1", "Sum of ones", ({ count }) => 1 * count[1]);
+export const two = row("2", "Sum of twos", ({ count }) => 2 * count[2]);
+export const three = row("3", "Sum of threes", ({ count }) => 3 * count[3]);
+export const four = row("4", "Sum of fours", ({ count }) => 4 * count[4]);
+export const five = row("5", "Sum of fives", ({ count }) => 5 * count[5]);
+export const six = row("6", "Sum of sixes", ({ count }) => 6 * count[6]);
 
-export const max = row("Max", ({ count }) => sumDice(count));
-export const min = row("Min", ({ count }) => -sumDice(count));
+export const max = row("Max", "Sum of all dice", ({ count }) => sumDice(count));
+export const min = row(
+	"Min",
+	"Negative sum of all dice",
+	({ count }) => -sumDice(count),
+);
 
-export const straight = row("Straight", ({ count, roll }) => {
-	const oneToFive = count[1] && count[2] && count[3] && count[4] && count[5];
-	const twoToSix = count[2] && count[3] && count[4] && count[5] && count[6];
-	if (!oneToFive && !twoToSix) {
-		return 0;
-	}
+export const straight = row(
+	"Straight",
+	"1-2-3-4-5 or 2-3-4-5-6",
+	({ count, roll }) => {
+		const oneToFive = count[1] && count[2] && count[3] && count[4] && count[5];
+		const twoToSix = count[2] && count[3] && count[4] && count[5] && count[6];
+		if (!oneToFive && !twoToSix) {
+			return 0;
+		}
 
-	if (roll === 1) return 66;
-	if (roll === 2) return 56;
-	if (roll === 3) return 46;
-	throw new Error("Unreachable code");
-});
+		if (roll === 1) return 66;
+		if (roll === 2) return 56;
+		if (roll === 3) return 46;
+		throw new Error("Unreachable code");
+	},
+);
 
 function findFullHouse(dice: DiceCount) {
 	const threeOfAKind = findDie(dice, amount => amount >= 3);
@@ -119,47 +131,59 @@ function findFullHouse(dice: DiceCount) {
 	return twoOfAKind && ([threeOfAKind, twoOfAKind] as const);
 }
 
-export const threeOfAKind = row("Three of a Kind", ({ count }) => {
-	const threeOfAKind = findDie(count, amount => amount >= 3);
-	return threeOfAKind ? 30 + 3 * threeOfAKind : 0;
-});
+export const threeOfAKind = row(
+	"Three of a Kind",
+	"Three same dice",
+	({ count }) => {
+		const threeOfAKind = findDie(count, amount => amount >= 3);
+		return threeOfAKind ? 30 + 3 * threeOfAKind : 0;
+	},
+);
 
-export const fullHouse = row("Full House", ({ count }) => {
-	const fullHouse = findFullHouse(count);
+export const fullHouse = row(
+	"Full House",
+	"Three of a Kind + Two of a Kind",
+	({ count }) => {
+		const fullHouse = findFullHouse(count);
 
-	if (!fullHouse) {
-		return 0;
-	}
+		if (!fullHouse) {
+			return 0;
+		}
 
-	const [threeOfAKind, twoOfAKind] = fullHouse;
-	return 40 + 3 * threeOfAKind + 2 * twoOfAKind;
-});
+		const [threeOfAKind, twoOfAKind] = fullHouse;
+		return 40 + 3 * threeOfAKind + 2 * twoOfAKind;
+	},
+);
 
-export const fourOfAKind = row("Four of a Kind", ({ count }) => {
-	const fourOfAKind = findDie(count, amount => amount >= 4);
-	return fourOfAKind ? 50 + 4 * fourOfAKind : 0;
-});
+export const fourOfAKind = row(
+	"Four of a Kind",
+	"Four same dice",
+	({ count }) => {
+		const fourOfAKind = findDie(count, amount => amount >= 4);
+		return fourOfAKind ? 50 + 4 * fourOfAKind : 0;
+	},
+);
 
-export const yahtzee = row("Yahtzee", ({ count }) => {
+export const yahtzee = row("Yahtzee", "Five same dice", ({ count }) => {
 	const fiveOfAKind = findDie(count, amount => amount >= 5);
 	return fiveOfAKind ? 50 + 5 * fiveOfAKind : 0;
 });
 
-const topDown = column("↓", ({ row, column, game }) => {
-	const rowIndex = game.rowNames.findIndex(x => x === row);
+const topDown = column("↓", "Top-down", ({ row, column, game }) => {
+	const rowIndex = game.rows.findIndex(x => x.name === row);
 	if (rowIndex > 0) {
-		const prevRowName = game.rowNames[rowIndex - 1];
+		const prevRowName = game.rows[rowIndex - 1].name;
 		return game.filled(prevRowName, column) ? 0 : undefined;
 	}
 	return 0;
 });
 
-const free = column("↓↑", () => 0);
+const free = column("↓↑", "Free", () => 0);
 
-const bottomUp = column("↑", ({ row, column, game }) => {
-	const rowIndex = game.rowNames.findIndex(x => x === row);
-	if (rowIndex < game.rowNames.length - 1) {
-		const nextRowName = game.rowNames[rowIndex + 1];
+const bottomUp = column("↑", "Bottom-up", ({ row, column, game }) => {
+	const rowIndex = game.rows.findIndex(x => x.name === row);
+	if (rowIndex < game.rows.length - 1) {
+		const nextRowName = game.rows[rowIndex + 1].name;
 		return game.filled(nextRowName, column) ? 0 : undefined;
 	}
 	return 0;
@@ -193,8 +217,6 @@ function yamb<
 	type ColName = TColumns[number]["name"];
 
 	let turnsLeft = rows.length * columns.length;
-	const rowNames = Object.freeze(rows.map(x => x.name));
-	const columnNames = Object.freeze(columns.map(x => x.name));
 
 	const cellFilled = array(rows.length, () =>
 		array(columns.length, () => false),
@@ -207,8 +229,8 @@ function yamb<
 	const game = {} as Yamb<TRows, TColumns>;
 
 	function getField(row: RowName, column: ColName) {
-		const rowIndex = rowNames.findIndex(x => x === row);
-		const columnIndex = columnNames.findIndex(x => x === column);
+		const rowIndex = rows.findIndex(x => x.name === row);
+		const columnIndex = columns.findIndex(x => x.name === column);
 
 		if (rowIndex === -1 || columnIndex === -1) {
 			throw new Error(`Field (${row}, ${column}) is invalid.`);
@@ -269,8 +291,8 @@ function yamb<
 	}
 
 	return Object.assign(game, {
-		rowNames,
-		columnNames,
+		rows,
+		columns,
 		canPlay,
 		play,
 		field,

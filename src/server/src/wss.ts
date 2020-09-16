@@ -160,7 +160,10 @@ export function listen(server: Server) {
 				return;
 			}
 
-			if (!game.rowNames.includes(row) || !game.columnNames.includes(column)) {
+			if (
+				!game.rows.some(x => x.name === row) ||
+				!game.columns.some(x => x.name === column)
+			) {
 				return;
 			}
 

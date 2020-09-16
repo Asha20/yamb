@@ -2,6 +2,7 @@ import m from "mithril";
 import { state } from "../state";
 import * as socket from "../socket";
 import { classNames, Player } from "common";
+import { Tooltip } from "./Tooltip";
 
 interface CellAttrs {
 	filled: boolean;
@@ -58,29 +59,36 @@ const Cell = {
 export const Yamb = {
 	view(vnode: m.Vnode<YambAttrs>) {
 		const { player } = vnode.attrs;
-		const { rowNames, columnNames } = state.gameManager;
+		const { rows, columns } = state.gameManager;
 
 		return m("table.yamb", [
 			m("colgroup", [
 				m("col.rows"),
-				m("col.columns", { span: columnNames.length }),
+				m("col.columns", { span: columns.length }),
 			]),
 
 			m("thead", [
-				m("tr", [m("th"), columnNames.map(col => m("th", { key: col }, col))]),
+				m("tr", [
+					m("th"),
+					columns.map(col =>
+						m("th", { key: col.name }, [
+							m(Tooltip, { tip: col.tip }, col.name),
+						]),
+					),
+				]),
 			]),
 
 			m(
 				"tbody",
-				rowNames.map(row =>
-					m("tr", { key: row }, [
-						m("th", row),
-						columnNames.map(column =>
+				rows.map(row =>
+					m("tr", { key: row.name }, [
+						m("th", [m(Tooltip, { tip: row.tip }, row.name)]),
+						columns.map(col =>
 							m(Cell, {
-								key: column,
-								filled: state.gameManager.filled(player, row, column),
-								row,
-								column,
+								key: col.name,
+								filled: state.gameManager.filled(player, row.name, col.name),
+								row: row.name,
+								column: col.name,
 								player,
 							}),
 						),

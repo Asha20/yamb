@@ -4,3 +4,4 @@ export * from "./GameOver";
 export * from "./PlayerList";
 export * from "./Scoreboard";
 export * from "./Yamb";
+export * from "./Tooltip";
