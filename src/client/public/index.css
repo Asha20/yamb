@@ -13,34 +13,75 @@
   box-sizing: border-box;
 }
 
+button {
+  padding: 0;
+}
+
 html {
   font-size: 24px;
 }
 
-.cell {
-  width: 3em;
-  height: 2em;
-  display: block;
-  margin: 0 auto;
+body {
+  width: 100vw;
 }
 
-.yamb th,
-.yamb td {
-  width: 100px;
+.yamb-wrapper {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
+
+@media only screen and (max-width: 1024px) {
+  .game, .lobby {
+    flex-direction: column;
+  }
+
+  .members {
+    margin-bottom: 1em;
+  }
+
+  .chat__log {
+    max-height: 10em;
+  }
+}
+
+@media only screen and (min-width: 600px) {
+  .yamb, .dice__container {
+    min-width: 20em;
+    width: 50%;
+    margin: 0 auto;
+  }
+}
+
+.game {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  padding: 1em;
+}
+
+aside {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Yamb */
 
 .yamb {
-  table-layout: fixed;
-  flex: 1;
-  /* For some reason, height: 100% makes the table overflow. */
-  height: 100vh;
   border-collapse: collapse;
+  white-space: nowrap;
 }
 
 .yamb th, .yamb td {
   border: 3px solid var(--color-primary);
   text-align: center;
   padding: 0;
+  min-height: 1em;
+  width: 2em;
 }
 
 .yamb th {
@@ -54,23 +95,7 @@ html {
   height: 100%;
 }
 
-.game {
-  width: 100%;
-  height: 100vh;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-.rows {
-  width: 30%;
-}
-
-.columns {
-  width: 70%;
-}
-
 .legal {
-  /* background-color: var(--color-legal); */
   opacity: 0.4;
 }
 
@@ -79,24 +104,10 @@ html {
   cursor: pointer;
 }
 
-.illegal {
-  /* background-color: var(--color-illegal) */
-}
-
-aside {
-  display: flex;
-  padding: 0px 1em;
-  flex-direction: column;
-  height: 100%;
-}
-
-.players__player {
-  flex: 1;
-}
-
 /* Dice */
 
 .dice__container {
+  margin-top: 1em;
   display: flex;
   justify-content: space-around;
 }
@@ -142,4 +153,60 @@ aside {
 .dice__die:focus {
   cursor: pointer;
   transform: scale(1.2);
+}
+
+/* Chat */
+
+.chat {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  border-bottom: none;
+}
+
+.chat__log {
+  flex: 1;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  padding: 0.5em;
+  border: 1px solid black;
+  border-bottom: none;
+}
+
+.chat__message {
+  list-style-type: none; 
+}
+
+.chat__write {
+  display: flex;
+}
+
+.chat__input {
+  display: block;
+  flex: 1;
+}
+
+.chat__send {
+  display: block;
+  width: 3em;
+}
+
+/* Scoreboard */
+
+.scoreboard {
+  margin-top: 1em;
+}
+
+/* Lobby */
+
+.lobby {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  padding: 1em;
+}
+
+.members {
+  width: 50%;
 }

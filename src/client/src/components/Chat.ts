@@ -69,7 +69,7 @@ export const Chat = {
 					m("li.chat__message", { key: msg.sent }, formatMessage(msg)),
 				),
 			),
-			m("section.chat__send", [
+			m("section.chat__write", [
 				m("input[type=text].chat__input", {
 					oncreate: ({ dom }) => (this.inputField = dom as HTMLInputElement),
 					oninput: (e: InputEvent) => this.onInput(e),

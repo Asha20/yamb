@@ -75,12 +75,14 @@ export const Lobby = {
 	},
 
 	view() {
-		return [
-			m(Members),
-			!state.self.name && m(NamePrompt, { status: this.status }),
-			m(Chat, { canSend: !!state.self.name }),
-			state.self.owner &&
-				m("button", { onclick: this.startGame }, "Start the game"),
-		];
+		return m(".lobby", [
+			m(".members", [
+				m(Members),
+				!state.self.name && m(NamePrompt, { status: this.status }),
+				state.self.owner &&
+					m("button", { onclick: this.startGame }, "Start the game"),
+			]),
+			m("aside", [m(Chat, { canSend: !!state.self.name })]),
+		]);
 	},
 };

@@ -81,17 +81,17 @@ function column<T extends string>(
 	return { name, score };
 }
 
-export const one = row("one", ({ count }) => 1 * count[1]);
-export const two = row("two", ({ count }) => 2 * count[2]);
-export const three = row("three", ({ count }) => 3 * count[3]);
-export const four = row("four", ({ count }) => 4 * count[4]);
-export const five = row("five", ({ count }) => 5 * count[5]);
-export const six = row("six", ({ count }) => 6 * count[6]);
+export const one = row("1", ({ count }) => 1 * count[1]);
+export const two = row("2", ({ count }) => 2 * count[2]);
+export const three = row("3", ({ count }) => 3 * count[3]);
+export const four = row("4", ({ count }) => 4 * count[4]);
+export const five = row("5", ({ count }) => 5 * count[5]);
+export const six = row("6", ({ count }) => 6 * count[6]);
 
-export const max = row("max", ({ count }) => sumDice(count));
-export const min = row("min", ({ count }) => -sumDice(count));
+export const max = row("Max", ({ count }) => sumDice(count));
+export const min = row("Min", ({ count }) => -sumDice(count));
 
-export const straight = row("straight", ({ count, roll }) => {
+export const straight = row("Straight", ({ count, roll }) => {
 	const oneToFive = count[1] && count[2] && count[3] && count[4] && count[5];
 	const twoToSix = count[2] && count[3] && count[4] && count[5] && count[6];
 	if (!oneToFive && !twoToSix) {
@@ -119,12 +119,12 @@ function findFullHouse(dice: DiceCount) {
 	return twoOfAKind && ([threeOfAKind, twoOfAKind] as const);
 }
 
-export const threeOfAKind = row("three of a kind", ({ count }) => {
+export const threeOfAKind = row("Three of a Kind", ({ count }) => {
 	const threeOfAKind = findDie(count, amount => amount >= 3);
 	return threeOfAKind ? 30 + 3 * threeOfAKind : 0;
 });
 
-export const fullHouse = row("full house", ({ count }) => {
+export const fullHouse = row("Full House", ({ count }) => {
 	const fullHouse = findFullHouse(count);
 
 	if (!fullHouse) {
@@ -135,17 +135,17 @@ export const fullHouse = row("full house", ({ count }) => {
 	return 40 + 3 * threeOfAKind + 2 * twoOfAKind;
 });
 
-export const fourOfAKind = row("four of a kind", ({ count }) => {
+export const fourOfAKind = row("Four of a Kind", ({ count }) => {
 	const fourOfAKind = findDie(count, amount => amount >= 4);
 	return fourOfAKind ? 50 + 4 * fourOfAKind : 0;
 });
 
-export const yahtzee = row("yahtzee", ({ count }) => {
+export const yahtzee = row("Yahtzee", ({ count }) => {
 	const fiveOfAKind = findDie(count, amount => amount >= 5);
 	return fiveOfAKind ? 50 + 5 * fiveOfAKind : 0;
 });
 
-const topDown = column("top down", ({ row, column, game }) => {
+const topDown = column("↓", ({ row, column, game }) => {
 	const rowIndex = game.rowNames.findIndex(x => x === row);
 	if (rowIndex > 0) {
 		const prevRowName = game.rowNames[rowIndex - 1];
@@ -154,9 +154,9 @@ const topDown = column("top down", ({ row, column, game }) => {
 	return 0;
 });
 
-const free = column("free", () => 0);
+const free = column("↓↑", () => 0);
 
-const bottomUp = column("bottom up", ({ row, column, game }) => {
+const bottomUp = column("↑", ({ row, column, game }) => {
 	const rowIndex = game.rowNames.findIndex(x => x === row);
 	if (rowIndex < game.rowNames.length - 1) {
 		const nextRowName = game.rowNames[rowIndex + 1];

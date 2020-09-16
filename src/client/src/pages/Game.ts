@@ -3,12 +3,6 @@ import { Yamb, Dice, Scoreboard, GameOver, Chat } from "../components";
 import { state, actions } from "../state";
 import * as socket from "../socket";
 
-const Aside = {
-	view() {
-		return m("aside", [m(Scoreboard), m(Dice), m(Chat)]);
-	},
-};
-
 export const Game = {
 	oninit() {
 		socket.onMessage(msg => {
@@ -32,11 +26,17 @@ export const Game = {
 	},
 
 	view() {
-		return state.gameState === "finished"
-			? m(GameOver)
-			: m(".game", [
-					m(Yamb, { player: state.gameManager.currentPlayer }),
-					m(Aside),
-			  ]);
+		if (state.gameState === "finished") {
+			return m(GameOver);
+		}
+
+		return m(".game", [
+			m(".yamb-wrapper", [
+				m(Yamb, { player: state.gameManager.currentPlayer }),
+				m(Dice),
+				m(Scoreboard),
+			]),
+			m("aside", [m(Chat)]),
+		]);
 	},
 };
