@@ -4,7 +4,15 @@ import * as socket from "../socket";
 
 const diceLook = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
-export const Dice = {
+function onDieClick(index: number) {
+	socket.send({ type: "toggleFreeze", index });
+}
+
+function rollDice() {
+	socket.send({ type: "rollDice" });
+}
+
+export const Dice: m.Component = {
 	oninit() {
 		socket.onMessage(msg => {
 			switch (msg.type) {
@@ -19,14 +27,6 @@ export const Dice = {
 		});
 	},
 
-	onDieClick(index: number) {
-		socket.send({ type: "toggleFreeze", index });
-	},
-
-	rollDice() {
-		socket.send({ type: "rollDice" });
-	},
-
 	view() {
 		return m("section.dice", [
 			m(
@@ -38,7 +38,7 @@ export const Dice = {
 							key: i,
 							class: state.gameManager.frozen[i] ? "frozen" : "",
 							disabled: !state.ownTurn,
-							onclick: () => this.onDieClick(i),
+							onclick: () => onDieClick(i),
 						},
 						diceLook[die - 1],
 					),
@@ -49,7 +49,7 @@ export const Dice = {
 				"button.dice__roll-dice",
 				{
 					disabled: !state.ownTurn || state.gameManager.roll >= 3,
-					onclick: this.rollDice,
+					onclick: rollDice,
 				},
 				"Roll dice",
 			),

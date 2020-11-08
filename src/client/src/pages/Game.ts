@@ -3,7 +3,7 @@ import { Yamb, Dice, Scoreboard, GameOver, Chat } from "../components";
 import { state, actions } from "../state";
 import * as socket from "../socket";
 
-export const Game = {
+export const Game: m.Component = {
 	oninit() {
 		socket.onMessage(msg => {
 			switch (msg.type) {

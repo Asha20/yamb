@@ -15,28 +15,28 @@ interface YambAttrs {
 	player: Player;
 }
 
-const Cell = {
-	play(row: CellAttrs["row"], column: CellAttrs["column"]) {
-		socket.send({ type: "move", row, column });
-	},
+function play(row: CellAttrs["row"], column: CellAttrs["column"]) {
+	socket.send({ type: "move", row, column });
+}
 
-	cellValue(
-		filled: boolean,
-		player: Player,
-		row: CellAttrs["row"],
-		column: CellAttrs["column"],
-	) {
-		const score = state.gameManager.getScore(player, row, column);
-		return filled || state.gameManager.roll > 0 ? score : undefined;
-	},
+function cellValue(
+	filled: boolean,
+	player: Player,
+	row: CellAttrs["row"],
+	column: CellAttrs["column"],
+) {
+	const score = state.gameManager.getScore(player, row, column);
+	return filled || state.gameManager.roll > 0 ? score : undefined;
+}
 
-	call(row: string) {
-		actions.call(row);
-		if (document.activeElement instanceof HTMLElement) {
-			document.activeElement?.blur();
-		}
-	},
+function call(row: string) {
+	actions.call(row);
+	if (document.activeElement instanceof HTMLElement) {
+		document.activeElement?.blur();
+	}
+}
 
+const Cell: m.Component<CellAttrs> = {
 	view(vnode: m.Vnode<CellAttrs>) {
 		const { filled, row, column, player } = vnode.attrs;
 
@@ -51,7 +51,7 @@ const Cell = {
 					"button.cell.legal",
 					{
 						disabled: !state.ownTurn,
-						onclick: () => this.call(row),
+						onclick: () => call(row),
 					},
 					"Call",
 				),
@@ -73,9 +73,9 @@ const Cell = {
 						legal: canPlay && legalMove,
 					}),
 					disabled: filled || !legalMove || !state.ownTurn,
-					onclick: () => this.play(row, column),
+					onclick: () => play(row, column),
 				},
-				this.cellValue(filled, player, row, column),
+				cellValue(filled, player, row, column),
 			),
 		]);
 	},

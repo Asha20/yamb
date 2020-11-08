@@ -28,63 +28,65 @@ function formatMessage(msg: ChatMessage) {
 	return `${name}: ${msg.content}`;
 }
 
-export const Chat = {
-	chatLog: null as Element | null,
-	inputField: null as HTMLInputElement | null,
-	content: "",
+export function Chat(): m.Component<ChatAttrs> {
+	let chatLog: Element | null = null;
+	let inputField: HTMLInputElement | null = null;
+	let content = "";
 
-	onupdate() {
-		if (this.chatLog && !this.content) {
-			this.chatLog.scrollTop = this.chatLog.scrollHeight;
-		}
-	},
+	function onInput() {
+		content = inputField?.value ?? "";
+	}
 
-	onInput(e: InputEvent) {
-		this.content = this.inputField?.value ?? "";
-	},
-
-	sendOnEnter(e: KeyboardEvent) {
+	function sendOnEnter(e: KeyboardEvent) {
 		if (e.key === "Enter" || e.key === "Return") {
-			this.sendMessage();
+			sendMessage();
 		}
-	},
+	}
 
-	sendMessage() {
-		if (!this.content.trim().length) {
+	function sendMessage() {
+		if (!content.trim().length) {
 			return;
 		}
 
-		actions.sendMessage(this.content);
-		this.content = "";
-		if (this.inputField) {
-			this.inputField.value = "";
+		actions.sendMessage(content);
+		content = "";
+		if (inputField) {
+			inputField.value = "";
 		}
-	},
+	}
 
-	view(vnode: m.Vnode<ChatAttrs>) {
-		const { canSend = true } = vnode.attrs;
-		return m("section.chat", [
-			m(
-				"ul.chat__log",
-				{ oncreate: ({ dom }) => (this.chatLog = dom) },
-				state.chat.map(msg =>
-					m("li.chat__message", { key: msg.sent }, formatMessage(msg)),
-				),
-			),
-			m("section.chat__write", [
-				m("input[type=text].chat__input", {
-					oncreate: ({ dom }) => (this.inputField = dom as HTMLInputElement),
-					oninput: (e: InputEvent) => this.onInput(e),
-					onkeydown: (e: KeyboardEvent) => this.sendOnEnter(e),
-					disabled: !canSend,
-					readonly: !canSend,
-				}),
+	return {
+		onupdate() {
+			if (chatLog && !content) {
+				chatLog.scrollTop = chatLog.scrollHeight;
+			}
+		},
+
+		view({ attrs }) {
+			const { canSend = true } = attrs;
+			return m("section.chat", [
 				m(
-					"button.chat__send",
-					{ onclick: () => this.sendMessage(), disabled: !canSend },
-					"Send",
+					"ul.chat__log",
+					{ oncreate: ({ dom }) => (chatLog = dom) },
+					state.chat.map(msg =>
+						m("li.chat__message", { key: msg.sent }, formatMessage(msg)),
+					),
 				),
-			]),
-		]);
-	},
-};
+				m("section.chat__write", [
+					m("input[type=text].chat__input", {
+						oncreate: ({ dom }) => (inputField = dom as HTMLInputElement),
+						oninput: onInput,
+						onkeydown: sendOnEnter,
+						disabled: !canSend,
+						readonly: !canSend,
+					}),
+					m(
+						"button.chat__send",
+						{ onclick: () => sendMessage(), disabled: !canSend },
+						"Send",
+					),
+				]),
+			]);
+		},
+	};
+}
