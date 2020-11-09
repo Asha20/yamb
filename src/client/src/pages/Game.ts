@@ -3,15 +3,22 @@ import { Yamb, Dice, Scoreboard, GameOver, Chat } from "../components";
 import { state, actions } from "../state";
 import * as socket from "../socket";
 
+function sleep(ms: number) {
+	return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 export const Game: m.Component = {
 	oninit() {
-		socket.onMessage(msg => {
+		socket.onMessage(async msg => {
 			switch (msg.type) {
 				case "players":
 					state.players = msg.players;
 					break;
 				case "moveResponse":
 					state.gameManager.play(msg.row, msg.column, state.players);
+					m.redraw();
+					await sleep(2000);
+					state.gameManager.findNextAvailablePlayer(state.players);
 					break;
 				case "findNextAvailablePlayer":
 					state.gameManager.findNextAvailablePlayer(state.players);

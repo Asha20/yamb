@@ -36,7 +36,7 @@ export function gameManager(players: Player[]) {
 	function play(row: string, column: string, onlinePlayers: Player[]) {
 		getGame(players[currentPlayer]).play(dice, row, column);
 		dice.reset();
-		findNextAvailablePlayer(onlinePlayers);
+		// findNextAvailablePlayer(onlinePlayers);
 	}
 
 	function field(player: Player, row: string, column: string) {

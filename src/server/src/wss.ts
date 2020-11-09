@@ -169,6 +169,7 @@ export function listen(server: Server) {
 
 			try {
 				game.play(row, column, room.players);
+				game.findNextAvailablePlayer(room.players);
 				broadcast({ type: "moveResponse", player, row, column });
 
 				if (!game.active(room.players)) {
