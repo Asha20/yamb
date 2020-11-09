@@ -14,7 +14,7 @@ function getName(sender: Player["id"]) {
 		return cachedName;
 	}
 
-	const name = state.players.find(x => x.id === sender)!.name;
+	const name = state.players.find(x => x.id === sender)?.name ?? "";
 	nameMap.set(sender, name);
 	return name;
 }

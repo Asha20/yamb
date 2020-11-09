@@ -63,8 +63,9 @@ export class RoomManager {
 	};
 
 	private getRoom(id: string, createIfMissing = true) {
-		if (this.rooms.has(id)) {
-			return this.rooms.get(id)!;
+		const existingRoom = this.rooms.get(id);
+		if (existingRoom) {
+			return existingRoom;
 		}
 
 		const room: Room = {
@@ -135,23 +136,23 @@ export class RoomManager {
 		});
 	}
 
-	deleteRoom(id: string) {
+	deleteRoom(id: string): boolean {
 		return this.rooms.delete(id);
 	}
 
-	onJoin(handler: RoomManager["handlers"]["join"][number]) {
+	onJoin(handler: RoomManager["handlers"]["join"][number]): void {
 		this.handlers.join.push(handler);
 	}
 
-	onLeave(handler: RoomManager["handlers"]["leave"][number]) {
+	onLeave(handler: RoomManager["handlers"]["leave"][number]): void {
 		this.handlers.leave.push(handler);
 	}
 
-	onMessage(handler: MessageHandler) {
+	onMessage(handler: MessageHandler): void {
 		this.handlers.message.push(handler);
 	}
 
-	broadcast(id: string, msg: ServerMessage) {
+	broadcast(id: string, msg: ServerMessage): void {
 		for (const member of this.getRoom(id, false).members) {
 			sendMessage(member.socket, msg);
 		}

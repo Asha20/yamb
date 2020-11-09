@@ -81,9 +81,9 @@ const Cell: m.Component<CellAttrs> = {
 	},
 };
 
-export const Yamb = {
-	view(vnode: m.Vnode<YambAttrs>) {
-		const { player } = vnode.attrs;
+export const Yamb: m.Component<YambAttrs> = {
+	view({ attrs }) {
+		const { player } = attrs;
 		const { rows, columns } = state.gameManager;
 
 		return m("table.yamb", [

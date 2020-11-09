@@ -3,8 +3,7 @@ import { DiceCount, DieSide, Dice, DiceContext } from "./dice";
 
 type RowContext = DiceContext;
 
-interface ColumnContext<R extends string = string, C extends string = string>
-	extends DiceContext {
+interface ColumnContext extends DiceContext {
 	row: string;
 	column: string;
 	game: Yamb;
@@ -285,7 +284,7 @@ class Yamb<
 	}
 
 	call(dice: Dice, row: _RowName): boolean {
-		if (dice.roll !== 1 || this.callRow || this.filled(row, "C" as any)) {
+		if (dice.roll !== 1 || this.callRow || this.filled(row, "C" as _ColName)) {
 			return false;
 		}
 
@@ -319,7 +318,7 @@ class Yamb<
 			throw new Error("Invalid move");
 		}
 
-		const score = this.getScore(dice, row, column)!;
+		const score = this.getScore(dice, row, column);
 		const [rowIndex, columnIndex] = this.getField(row, column);
 		this.matrix[rowIndex][columnIndex] = score;
 		this.cellFilled[rowIndex][columnIndex] = true;
@@ -333,6 +332,6 @@ class Yamb<
 
 export type { Yamb };
 
-export function create(rows: Row[], columns: Column[]) {
+export function create(rows: Row[], columns: Column[]): Yamb {
 	return new Yamb(rows, columns);
 }

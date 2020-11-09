@@ -1,12 +1,12 @@
-export type DistributeOmit<T, K extends keyof T> = T extends any
+export type DistributeOmit<T, K extends keyof T> = T extends unknown
 	? Omit<T, K>
 	: never;
 
-export function array<T>(length: number, fn: (index: number) => T) {
+export function array<T>(length: number, fn: (index: number) => T): T[] {
 	return Array.from({ length }, (_, index) => fn(index));
 }
 
-export function classNames(obj: Record<string, boolean>) {
+export function classNames(obj: Record<string, boolean>): string {
 	const classes: string[] = [];
 	for (const key of Object.keys(obj)) {
 		if (obj[key]) {

@@ -15,6 +15,7 @@ export type SendChatMessage = { type: "chatMessage"; message: ChatMessage };
 export type RequestCall = { type: "requestCall"; row: string };
 
 type WithSender<T> = T & { sender: string };
+type UnknownObject = Record<string, unknown>;
 
 export type ClientMessage = WithSender<
 	| SetName
@@ -31,8 +32,12 @@ interface Message {
 	[key: string]: unknown;
 }
 
-function message(x: any): x is Message {
-	return x !== null && typeof x === "object" && typeof x.type === "string";
+function message(x: unknown): x is Message {
+	return (
+		x !== null &&
+		typeof x === "object" &&
+		typeof (x as UnknownObject).type === "string"
+	);
 }
 
 function setName(x: Message): x is SetName {
@@ -65,7 +70,7 @@ function chatMessage(x: Message): x is SendChatMessage {
 	if (!(x.type === "chatMessage")) {
 		return false;
 	}
-	const msg: any = x.message;
+	const msg = x.message as UnknownObject;
 	if (typeof msg !== "object" || msg === null) {
 		return false;
 	}

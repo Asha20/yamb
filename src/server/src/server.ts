@@ -9,11 +9,14 @@ function root(filePath: string) {
 	return path.resolve(PROJECT_SRC, filePath);
 }
 
-const mithrilRoute = (_: any, res: express.Response<any>) => {
+const mithrilRoute = (_: unknown, res: express.Response<unknown>) => {
 	res.sendFile(root("client/dist/index.html"));
 };
 
-const redirect = (to: string) => (_: any, res: express.Response<any>) => {
+const redirect = (to: string) => (
+	_: unknown,
+	res: express.Response<unknown>,
+) => {
 	res.redirect(to);
 };
 

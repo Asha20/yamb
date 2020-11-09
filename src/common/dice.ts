@@ -25,7 +25,7 @@ export interface Dice extends DiceContext {
 	reset(): void;
 }
 
-export function dice(amount: number, players: number): Dice {
+export function dice(amount: number): Dice {
 	let roll = 0;
 
 	let values = array(amount, (): DieSide => 6);

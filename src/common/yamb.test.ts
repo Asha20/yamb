@@ -3,7 +3,7 @@ import { DiceCount, DiceContext, DieSide } from "./dice";
 
 function d(strs: TemplateStringsArray): DiceContext;
 function d(str: string, roll: number): DiceContext;
-function d(strs: TemplateStringsArray | string, roll: number = 1): DiceContext {
+function d(strs: TemplateStringsArray | string, roll = 1): DiceContext {
 	const str = arguments.length === 1 ? strs[0] : (strs as string);
 	const count: DiceCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
 	for (const char of str) {

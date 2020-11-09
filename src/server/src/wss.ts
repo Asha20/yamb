@@ -1,13 +1,6 @@
 import * as WebSocket from "ws";
 import { Server } from "http";
-import {
-	gameManager,
-	GameManager,
-	ChatMessage,
-	ServerMessage,
-	ROWS,
-	COLUMNS,
-} from "common";
+import { GameManager, ChatMessage, ServerMessage, ROWS, COLUMNS } from "common";
 import { Room, RoomManager } from "./roomManager";
 
 const nameRegex = /^[\w\s]+$/;
@@ -18,7 +11,7 @@ export const gamesSet = new Set<string>();
 export const games = new Map<Room, GameManager>();
 export const chatLogs = new Map<Room, ChatMessage[]>();
 
-export function listen(server: Server) {
+export function listen(server: Server): void {
 	wss = new WebSocket.Server({ server });
 
 	const roomManager = new RoomManager(wss, url => {
@@ -44,6 +37,24 @@ export function listen(server: Server) {
 		}
 	}
 
+	function getChatLog(room: Room) {
+		const chatLog = chatLogs.get(room);
+		if (chatLog) {
+			return chatLog;
+		} else {
+			throw new Error("Missing chat log.");
+		}
+	}
+
+	function getGame(room: Room) {
+		const game = games.get(room);
+		if (game) {
+			return game;
+		} else {
+			throw new Error("Missing chat log.");
+		}
+	}
+
 	roomManager.onJoin(({ member, room, reply, broadcast }) => {
 		if (games.has(room)) {
 			member.socket.close();
@@ -57,7 +68,7 @@ export function listen(server: Server) {
 			chatLogs.set(room, []);
 		}
 
-		const chatLog = chatLogs.get(room)!;
+		const chatLog = getChatLog(room);
 		reply({ type: "chatSync", messages: chatLog });
 	});
 
@@ -121,7 +132,7 @@ export function listen(server: Server) {
 		},
 
 		chatMessage({ msg, room, broadcast }) {
-			const chatLog = chatLogs.get(room)!;
+			const chatLog = getChatLog(room);
 			chatLog.push(msg.message);
 			broadcast({ type: "receiveChatMessage", message: msg.message });
 		},
@@ -135,7 +146,7 @@ export function listen(server: Server) {
 			if (player && player.owner) {
 				const rows = ROWS.filter(x => msg.rows.includes(x.name));
 				const columns = COLUMNS.filter(x => msg.columns.includes(x.name));
-				games.set(room, gameManager(room.players, rows, columns));
+				games.set(room, new GameManager(room.players, rows, columns));
 				broadcast({
 					type: "gameStarted",
 					rows: msg.rows,
@@ -154,7 +165,7 @@ export function listen(server: Server) {
 		},
 
 		rollDice({ msg, room, broadcast }) {
-			const game = games.get(room)!;
+			const game = getGame(room);
 			if (game.currentPlayer.id === msg.sender) {
 				game.rollDice();
 				broadcast({
@@ -167,7 +178,7 @@ export function listen(server: Server) {
 
 		move({ msg, room, broadcast }) {
 			const { row, column, sender } = msg;
-			const game = games.get(room)!;
+			const game = getGame(room);
 			const player = game.currentPlayer;
 			if (game.currentPlayer.id !== sender || game.roll === 0) {
 				return;
@@ -181,18 +192,20 @@ export function listen(server: Server) {
 			}
 
 			try {
-				game.play(row, column, room.players);
+				game.play(row, column);
 				game.findNextAvailablePlayer(room.players);
 				broadcast({ type: "moveResponse", player, row, column });
 
 				if (!game.active(room.players)) {
 					broadcast({ type: "gameEnded" });
 				}
-			} catch (e) {}
+			} catch (e) {
+				// Empty block
+			}
 		},
 
 		requestCall({ msg, room, broadcast }) {
-			const game = games.get(room)!;
+			const game = getGame(room);
 
 			if (game.currentPlayer.id !== msg.sender || game.roll !== 1) {
 				return;
@@ -203,11 +216,13 @@ export function listen(server: Server) {
 				if (success) {
 					broadcast({ type: "confirmCall", row: msg.row });
 				}
-			} catch (e) {}
+			} catch (e) {
+				// Empty block
+			}
 		},
 	});
 }
 
-export function close() {
+export function close(): void {
 	wss?.close();
 }

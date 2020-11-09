@@ -1,5 +1,5 @@
 import * as m from "mithril";
-import { GameManager, gameManager, Player, ChatMessage } from "common";
+import { GameManager, Player, ChatMessage } from "common";
 import * as socket from "./socket";
 import { ROWS, COLUMNS } from "common/yamb";
 
@@ -19,7 +19,7 @@ const initialState = (): State => ({
 	self: { id: "", name: "", owner: false },
 	initialPlayers: [],
 	players: [],
-	gameManager: gameManager([], [], []),
+	gameManager: new GameManager([], [], []),
 	gameState: "inactive",
 	chat: [],
 
@@ -31,10 +31,10 @@ const initialState = (): State => ({
 export const state = initialState();
 
 export const actions = {
-	startGame(players: Player[], rows: string[], columns: string[]) {
+	startGame(players: Player[], rows: string[], columns: string[]): void {
 		state.initialPlayers = players;
 		state.players = players;
-		state.gameManager = gameManager(
+		state.gameManager = new GameManager(
 			players,
 			ROWS.filter(x => rows.includes(x.name)),
 			COLUMNS.filter(x => columns.includes(x.name)),
@@ -42,11 +42,11 @@ export const actions = {
 		state.gameState = "active";
 	},
 
-	endGame() {
+	endGame(): void {
 		state.gameState = "finished";
 	},
 
-	sendMessage(content: string) {
+	sendMessage(content: string): void {
 		const message: ChatMessage = {
 			sender: state.self.id,
 			sent: Date.now(),
@@ -55,21 +55,22 @@ export const actions = {
 		socket.send({ type: "chatMessage", message });
 	},
 
-	call(row: string) {
+	call(row: string): void {
 		socket.send({ type: "requestCall", row });
 	},
 };
 
-export function init() {
+export function init(): void {
 	socket.onMessage(message => {
 		switch (message.type) {
-			case "players":
+			case "players": {
 				state.players = message.players;
 				const newSelf = message.players.find(x => x.id === state.self.id);
 				if (newSelf) {
 					state.self = newSelf;
 				}
 				break;
+			}
 			case "chatSync":
 				state.chat = message.messages;
 				break;
