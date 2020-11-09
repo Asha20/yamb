@@ -22,32 +22,6 @@ interface Column<T extends string> {
 	score(context: ColumnContext): number | undefined;
 }
 
-type Name<
-	T extends readonly Row<string>[] | Column<string>[]
-> = T[number]["name"];
-
-export interface Yamb<
-	TRows extends readonly Row<string>[] = readonly Row<string>[],
-	TColumns extends readonly Column<string>[] = readonly Column<string>[]
-> {
-	readonly rows: TRows;
-	readonly columns: TColumns;
-	calling(): null | Name<TRows>;
-	call(dice: Dice, row: Name<TRows>): boolean;
-	active(): boolean;
-	score(): number;
-	canPlay(dice: DiceContext, row: Name<TRows>, column: Name<TColumns>): boolean;
-	play(dice: DiceContext, row: Name<TRows>, column: Name<TColumns>): void;
-	getScore(
-		dice: DiceContext,
-		row: Name<TRows>,
-		column: Name<TColumns>,
-	): number | undefined;
-	filled(row: Name<TRows>, column: Name<TColumns>): boolean;
-	field(row: Name<TRows>, column: Name<TColumns>): number | undefined;
-	getField(row: Name<TRows>, column: Name<TColumns>): [number, number];
-}
-
 function findDie(
 	obj: DiceCount,
 	predicate: (value: DiceCount[DieSide], key: DieSide) => boolean,
@@ -218,29 +192,59 @@ const ROWS = [
 
 const COLUMNS = [topDown, free, bottomUp, call] as const;
 
-function yamb<
-	TRows extends readonly Row<string>[],
-	TColumns extends readonly Column<string>[]
->(rows: TRows, columns: TColumns): Yamb<TRows, TColumns> {
-	type RowName = TRows[number]["name"];
-	type ColName = TColumns[number]["name"];
+class Yamb<
+	TRows extends readonly Row<string>[] = readonly Row<string>[],
+	TColumns extends readonly Column<string>[] = readonly Column<string>[],
+	// These last two arguments shouldn't be provided; they're just a hack
+	// because TypeScript doesn't support writing type aliases inside a class body.
+	_RowName extends TRows[number]["name"] = TRows[number]["name"],
+	_ColName extends TColumns[number]["name"] = TColumns[number]["name"]
+> {
+	private turnsLeft: number;
+	private callRow: null | _RowName;
+	private cellFilled: boolean[][];
+	private matrix: Array<Array<number | undefined>>;
 
-	let turnsLeft = rows.length * columns.length;
-	let calling: null | RowName = null;
+	public readonly rows: TRows;
+	public readonly columns: TColumns;
 
-	const cellFilled = array(rows.length, () =>
-		array(columns.length, () => false),
-	);
+	constructor(rows: TRows, columns: TColumns) {
+		this.turnsLeft = rows.length * columns.length;
+		this.rows = rows;
+		this.columns = columns;
+		this.callRow = null;
+		this.cellFilled = array(rows.length, () =>
+			array(columns.length, () => false),
+		);
+		this.matrix = array(rows.length, () =>
+			array(columns.length, () => undefined),
+		);
+	}
 
-	const matrix: (number | undefined)[][] = array(rows.length, () =>
-		array(columns.length, () => undefined),
-	);
+	calling(): null | _RowName {
+		return this.callRow;
+	}
 
-	const game = {} as Yamb<TRows, TColumns>;
+	active(): boolean {
+		return this.turnsLeft > 0;
+	}
 
-	function getField(row: RowName, column: ColName) {
-		const rowIndex = rows.findIndex(x => x.name === row);
-		const columnIndex = columns.findIndex(x => x.name === column);
+	score(): number {
+		let score = 0;
+		for (const row of this.matrix) {
+			for (const val of row) {
+				if (val !== undefined) {
+					score += val;
+				}
+			}
+		}
+
+		return score;
+	}
+
+	getField(row: _RowName, column: _ColName): [number, number] {
+		const rowIndex = this.rows.findIndex(x => x.name === row);
+		const columnIndex = this.columns.findIndex(x => x.name === column);
 
 		if (rowIndex === -1 || columnIndex === -1) {
 			throw new Error(`Field (${row}, ${column}) is invalid.`);
@@ -249,28 +253,30 @@ function yamb<
 		return [rowIndex, columnIndex];
 	}
 
-	function scoreContext(
+	scoreContext(
 		row: string,
 		column: string,
 		diceContext: DiceContext,
 	): ColumnContext {
-		return { ...diceContext, row, column, game };
+		return { ...diceContext, row, column, game: this };
 	}
 
-	function getScore(dice: Dice, row: RowName, column: ColName) {
-		const [rowIndex, columnIndex] = getField(row, column);
+	getScore(dice: Dice, row: _RowName, column: _ColName): undefined | number {
+		const [rowIndex, columnIndex] = this.getField(row, column);
 
-		if (matrix[rowIndex][columnIndex] !== undefined) {
-			return matrix[rowIndex][columnIndex];
+		if (this.matrix[rowIndex][columnIndex] !== undefined) {
+			return this.matrix[rowIndex][columnIndex];
 		}
 
-		if (calling && (column !== "C" || row !== calling)) {
+		if (this.callRow && (column !== "C" || row !== this.callRow)) {
 			return undefined;
 		}
 
-		const rowScore = rows[rowIndex].score(scoreContext(row, column, dice));
-		const columnScore = columns[columnIndex].score(
-			scoreContext(row, column, dice),
+		const rowScore = this.rows[rowIndex].score(
+			this.scoreContext(row, column, dice),
+		);
+		const columnScore = this.columns[columnIndex].score(
+			this.scoreContext(row, column, dice),
 		);
 		if (rowScore === undefined || columnScore === undefined) {
 			return undefined;
@@ -278,80 +284,55 @@ function yamb<
 		return rowScore + columnScore;
 	}
 
-	function call(dice: Dice, row: RowName) {
-		if (dice.roll !== 1 || calling || filled(row, "C")) {
+	call(dice: Dice, row: _RowName): boolean {
+		if (dice.roll !== 1 || this.callRow || this.filled(row, "C" as any)) {
 			return false;
 		}
 
-		calling = row;
+		this.callRow = row;
 		return true;
 	}
 
-	function field(row: RowName, column: ColName) {
-		const [rowIndex, columnIndex] = getField(row, column);
-		return matrix[rowIndex][columnIndex];
+	field(row: _RowName, column: _ColName): undefined | number {
+		const [rowIndex, columnIndex] = this.getField(row, column);
+		return this.matrix[rowIndex][columnIndex];
 	}
 
-	function filled(row: RowName, column: ColName) {
-		const [rowIndex, columnIndex] = getField(row, column);
-		return cellFilled[rowIndex][columnIndex];
+	filled(row: _RowName, column: _ColName): boolean {
+		const [rowIndex, columnIndex] = this.getField(row, column);
+		return this.cellFilled[rowIndex][columnIndex];
 	}
 
-	function canPlay(dice: Dice, row: RowName, column: ColName) {
-		if (calling) {
-			return row === calling && column === "C";
+	canPlay(dice: Dice, row: _RowName, column: _ColName): boolean {
+		if (this.callRow) {
+			return row === this.callRow && column === "C";
 		}
 
-		return !filled(row, column) && getScore(dice, row, column) !== undefined;
+		return (
+			!this.filled(row, column) &&
+			this.getScore(dice, row, column) !== undefined
+		);
 	}
 
-	function play(dice: Dice, row: RowName, column: ColName) {
-		if (!canPlay(dice, row, column)) {
+	play(dice: Dice, row: _RowName, column: _ColName): void {
+		if (!this.canPlay(dice, row, column)) {
 			throw new Error("Invalid move");
 		}
 
-		const score = getScore(dice, row, column)!;
-		const [rowIndex, columnIndex] = getField(row, column);
-		matrix[rowIndex][columnIndex] = score;
-		cellFilled[rowIndex][columnIndex] = true;
-		turnsLeft -= 1;
+		const score = this.getScore(dice, row, column)!;
+		const [rowIndex, columnIndex] = this.getField(row, column);
+		this.matrix[rowIndex][columnIndex] = score;
+		this.cellFilled[rowIndex][columnIndex] = true;
+		this.turnsLeft -= 1;
 
-		if (calling && calling === row) {
-			calling = null;
+		if (this.callRow && this.callRow === row) {
+			this.callRow = null;
 		}
 	}
-
-	return Object.assign(game, {
-		rows,
-		columns,
-		canPlay,
-		play,
-		field,
-		filled,
-		getScore,
-		getField,
-		call,
-		calling() {
-			return calling;
-		},
-		active() {
-			return turnsLeft > 0;
-		},
-		score() {
-			let score = 0;
-			for (const row of matrix) {
-				for (const val of row) {
-					if (val !== undefined) {
-						score += val;
-					}
-				}
-			}
-
-			return score;
-		},
-	});
 }
 
+export type { Yamb };
+
 export function create() {
-	return yamb(ROWS, COLUMNS);
+	return new Yamb(ROWS, COLUMNS);
 }
