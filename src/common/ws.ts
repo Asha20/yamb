@@ -3,7 +3,11 @@ import { Player } from "./gameManager";
 import { ChatMessage } from "./chat";
 
 export type SetName = { type: "setName"; name: string };
-export type StartGame = { type: "startGame" };
+export type StartGame = {
+	type: "startGame";
+	rows: string[];
+	columns: string[];
+};
 export type Move = { type: "move"; row: string; column: string };
 export type ToggleFreeze = { type: "toggleFreeze"; index: number };
 export type RollDice = { type: "rollDice" };
@@ -36,7 +40,9 @@ function setName(x: Message): x is SetName {
 }
 
 function startGame(x: Message): x is StartGame {
-	return x.type === "startGame";
+	return (
+		x.type === "startGame" && Array.isArray(x.rows) && Array.isArray(x.columns)
+	);
 }
 
 function move(x: Message): x is Move {
@@ -101,7 +107,7 @@ export type ServerMessage =
 			status: "unavailable" | "invalid" | "name-missing" | "too-long";
 	  }
 	| { type: "nameResponse"; status: "ok"; player: Player }
-	| { type: "gameStarted" }
+	| { type: "gameStarted"; rows: string[]; columns: string[] }
 	| { type: "moveResponse"; player: Player; row: string; column: string }
 	| { type: "toggleFreezeResponse"; index: number }
 	| { type: "rollDiceResponse"; roll: number; dice: DieSide[] }

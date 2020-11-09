@@ -1,6 +1,13 @@
 import * as WebSocket from "ws";
 import { Server } from "http";
-import { gameManager, GameManager, ChatMessage, ServerMessage } from "common";
+import {
+	gameManager,
+	GameManager,
+	ChatMessage,
+	ServerMessage,
+	ROWS,
+	COLUMNS,
+} from "common";
 import { Room, RoomManager } from "./roomManager";
 
 const nameRegex = /^[\w\s]+$/;
@@ -126,8 +133,14 @@ export function listen(server: Server) {
 
 			const player = room.players.find(x => x.id === msg.sender);
 			if (player && player.owner) {
-				games.set(room, gameManager(room.players));
-				broadcast({ type: "gameStarted" });
+				const rows = ROWS.filter(x => msg.rows.includes(x.name));
+				const columns = COLUMNS.filter(x => msg.columns.includes(x.name));
+				games.set(room, gameManager(room.players, rows, columns));
+				broadcast({
+					type: "gameStarted",
+					rows: msg.rows,
+					columns: msg.columns,
+				});
 				serverMessage(room, broadcast, "Game has started.");
 				gamesSet.add(room.id);
 			}

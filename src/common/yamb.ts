@@ -10,13 +10,13 @@ interface ColumnContext<R extends string = string, C extends string = string>
 	game: Yamb;
 }
 
-interface Row<T extends string> {
+export interface Row<T extends string = string> {
 	name: T;
 	tip: string;
 	score(context: RowContext): number | undefined;
 }
 
-interface Column<T extends string> {
+export interface Column<T extends string = string> {
 	name: T;
 	tip: string;
 	score(context: ColumnContext): number | undefined;
@@ -172,7 +172,7 @@ export const call = column("C", "Call", ({ game }) => {
 	return undefined;
 });
 
-const ROWS = [
+export const ROWS = [
 	one,
 	two,
 	three,
@@ -190,7 +190,7 @@ const ROWS = [
 	yahtzee,
 ] as const;
 
-const COLUMNS = [topDown, free, bottomUp, call] as const;
+export const COLUMNS = [topDown, free, bottomUp, call] as const;
 
 class Yamb<
 	TRows extends readonly Row<string>[] = readonly Row<string>[],
@@ -333,6 +333,6 @@ class Yamb<
 
 export type { Yamb };
 
-export function create() {
-	return new Yamb(ROWS, COLUMNS);
+export function create(rows: Row[], columns: Column[]) {
+	return new Yamb(rows, columns);
 }

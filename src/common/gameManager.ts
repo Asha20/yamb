@@ -1,4 +1,4 @@
-import { create as createYamb, Yamb } from "./yamb";
+import { Column, create as createYamb, Row, Yamb } from "./yamb";
 import { dice as createDice } from "./dice";
 
 export interface Player {
@@ -7,13 +7,11 @@ export interface Player {
 	owner: boolean;
 }
 
-export function gameManager(players: Player[]) {
+export function gameManager(players: Player[], rows: Row[], columns: Column[]) {
 	let currentPlayer = 0;
 
-	const { rows, columns }: Yamb = createYamb();
-
 	const games = players.reduce((acc, player) => {
-		acc.set(player.id, createYamb());
+		acc.set(player.id, createYamb(rows, columns));
 		return acc;
 	}, new Map<Player["id"], Yamb>());
 
