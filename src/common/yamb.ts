@@ -1,11 +1,15 @@
 import { array } from "./util";
 import { DiceCount, DieSide, Dice, DiceContext } from "./dice";
 
-type RowContext = DiceContext;
+interface RowContext extends DiceContext {
+	row: Row;
+	column: Column;
+	game: Yamb;
+}
 
 interface ColumnContext extends DiceContext {
-	row: string;
-	column: string;
+	row: Row;
+	column: Column;
 	game: Yamb;
 }
 
@@ -67,11 +71,19 @@ export const four = row("4", "Sum of fours", ({ count }) => 4 * count[4]);
 export const five = row("5", "Sum of fives", ({ count }) => 5 * count[5]);
 export const six = row("6", "Sum of sixes", ({ count }) => 6 * count[6]);
 
-export const max = row("Max", "Sum of all dice", ({ count }) => sumDice(count));
+export const max = row("Max", "Sum of all dice", ({ count, column, game }) => {
+	const sum = sumDice(count);
+	const multiplier = game.field(one.name, column.name) ?? 1;
+	return multiplier * sum;
+});
 export const min = row(
 	"Min",
 	"Negative sum of all dice",
-	({ count }) => -sumDice(count),
+	({ count, column, game }) => {
+		const sum = -sumDice(count);
+		const multiplier = game.field(one.name, column.name) ?? 1;
+		return multiplier * sum;
+	},
 );
 
 export const straight = row(
@@ -144,11 +156,25 @@ export const yahtzee = row("Yahtzee", "Five same dice", ({ count }) => {
 	return fiveOfAKind ? 50 + 5 * fiveOfAKind : 0;
 });
 
+// Columns
+
+function findRow(rows: readonly Row[], start: Row, delta: number): Row | null {
+	const rowIndex = rows.findIndex(x => x === start);
+	if (rowIndex === -1) {
+		throw new Error("Could not find row.");
+	}
+
+	const wantedRowIndex = rowIndex + delta;
+	if (wantedRowIndex >= 0 && wantedRowIndex < rows.length) {
+		return rows[wantedRowIndex];
+	}
+	return null;
+}
+
 export const topDown = column("↓", "Top-down", ({ row, column, game }) => {
-	const rowIndex = game.rows.findIndex(x => x.name === row);
-	if (rowIndex > 0) {
-		const prevRowName = game.rows[rowIndex - 1].name;
-		return game.filled(prevRowName, column) ? 0 : undefined;
+	const prevRow = findRow(game.rows, row, -1);
+	if (prevRow) {
+		return game.filled(prevRow.name, column.name) ? 0 : undefined;
 	}
 	return 0;
 });
@@ -156,10 +182,9 @@ export const topDown = column("↓", "Top-down", ({ row, column, game }) => {
 export const free = column("↓↑", "Free", () => 0);
 
 export const bottomUp = column("↑", "Bottom-up", ({ row, column, game }) => {
-	const rowIndex = game.rows.findIndex(x => x.name === row);
-	if (rowIndex < game.rows.length - 1) {
-		const nextRowName = game.rows[rowIndex + 1].name;
-		return game.filled(nextRowName, column) ? 0 : undefined;
+	const nextRow = findRow(game.rows, row, 1);
+	if (nextRow) {
+		return game.filled(nextRow.name, column.name) ? 0 : undefined;
 	}
 	return 0;
 });
@@ -241,7 +266,7 @@ class Yamb<
 		return score;
 	}
 
-	getField(row: _RowName, column: _ColName): [number, number] {
+	getPos(row: _RowName, column: _ColName): [number, number] {
 		const rowIndex = this.rows.findIndex(x => x.name === row);
 		const columnIndex = this.columns.findIndex(x => x.name === column);
 
@@ -253,29 +278,29 @@ class Yamb<
 	}
 
 	scoreContext(
-		row: string,
-		column: string,
+		row: Row,
+		column: Column,
 		diceContext: DiceContext,
 	): ColumnContext {
 		return { ...diceContext, row, column, game: this };
 	}
 
 	getScore(dice: Dice, row: _RowName, column: _ColName): undefined | number {
-		const [rowIndex, columnIndex] = this.getField(row, column);
+		const [rowIndex, columnIndex] = this.getPos(row, column);
 
 		if (this.matrix[rowIndex][columnIndex] !== undefined) {
 			return this.matrix[rowIndex][columnIndex];
 		}
 
-		if (this.callRow && (column !== "C" || row !== this.callRow)) {
+		if (this.callRow && (column !== call.name || row !== this.callRow)) {
 			return undefined;
 		}
 
 		const rowScore = this.rows[rowIndex].score(
-			this.scoreContext(row, column, dice),
+			this.scoreContext(this.rows[rowIndex], this.columns[columnIndex], dice),
 		);
 		const columnScore = this.columns[columnIndex].score(
-			this.scoreContext(row, column, dice),
+			this.scoreContext(this.rows[rowIndex], this.columns[columnIndex], dice),
 		);
 		if (rowScore === undefined || columnScore === undefined) {
 			return undefined;
@@ -284,7 +309,11 @@ class Yamb<
 	}
 
 	call(dice: Dice, row: _RowName): boolean {
-		if (dice.roll !== 1 || this.callRow || this.filled(row, "C" as _ColName)) {
+		if (
+			dice.roll !== 1 ||
+			this.callRow ||
+			this.filled(row, call.name as _ColName)
+		) {
 			return false;
 		}
 
@@ -293,18 +322,18 @@ class Yamb<
 	}
 
 	field(row: _RowName, column: _ColName): undefined | number {
-		const [rowIndex, columnIndex] = this.getField(row, column);
+		const [rowIndex, columnIndex] = this.getPos(row, column);
 		return this.matrix[rowIndex][columnIndex];
 	}
 
 	filled(row: _RowName, column: _ColName): boolean {
-		const [rowIndex, columnIndex] = this.getField(row, column);
+		const [rowIndex, columnIndex] = this.getPos(row, column);
 		return this.cellFilled[rowIndex][columnIndex];
 	}
 
 	canPlay(dice: Dice, row: _RowName, column: _ColName): boolean {
 		if (this.callRow) {
-			return row === this.callRow && column === "C";
+			return row === this.callRow && column === call.name;
 		}
 
 		return (
@@ -319,13 +348,40 @@ class Yamb<
 		}
 
 		const score = this.getScore(dice, row, column);
-		const [rowIndex, columnIndex] = this.getField(row, column);
+		if (score === undefined) {
+			throw new Error("Score should be defined.");
+		}
+		const [rowIndex, columnIndex] = this.getPos(row, column);
 		this.matrix[rowIndex][columnIndex] = score;
 		this.cellFilled[rowIndex][columnIndex] = true;
 		this.turnsLeft -= 1;
 
 		if (this.callRow && this.callRow === row) {
 			this.callRow = null;
+		}
+
+		if (row !== one.name) {
+			return;
+		}
+
+		// Hack: Ideally there should be a check whether the two
+		// rows are actually used in the game first.
+		const maxName = max.name as _RowName;
+		const minName = min.name as _RowName;
+
+		if (this.filled(maxName, column)) {
+			const [maxRow, maxColumn] = this.getPos(maxName, column);
+			const oldMax = this.matrix[maxRow][maxColumn];
+			if (oldMax) {
+				this.matrix[maxRow][maxColumn] = score * oldMax;
+			}
+		}
+		if (this.filled(minName, column)) {
+			const [minRow, minColumn] = this.getPos(minName, column);
+			const oldMin = this.matrix[minRow][minColumn];
+			if (oldMin) {
+				this.matrix[minRow][minColumn] = score * oldMin;
+			}
 		}
 	}
 }
