@@ -26,7 +26,8 @@ html {
 }
 
 body {
-	width: 100vw;
+	width: 100%;
+	min-height: 100vh;
 }
 
 .yamb-wrapper {
@@ -73,6 +74,41 @@ aside {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-between;
+}
+
+/* Name prompt */
+.name__wrapper {
+	display: flex;
+	width: 100vw;
+	height: 100vh;
+	justify-content: center;
+	align-items: center;
+}
+
+.name {
+	min-width: 20em;
+	height: 10em;
+}
+
+.name__label,
+.name__input,
+.name__submit {
+	display: block;
+	margin-bottom: 0.5em;
+}
+
+.name__label,
+.name__error {
+	text-align: center;
+}
+
+.name__input {
+	width: 100%;
+}
+
+.name__submit {
+	width: 50%;
+	margin: 0 auto;
 }
 
 /* Yamb */

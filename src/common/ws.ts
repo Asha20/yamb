@@ -99,11 +99,18 @@ export function isClientMessage(x: unknown): x is ClientMessage {
 	);
 }
 
+export type NameStatus =
+	| "ok"
+	| "unavailable"
+	| "invalid"
+	| "name-missing"
+	| "too-long";
+
 export type ServerMessage =
 	| { type: "players"; players: Player[] }
 	| {
 			type: "nameResponse";
-			status: "unavailable" | "invalid" | "name-missing" | "too-long";
+			status: Exclude<NameStatus, "ok">;
 	  }
 	| { type: "nameResponse"; status: "ok"; player: Player }
 	| { type: "gameStarted"; columns: string[] }

@@ -3,32 +3,56 @@ import * as socket from "../socket";
 import { state, actions, init as initState } from "../state";
 import { PlayerList, Chat } from "../components";
 import { COLUMNS } from "common/yamb";
-
-interface NamePromptAttrs {
-	status: string;
-}
+import { NameStatus } from "common/ws";
 
 const qs = document.querySelector.bind(document);
 
-function submitName() {
-	const name = qs<HTMLInputElement>("#player-name")?.value ?? "";
-	socket.send({ type: "setName", name });
-}
+function NamePrompt(): m.Component {
+	let status: NameStatus = "ok";
+	let unsubscribe: null | (() => void) = null;
 
-const NamePrompt: m.Component<NamePromptAttrs> = {
-	view({ attrs }) {
-		const { status } = attrs;
-		return [
-			m("label[for=player-name]", "Enter a name:"),
-			m("input[type=text][id=player-name]"),
-			m("button", { onclick: submitName }, "Submit"),
-			status === "unavailable" && m("p", "Name has already been taken."),
-			status === "invalid" && m("p", "Name cannot contain special characters."),
-			status === "name-missing" && m("p", "You must enter a name."),
-			status === "too-long" && m("p", "Maximum name length is 16 characters."),
-		];
-	},
-};
+	const errorMessages: Record<NameStatus, string> = {
+		ok: "",
+		unavailable: "Name has already been taken.",
+		invalid: "Name cannot contain special characters.",
+		"name-missing": "You must enter a name.",
+		"too-long": "Maximum name length is 16 characters.",
+	};
+
+	function submitName() {
+		const name = qs<HTMLInputElement>("#player-name")?.value ?? "";
+		socket.send({ type: "setName", name });
+	}
+
+	return {
+		oninit() {
+			unsubscribe = socket.onMessage(msg => {
+				if (msg.type === "nameResponse") {
+					status = msg.status;
+					if (msg.status === "ok") {
+						state.self = msg.player;
+					}
+				}
+			});
+		},
+
+		onremove() {
+			unsubscribe?.();
+		},
+
+		view() {
+			const error = errorMessages[status];
+			return m(".name__wrapper", [
+				m("section.name", [
+					m("label.name__label[for=player-name]", "Enter a name:"),
+					m("input.name__input#player-name[type=text]"),
+					m("button.name__submit", { onclick: submitName }, "Submit"),
+					m("p.name__error", {}, error),
+				]),
+			]);
+		},
+	};
+}
 
 const colsEnabled = COLUMNS.reduce((acc, x) => {
 	acc[x.tip] = true;
@@ -53,7 +77,6 @@ const Settings: m.Component = {
 };
 
 export function Lobby(): m.Component {
-	let status = "ok";
 	let unsubscribe: null | (() => void) = null;
 	let rowColumnError = "";
 
@@ -73,21 +96,13 @@ export function Lobby(): m.Component {
 			initState();
 
 			unsubscribe = socket.onMessage(message => {
-				switch (message.type) {
-					case "nameResponse":
-						status = message.status;
-						if (message.status === "ok") {
-							state.self = message.player;
-						}
-						break;
-					case "gameStarted":
-						actions.startGame(state.players, message.columns);
-						if (state.self.name) {
-							m.route.set("/game/:id", { id: m.route.param("id") });
-						} else {
-							m.route.set("/");
-						}
-						break;
+				if (message.type === "gameStarted") {
+					actions.startGame(state.players, message.columns);
+					if (state.self.name) {
+						m.route.set("/game/:id", { id: m.route.param("id") });
+					} else {
+						m.route.set("/");
+					}
 				}
 			});
 		},
@@ -97,6 +112,10 @@ export function Lobby(): m.Component {
 		},
 
 		view() {
+			if (!state.self.name) {
+				return m(NamePrompt);
+			}
+
 			return m(".lobby", [
 				m(".members", [
 					m("h1", "Lobby"),
@@ -104,7 +123,6 @@ export function Lobby(): m.Component {
 						players: state.players.filter(x => x.name),
 						gameStarted: false,
 					}),
-					!state.self.name && m(NamePrompt, { status }),
 					state.self.owner && [
 						m(Settings),
 						rowColumnError,
