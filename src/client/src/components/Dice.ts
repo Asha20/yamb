@@ -48,7 +48,10 @@ export const Dice: m.Component = {
 			m(
 				"button.dice__roll-dice",
 				{
-					disabled: !state.ownTurn || state.gameManager.roll >= 3,
+					disabled:
+						!state.ownTurn ||
+						state.gameManager.roll >= 3 ||
+						state.gameManager.mustCall(),
 					onclick: rollDice,
 				},
 				"Roll dice",

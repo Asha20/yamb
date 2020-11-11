@@ -1,4 +1,11 @@
-import { Column, create as createYamb, Row, ROWS, Yamb } from "./yamb";
+import {
+	Column,
+	create as createYamb,
+	Row,
+	ROWS,
+	Yamb,
+	call as callColumn,
+} from "./yamb";
 import { dice as createDice, DieSide } from "./dice";
 
 export interface Player {
@@ -120,5 +127,26 @@ export class GameManager {
 
 	calling(): string | null {
 		return this.getGame(this.currentPlayer).calling();
+	}
+
+	mustCall(): boolean {
+		if (
+			this.calling() ||
+			this.dice.roll !== 1 ||
+			!this.columns.includes(callColumn)
+		) {
+			return false;
+		}
+
+		const otherColumns = this.columns.filter(x => x !== callColumn);
+
+		for (const row of this.rows) {
+			for (const column of otherColumns) {
+				if (!this.filled(this.currentPlayer, row.name, column.name)) {
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 }
