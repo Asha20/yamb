@@ -96,7 +96,9 @@ export function listen(server: Server): void {
 			gamesSet.delete(room.id);
 		}
 
-		serverMessage(room, broadcast, `${member.player.name} left.`);
+		if (member.player.name) {
+			serverMessage(room, broadcast, `${member.player.name} left.`);
+		}
 	});
 
 	roomManager.onMessage({
