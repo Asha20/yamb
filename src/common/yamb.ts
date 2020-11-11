@@ -332,6 +332,6 @@ class Yamb<
 
 export type { Yamb };
 
-export function create(rows: Row[], columns: Column[]): Yamb {
+export function create(rows: readonly Row[], columns: readonly Column[]): Yamb {
 	return new Yamb(rows, columns);
 }

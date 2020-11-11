@@ -2,7 +2,7 @@ import m from "mithril";
 import * as socket from "../socket";
 import { state, actions, init as initState } from "../state";
 import { PlayerList, Chat } from "../components";
-import { ROWS, COLUMNS } from "common/yamb";
+import { COLUMNS } from "common/yamb";
 
 interface NamePromptAttrs {
 	status: string;
@@ -30,43 +30,24 @@ const NamePrompt: m.Component<NamePromptAttrs> = {
 	},
 };
 
-const rowsEnabled = ROWS.reduce((acc, x) => {
-	acc[x.name] = true;
-	return acc;
-}, {} as Record<typeof ROWS[number]["name"], boolean>);
-
 const colsEnabled = COLUMNS.reduce((acc, x) => {
 	acc[x.tip] = true;
 	return acc;
 }, {} as Record<typeof COLUMNS[number]["tip"], boolean>);
 
-const RowsAndColumns: m.Component = {
+const Settings: m.Component = {
 	view() {
-		return m("section.game-setup", [
-			m("div.game-setup__column", [
-				m("h2", "Rows"),
-				ROWS.map(x =>
-					m("label", { key: x.name }, [
-						m("input[type=checkbox]", {
-							checked: rowsEnabled[x.name],
-							onclick: () => (rowsEnabled[x.name] = !rowsEnabled[x.name]),
-						}),
-						x.name,
-					]),
-				),
-			]),
-			m("div.game-setup__column", [
-				m("h2", "Columns"),
-				COLUMNS.map(x =>
-					m("label", { key: x.tip }, [
-						m("input[type=checkbox]", {
-							checked: colsEnabled[x.tip],
-							onclick: () => (colsEnabled[x.tip] = !colsEnabled[x.tip]),
-						}),
-						x.tip,
-					]),
-				),
-			]),
+		return m("section.settings", [
+			m("h2", "Columns"),
+			COLUMNS.map(x =>
+				m("label", { key: x.tip }, [
+					m("input[type=checkbox]", {
+						checked: colsEnabled[x.tip],
+						onclick: () => (colsEnabled[x.tip] = !colsEnabled[x.tip]),
+					}),
+					x.tip,
+				]),
+			),
 		]);
 	},
 };
@@ -77,13 +58,12 @@ export function Lobby(): m.Component {
 	let rowColumnError = "";
 
 	function startGame() {
-		const rows = ROWS.filter(x => rowsEnabled[x.name]).map(x => x.name);
 		const columns = COLUMNS.filter(x => colsEnabled[x.tip]).map(x => x.name);
-		if (rows.length && columns.length) {
-			socket.send({ type: "startGame", rows, columns });
+		if (columns.length) {
+			socket.send({ type: "startGame", columns });
 			rowColumnError = "";
 		} else {
-			rowColumnError = "At least one row and one column must be selected.";
+			rowColumnError = "At least one column must be selected.";
 		}
 	}
 
@@ -101,7 +81,7 @@ export function Lobby(): m.Component {
 						}
 						break;
 					case "gameStarted":
-						actions.startGame(state.players, message.rows, message.columns);
+						actions.startGame(state.players, message.columns);
 						if (state.self.name) {
 							m.route.set("/game/:id", { id: m.route.param("id") });
 						} else {
@@ -126,7 +106,7 @@ export function Lobby(): m.Component {
 					}),
 					!state.self.name && m(NamePrompt, { status }),
 					state.self.owner && [
-						m(RowsAndColumns),
+						m(Settings),
 						rowColumnError,
 						m("button", { onclick: startGame }, "Start the game"),
 					],

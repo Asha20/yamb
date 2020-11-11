@@ -1,4 +1,4 @@
-import { Column, create as createYamb, Row, Yamb } from "./yamb";
+import { Column, create as createYamb, Row, ROWS, Yamb } from "./yamb";
 import { dice as createDice, DieSide } from "./dice";
 
 export interface Player {
@@ -11,11 +11,15 @@ export class GameManager {
 	currentPlayerId = 0;
 	dice = createDice(6);
 	players: Player[];
-	rows: Row[];
-	columns: Column[];
+	rows: readonly Row[];
+	columns: readonly Column[];
 	games: Map<string, Yamb>;
 
-	constructor(players: Player[], rows: Row[], columns: Column[]) {
+	constructor(
+		players: Player[],
+		columns: readonly Column[],
+		rows: readonly Row[] = ROWS,
+	) {
 		this.players = players;
 		this.rows = rows;
 		this.columns = columns;

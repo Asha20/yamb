@@ -1,7 +1,7 @@
 import * as m from "mithril";
 import { GameManager, Player, ChatMessage } from "common";
 import * as socket from "./socket";
-import { ROWS, COLUMNS } from "common/yamb";
+import { COLUMNS } from "common/yamb";
 
 export type GameState = "inactive" | "active" | "finished";
 
@@ -31,12 +31,11 @@ const initialState = (): State => ({
 export const state = initialState();
 
 export const actions = {
-	startGame(players: Player[], rows: string[], columns: string[]): void {
+	startGame(players: Player[], columns: string[]): void {
 		state.initialPlayers = players;
 		state.players = players;
 		state.gameManager = new GameManager(
 			players,
-			ROWS.filter(x => rows.includes(x.name)),
 			COLUMNS.filter(x => columns.includes(x.name)),
 		);
 		state.gameState = "active";

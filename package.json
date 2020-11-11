@@ -10,7 +10,9 @@
 		"client:build": "webpack --config src/client/webpack.config.js --mode production",
 		"server:start": "npm run server:build && node src/server/dist/server.js",
 		"server:build": "webpack --config src/server/webpack.config.js --mode production",
-		"server:watch": "tsnd --no-notify --project src/server/tsconfig.json --require tsconfig-paths/register src/server/src/server.ts"
+		"server:watch": "tsnd --no-notify --project src/server/tsconfig.json --require tsconfig-paths/register src/server/src/server.ts",
+		"prettier": "prettier --write",
+		"lint": "eslint --fix src/ --ext .js,.ts"
 	},
 	"husky": {
 		"hooks": {
@@ -19,8 +21,8 @@
 	},
 	"lint-staged": {
 		"src/**/*.{js,jsx,ts,tsx,json,css}": [
-			"prettier --write",
-			"eslint --fix src/ --ext .js,.ts"
+			"npm run prettier",
+			"npm run lint"
 		]
 	},
 	"author": "Vukašin Stepanović <vukasinstepanovic@gmail.com>",
