@@ -68,10 +68,17 @@ function chatMessage(x: Message): x is SendChatMessage {
 	if (typeof msg !== "object" || msg === null) {
 		return false;
 	}
+	if (typeof msg.sender !== "object" || !msg.sender) {
+		return false;
+	}
+
+	const sender = msg.sender as ChatMessage["sender"];
+
 	return (
-		typeof msg.sender === "string" &&
 		typeof msg.sent === "number" &&
-		typeof msg.content === "string"
+		typeof msg.content === "string" &&
+		typeof sender.id === "string" &&
+		typeof sender.name === "string"
 	);
 }
 

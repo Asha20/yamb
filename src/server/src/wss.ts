@@ -27,7 +27,7 @@ export function listen(server: Server): void {
 	) {
 		const chatLog = chatLogs.get(room);
 		const message: ChatMessage = {
-			sender: "Server",
+			sender: { id: "Server", name: "Server" },
 			sent: Date.now(),
 			content,
 		};
@@ -200,7 +200,7 @@ export function listen(server: Server): void {
 					broadcast({ type: "gameEnded" });
 				}
 			} catch (e) {
-				// Empty block
+				console.log(e);
 			}
 		},
 

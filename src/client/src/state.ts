@@ -47,7 +47,7 @@ export const actions = {
 
 	sendMessage(content: string): void {
 		const message: ChatMessage = {
-			sender: state.self.id,
+			sender: { id: state.self.id, name: state.self.name },
 			sent: Date.now(),
 			content,
 		};

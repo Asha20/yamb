@@ -1,6 +1,6 @@
 import m from "mithril";
 import { state, actions } from "../state";
-import { ChatMessage, Player } from "common";
+import { ChatMessage } from "common";
 
 interface ChatAttrs {
 	canSend: boolean;
@@ -8,19 +8,19 @@ interface ChatAttrs {
 
 const nameMap = new Map<string, string>();
 
-function getName(sender: Player["id"]) {
-	const cachedName = nameMap.get(sender);
+function getName(sender: ChatMessage["sender"]) {
+	const cachedName = nameMap.get(sender.id);
 	if (cachedName) {
 		return cachedName;
 	}
 
-	const name = state.players.find(x => x.id === sender)?.name ?? "";
-	nameMap.set(sender, name);
+	const name = state.players.find(x => x.id === sender.id)?.name ?? sender.name;
+	nameMap.set(sender.id, name);
 	return name;
 }
 
 function formatMessage(msg: ChatMessage) {
-	if (msg.sender === "Server") {
+	if (msg.sender.id === "Server") {
 		return msg.content;
 	}
 
