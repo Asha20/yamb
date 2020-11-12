@@ -6,7 +6,7 @@ import {
 	Yamb,
 	call as callColumn,
 } from "./yamb";
-import { dice as createDice, DieSide } from "./dice";
+import { Dice, DieSide } from "./dice";
 
 export interface Player {
 	id: string;
@@ -15,12 +15,12 @@ export interface Player {
 }
 
 export class GameManager {
-	currentPlayerId = 0;
-	dice = createDice(6);
 	players: Player[];
 	rows: readonly Row[];
 	columns: readonly Column[];
 	games: Map<string, Yamb>;
+	currentPlayerId = 0;
+	dice = new Dice(6);
 
 	constructor(
 		players: Player[],

@@ -297,10 +297,18 @@ class Yamb<
 		}
 
 		const rowScore = this.rows[rowIndex].score(
-			this.scoreContext(this.rows[rowIndex], this.columns[columnIndex], dice),
+			this.scoreContext(
+				this.rows[rowIndex],
+				this.columns[columnIndex],
+				dice.context(),
+			),
 		);
 		const columnScore = this.columns[columnIndex].score(
-			this.scoreContext(this.rows[rowIndex], this.columns[columnIndex], dice),
+			this.scoreContext(
+				this.rows[rowIndex],
+				this.columns[columnIndex],
+				dice.context(),
+			),
 		);
 		if (rowScore === undefined || columnScore === undefined) {
 			return undefined;

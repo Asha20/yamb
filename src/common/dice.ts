@@ -17,70 +17,49 @@ export interface DiceContext {
 	values: DieSide[];
 }
 
-export interface Dice extends DiceContext {
+export class Dice {
+	private amount: number;
+	values: DieSide[];
 	frozen: boolean[];
-	toggleFreeze(index: number): void;
-	loadDice(dice: DieSide[]): void;
-	rollDice(): void;
-	reset(): void;
-}
+	roll = 0;
 
-export function dice(amount: number): Dice {
-	let roll = 0;
+	constructor(amount: number) {
+		this.amount = amount;
+		this.values = array(amount, () => 6);
+		this.frozen = array(amount, () => false);
+	}
 
-	let values = array(amount, (): DieSide => 6);
-	let frozen = array(amount, () => false);
+	context(): DiceContext {
+		const count: DiceCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+		for (const die of this.values) {
+			count[die] += 1;
+		}
+		return { roll: this.roll, values: this.values, count };
+	}
 
-	function toggleFreeze(index: number) {
-		if (roll > 0) {
-			frozen[index] = !frozen[index];
+	toggleFreeze(index: number): void {
+		if (this.roll > 0) {
+			this.frozen[index] = !this.frozen[index];
 		}
 	}
 
-	function rollDice() {
-		for (let i = 0; i < values.length; i++) {
-			if (!frozen[i]) {
-				values[i] = (Math.floor(Math.random() * 6) + 1) as DieSide;
+	rollDice(): void {
+		for (let i = 0; i < this.values.length; i++) {
+			if (!this.frozen[i]) {
+				this.values[i] = (Math.floor(Math.random() * 6) + 1) as DieSide;
 			}
 		}
-		roll += 1;
+		this.roll += 1;
 	}
 
-	function loadDice(dice: DieSide[]) {
-		values = dice;
-		roll += 1;
+	loadDice(dice: DieSide[]): void {
+		this.values = dice;
+		this.roll += 1;
 	}
 
-	function reset() {
-		values = array(amount, () => 6);
-		frozen = array(amount, () => false);
-		roll = 0;
+	reset(): void {
+		this.values = array(this.amount, () => 6);
+		this.frozen = array(this.amount, () => false);
+		this.roll = 0;
 	}
-
-	return {
-		get roll() {
-			return roll;
-		},
-
-		get count() {
-			const result: DiceCount = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
-			for (const die of values) {
-				result[die] += 1;
-			}
-			return result;
-		},
-
-		get values() {
-			return [...values];
-		},
-
-		get frozen() {
-			return [...frozen];
-		},
-
-		toggleFreeze,
-		loadDice,
-		rollDice,
-		reset,
-	};
 }
