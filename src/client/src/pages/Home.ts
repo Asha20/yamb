@@ -10,7 +10,7 @@ function createGame() {
 	});
 }
 
-export const Main: m.Component = {
+export const Home: m.Component = {
 	view() {
 		return [
 			m("h1", "Yamb"),
