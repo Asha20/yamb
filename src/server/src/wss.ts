@@ -81,11 +81,11 @@ export function listen(server: Server): void {
 
 		broadcast({ type: "players", players: room.players });
 
-		const game = games.get(room);
+		const game = getGame(room);
 
-		if (game?.currentPlayer.id === member.id) {
-			game?.findNextAvailablePlayer(room.players);
-			game?.resetDice();
+		if (game.currentPlayer.id === member.id) {
+			game.findNextAvailablePlayer(room.players);
+			game.resetDice();
 			broadcast({ type: "findNextAvailablePlayer" });
 		}
 
@@ -158,8 +158,9 @@ export function listen(server: Server): void {
 		},
 
 		toggleFreeze({ msg, room, broadcast }) {
-			if (games.get(room)?.currentPlayer.id === msg.sender) {
-				games.get(room)?.toggleFreeze(msg.index);
+			const game = getGame(room);
+			if (game.currentPlayer.id === msg.sender) {
+				game.toggleFreeze(msg.index);
 				broadcast({ type: "toggleFreezeResponse", index: msg.index });
 			}
 		},
@@ -217,7 +218,7 @@ export function listen(server: Server): void {
 					broadcast({ type: "confirmCall", row: msg.row });
 				}
 			} catch (e) {
-				// Empty block
+				console.log(e);
 			}
 		},
 	});
