@@ -51,7 +51,7 @@ export function listen(server: Server): void {
 		if (game) {
 			return game;
 		} else {
-			throw new Error("Missing chat log.");
+			throw new Error("Missing game.");
 		}
 	}
 
@@ -81,11 +81,11 @@ export function listen(server: Server): void {
 
 		broadcast({ type: "players", players: room.players });
 
-		const game = getGame(room);
+		const game = games.get(room);
 
-		if (game.currentPlayer.id === member.id) {
-			game.findNextAvailablePlayer(room.players);
-			game.resetDice();
+		if (game?.currentPlayer.id === member.id) {
+			game?.findNextAvailablePlayer(room.players);
+			game?.resetDice();
 			broadcast({ type: "findNextAvailablePlayer" });
 		}
 
