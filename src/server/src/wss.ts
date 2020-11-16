@@ -5,20 +5,24 @@ import { Room, RoomManager } from "./roomManager";
 
 const nameRegex = /^[\w\s]+$/;
 
-let wss: WebSocket.Server;
+let wss: WebSocket.Server | null = null;
+let roomManager: RoomManager | null = null;
 
 export const gamesSet = new Set<string>();
 export const games = new Map<Room, GameManager>();
 export const chatLogs = new Map<Room, ChatMessage[]>();
 
+const MAX_ROOM_SIZE = 1;
+
 export function listen(server: Server): void {
 	wss = new WebSocket.Server({ server });
 
-	const roomManager = new RoomManager(wss, url => {
+	const newRoomManager = new RoomManager(wss, MAX_ROOM_SIZE, url => {
 		const lobbyRegex = /^\/lobby\/(\d+)$/;
 		const lobbyMatch = url.match(lobbyRegex);
 		return lobbyMatch && lobbyMatch[1];
 	});
+	roomManager = newRoomManager;
 
 	function serverMessage(
 		room: Room,
@@ -90,7 +94,7 @@ export function listen(server: Server): void {
 		}
 
 		if (!room.players.length) {
-			roomManager.deleteRoom(room.id);
+			newRoomManager.deleteRoom(room.id);
 			games.delete(room);
 			chatLogs.delete(room);
 			gamesSet.delete(room.id);
@@ -226,4 +230,8 @@ export function listen(server: Server): void {
 
 export function close(): void {
 	wss?.close();
+}
+
+export function getRoomManager(): RoomManager | null {
+	return roomManager;
 }

@@ -6,6 +6,7 @@ import {
 	Player,
 	jsonParse,
 	isClientMessage,
+	codes,
 } from "common";
 
 interface SocketInfo {
@@ -55,6 +56,7 @@ function sendMessage(client: WebSocket, msg: ServerMessage) {
 export class RoomManager {
 	wss: WebSocket.Server;
 	rooms = new Map<string, Room>();
+	maxSize: number;
 
 	handlers = {
 		join: [] as Array<RoomJoinLeaveHandler>,
@@ -82,8 +84,13 @@ export class RoomManager {
 		return room;
 	}
 
-	constructor(wss: WebSocket.Server, getId: (url: string) => string | null) {
+	constructor(
+		wss: WebSocket.Server,
+		maxSize: number,
+		getId: (url: string) => string | null,
+	) {
 		this.wss = wss;
+		this.maxSize = maxSize;
 		wss.on("connection", (ws, req) => {
 			const roomId = getId(req.url ?? "");
 
@@ -102,6 +109,11 @@ export class RoomManager {
 
 			const reply = sendMessage.bind(null, ws);
 			const broadcast = this.broadcast.bind(this, roomId);
+
+			if (room.members.size === maxSize) {
+				ws.close(codes.ROOM_FULL);
+				return;
+			}
 
 			const params: OnJoinLeaveParams = {
 				member: socketInfo,
@@ -134,6 +146,11 @@ export class RoomManager {
 				this.handlers.leave.forEach(handler => handler(params));
 			});
 		});
+	}
+
+	roomIsFull(roomId: string): boolean {
+		const room = this.getRoom(roomId, false);
+		return room.members.size === this.maxSize;
 	}
 
 	deleteRoom(id: string): boolean {

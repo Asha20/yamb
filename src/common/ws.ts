@@ -129,3 +129,7 @@ export type ServerMessage =
 	| { type: "chatSync"; messages: ChatMessage[] }
 	| { type: "receiveChatMessage"; message: ChatMessage }
 	| { type: "confirmCall"; row: string };
+
+export const codes = {
+	ROOM_FULL: 4000,
+} as const;
