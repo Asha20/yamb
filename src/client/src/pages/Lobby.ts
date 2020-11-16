@@ -2,8 +2,7 @@ import m from "mithril";
 import * as socket from "../socket";
 import { state, actions, init as initState } from "../state";
 import { PlayerList, Chat } from "../components";
-import { COLUMNS } from "common/yamb";
-import { NameStatus } from "common/ws";
+import { COLUMNS, NameStatus, classNames } from "common";
 
 const qs = document.querySelector.bind(document);
 
@@ -42,7 +41,7 @@ function NamePrompt(): m.Component {
 
 		view() {
 			const error = errorMessages[status];
-			return m(".name__wrapper", [
+			return m(".center-child.expand", [
 				m("section.name", [
 					m("label.name__label[for=player-name]", "Enter a name:"),
 					m("input.name__input#player-name[type=text]"),
@@ -54,30 +53,12 @@ function NamePrompt(): m.Component {
 	};
 }
 
-const colsEnabled = COLUMNS.reduce((acc, x) => {
-	acc[x.tip] = true;
-	return acc;
-}, {} as Record<typeof COLUMNS[number]["tip"], boolean>);
+function Settings(): m.Component {
+	const colsEnabled = COLUMNS.reduce((acc, x) => {
+		acc[x.tip] = true;
+		return acc;
+	}, {} as Record<typeof COLUMNS[number]["tip"], boolean>);
 
-const Settings: m.Component = {
-	view() {
-		return m("section.settings", [
-			m("h2", "Columns"),
-			COLUMNS.map(x =>
-				m("label", { key: x.tip }, [
-					m("input[type=checkbox]", {
-						checked: colsEnabled[x.tip],
-						onclick: () => (colsEnabled[x.tip] = !colsEnabled[x.tip]),
-					}),
-					x.tip,
-				]),
-			),
-		]);
-	},
-};
-
-export function Lobby(): m.Component {
-	let unsubscribe: null | (() => void) = null;
 	let rowColumnError = "";
 
 	function startGame() {
@@ -89,6 +70,33 @@ export function Lobby(): m.Component {
 			rowColumnError = "At least one column must be selected.";
 		}
 	}
+
+	return {
+		view() {
+			return m("section.settings", [
+				m("h2.text-center", "Settings"),
+				m("h3", "Columns"),
+				m(
+					".settings__column-selection",
+					COLUMNS.map(x =>
+						m("label.settings__label", { key: x.tip }, [
+							m("input.settings__checkbox[type=checkbox]", {
+								checked: colsEnabled[x.tip],
+								onclick: () => (colsEnabled[x.tip] = !colsEnabled[x.tip]),
+							}),
+							x.tip,
+						]),
+					),
+				),
+				m("p.settings__error", rowColumnError),
+				m("button.settings__start", { onclick: startGame }, "Start the game"),
+			]);
+		},
+	};
+}
+
+export function Lobby(): m.Component {
+	let unsubscribe: null | (() => void) = null;
 
 	return {
 		oninit() {
@@ -116,20 +124,17 @@ export function Lobby(): m.Component {
 				return m(NamePrompt);
 			}
 
-			return m(".lobby", [
-				m(".members", [
-					m("h1", "Lobby"),
-					m(PlayerList, {
-						players: state.players.filter(x => x.name),
-						gameStarted: false,
-					}),
-					state.self.owner && [
-						m(Settings),
-						rowColumnError,
-						m("button", { onclick: startGame }, "Start the game"),
-					],
+			const classes = classNames({
+				"lobby--owner": state.self.owner,
+				"lobby--player": !state.self.owner,
+			});
+			return m(".lobby.expand", { class: classes }, [
+				m(".grid--players", [
+					m("h1.text-center", "Lobby"),
+					m(PlayerList, { players: state.players.filter(x => x.name) }),
 				]),
-				m("aside", [m(Chat, { canSend: !!state.self.name })]),
+				state.self.owner && m(".grid--settings", [m(Settings)]),
+				m("aside.grid--chat", [m(Chat, { canSend: !!state.self.name })]),
 			]);
 		},
 	};

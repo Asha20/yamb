@@ -119,7 +119,7 @@ function findFullHouse(dice: DiceCount) {
 }
 
 export const threeOfAKind = row(
-	"Three of a Kind",
+	"3 of a kind",
 	"Three same dice",
 	({ count }) => {
 		const threeOfAKind = findDie(count, amount => amount >= 3);
@@ -129,7 +129,7 @@ export const threeOfAKind = row(
 
 export const fullHouse = row(
 	"Full House",
-	"Three of a Kind + Two of a Kind",
+	"3 of a kind + 4 of a kind",
 	({ count }) => {
 		const fullHouse = findFullHouse(count);
 
@@ -142,14 +142,10 @@ export const fullHouse = row(
 	},
 );
 
-export const fourOfAKind = row(
-	"Four of a Kind",
-	"Four same dice",
-	({ count }) => {
-		const fourOfAKind = findDie(count, amount => amount >= 4);
-		return fourOfAKind ? 50 + 4 * fourOfAKind : 0;
-	},
-);
+export const fourOfAKind = row("4 of a kind", "Four same dice", ({ count }) => {
+	const fourOfAKind = findDie(count, amount => amount >= 4);
+	return fourOfAKind ? 50 + 4 * fourOfAKind : 0;
+});
 
 export const yahtzee = row("Yahtzee", "Five same dice", ({ count }) => {
 	const fiveOfAKind = findDie(count, amount => amount >= 5);
@@ -372,19 +368,17 @@ class Yamb<
 			return;
 		}
 
-		// Hack: Ideally there should be a check whether the two
-		// rows are actually used in the game first.
 		const maxName = max.name as _RowName;
 		const minName = min.name as _RowName;
 
-		if (this.filled(maxName, column)) {
+		if (this.rows.includes(max) && this.filled(maxName, column)) {
 			const [maxRow, maxColumn] = this.getPos(maxName, column);
 			const oldMax = this.matrix[maxRow][maxColumn];
 			if (oldMax) {
 				this.matrix[maxRow][maxColumn] = score * oldMax;
 			}
 		}
-		if (this.filled(minName, column)) {
+		if (this.rows.includes(min) && this.filled(minName, column)) {
 			const [minRow, minColumn] = this.getPos(minName, column);
 			const oldMin = this.matrix[minRow][minColumn];
 			if (oldMin) {

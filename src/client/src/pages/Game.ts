@@ -37,13 +37,14 @@ export const Game: m.Component = {
 			return m(GameOver);
 		}
 
-		return m(".game", [
-			m(".yamb-wrapper", [
+		return m(".game.expand", [
+			m(
+				".grid--yamb.yamb__wrapper",
 				m(Yamb, { player: state.gameManager.currentPlayer }),
-				m(Dice),
-				m(Scoreboard),
-			]),
-			m("aside", [m(Chat)]),
+			),
+			m(".grid--dice", m(Dice)),
+			m(".grid--scoreboard", m(Scoreboard)),
+			m("aside.grid--chat", m(Chat)),
 		]);
 	},
 };

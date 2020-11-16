@@ -3,6 +3,12 @@ import { Scoreboard } from "./Scoreboard";
 
 export const GameOver: m.Component = {
 	view() {
-		return m("section.game-over", [m("h2", "Game Over"), m(Scoreboard)]);
+		return m(
+			".center-child.expand",
+			m("section.game-over", [
+				m("h2.text-center", "Game Over"),
+				m(Scoreboard, { sorted: true }),
+			]),
+		);
 	},
 };

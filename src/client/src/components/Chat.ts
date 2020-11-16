@@ -55,19 +55,26 @@ export function Chat(): m.Component<ChatAttrs> {
 		}
 	}
 
+	function scrollToBottom() {
+		if (chatLog && !content) {
+			chatLog.scrollTop = chatLog.scrollHeight;
+		}
+	}
+
 	return {
-		onupdate() {
-			if (chatLog && !content) {
-				chatLog.scrollTop = chatLog.scrollHeight;
-			}
-		},
+		onupdate: scrollToBottom,
 
 		view({ attrs }) {
 			const { canSend = true } = attrs;
 			return m("section.chat", [
 				m(
-					"ul.chat__log",
-					{ oncreate: ({ dom }) => (chatLog = dom) },
+					"ul.chat__log.selectable",
+					{
+						oncreate: ({ dom }) => {
+							chatLog = dom;
+							scrollToBottom();
+						},
+					},
 					state.chat.map(msg =>
 						m("li.chat__message", { key: msg.sent }, formatMessage(msg)),
 					),

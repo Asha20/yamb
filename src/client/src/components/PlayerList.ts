@@ -2,18 +2,11 @@ import m from "mithril";
 import { Player } from "common";
 import { state } from "../state";
 
-type PlayerListAttrs =
-	| {
-			players: Player[];
-			currentPlayer: Player;
-			gameStarted: true;
-	  }
-	| {
-			players: Player[];
-			gameStarted: false;
-	  };
+interface PlayerListAttrs {
+	players: Player[];
+}
 
-function playerName(attrs: PlayerListAttrs, player: Player) {
+function playerName(player: Player) {
 	let name = player.name;
 	if (player.name === state.self.name) {
 		name += " (you)";
@@ -23,21 +16,19 @@ function playerName(attrs: PlayerListAttrs, player: Player) {
 		name += " (owner)";
 	}
 
-	if (attrs.gameStarted && player.name === attrs.currentPlayer.name) {
-		name += " (playing)";
-	}
-
 	return name;
 }
 
 export const PlayerList: m.Component<PlayerListAttrs> = {
-	view(vnode: m.Vnode<PlayerListAttrs>) {
+	view({ attrs }) {
+		const { players } = attrs;
+
 		return m("section.players", [
-			m("h2", "Players"),
+			m("h2.players__heading", "Players"),
 			m(
 				"ul.players__ul",
-				vnode.attrs.players.map(player =>
-					m("li", { key: player.id }, playerName(vnode.attrs, player)),
+				players.map(player =>
+					m("li.players__li", { key: player.id }, playerName(player)),
 				),
 			),
 		]);

@@ -1,92 +1,94 @@
 :root {
-	--color-primary: rgb(59, 177, 255);
-	--color-secondary: rgb(129, 205, 255);
+	--color-background: #eee;
+	--color-primary: #444;
 
-	--color-illegal: rosybrown;
-	--color-legal: limegreen;
+	--color-blue: rgb(59, 177, 255);
+	--color-lightblue: rgb(129, 205, 255);
 
-	--color-light-gray: rgb(133, 133, 133);
 	--color-gray: rgb(95, 95, 95);
+	--color-lightgray: rgb(133, 133, 133);
+
+	--chat-min-height: 15em;
+	--chat-max-height: calc(100vh - 40px);
 }
 
-* {
+*,
+*:before,
+*:after {
 	box-sizing: border-box;
 }
 
-button {
-	padding: 0;
-}
-
-button:disabled {
-	color: inherit;
-}
-
 html {
-	font-size: 24px;
+	font-size: 18px;
+}
+
+@media only screen and (min-width: 768px) {
+	html {
+		font-size: 24px;
+	}
 }
 
 body {
+	background-color: var(--color-background);
+	line-height: 1.6;
+	user-select: none;
+}
+
+body,
+input[type="text"],
+button {
+	color: var(--color-primary);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	line-height: 1.2;
+}
+
+input[type="text"],
+button {
+	display: block;
+}
+
+.center-child {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.expand {
 	width: 100%;
 	min-height: 100vh;
+	padding: 20px;
 }
 
-.yamb-wrapper {
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	flex: 1;
+.selectable {
+	user-select: text;
 }
 
-@media only screen and (max-width: 1024px) {
-	.game,
-	.lobby {
-		flex-direction: column;
-	}
-
-	.members {
-		margin-bottom: 1em;
-	}
-
-	.chat__log {
-		max-height: 10em;
-	}
+.text-center {
+	text-align: center;
 }
 
-@media only screen and (min-width: 600px) {
-	.yamb,
-	.dice__container {
-		min-width: 20em;
-		width: 50%;
-		margin: 0 auto;
-	}
+/* Home */
+.home {
+	max-width: 20em;
+	height: 30em;
 }
 
-.game {
-	width: 100%;
-	height: 100vh;
-	display: flex;
-	padding: 1em;
-}
-
-aside {
-	flex: 1;
-	height: 100%;
-	display: flex;
-	flex-direction: column;
-	justify-content: space-between;
-}
-
-/* Name prompt */
+/* Name Prompt */
 .name__wrapper {
 	display: flex;
-	width: 100vw;
-	height: 100vh;
 	justify-content: center;
 	align-items: center;
 }
 
 .name {
-	min-width: 20em;
+	max-width: 20em;
 	height: 10em;
 }
 
@@ -111,99 +113,57 @@ aside {
 	margin: 0 auto;
 }
 
-/* Yamb */
+/* Lobby */
+.lobby {
+	display: grid;
 
-.yamb {
-	border-collapse: collapse;
-	white-space: nowrap;
+	gap: 20px;
+	grid-template-areas:
+		"players"
+		"settings"
+		"chat";
 }
 
-.yamb th,
-.yamb td {
-	border: 3px solid var(--color-primary);
-	text-align: center;
-	padding: 0;
-	min-height: 1em;
-	width: 2em;
+@media only screen and (min-width: 768px) {
+	.lobby {
+		grid-template-areas:
+			"players  chat"
+			"settings chat";
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.lobby .chat {
+		height: var(--chat-max-height);
+	}
 }
 
-.yamb th {
-	background-color: var(--color-secondary);
-}
-
-.cell {
-	border: none;
-	background: none;
-	width: 100%;
-	height: 100%;
-}
-
-.legal {
-	opacity: 0.4;
-}
-
-.legal:hover,
-.legal:focus {
-	opacity: 1;
-	cursor: pointer;
-}
-
-/* Dice */
-
-.dice__container {
-	margin-top: 1em;
+/* Settings */
+.settings__column-selection {
 	display: flex;
+	flex-wrap: wrap;
 	justify-content: space-around;
 }
 
-.dice__die {
-	border: none;
-	background: none;
-	font-size: 3em;
+.settings__label {
+	display: block;
+	width: 40%;
+	user-select: none;
+	white-space: nowrap;
 }
 
-.dice__roll {
-	display: block;
-	text-align: center;
-	font-size: 1.1em;
-	margin-bottom: 10px;
+.settings__checkbox {
+	margin-right: 0.25em;
 }
 
-.dice__roll-dice {
-	display: block;
+.settings__start {
 	margin: 0 auto;
-	padding: 10px;
-}
-
-.dice__die:not(.frozen) {
-	color: var(--color-light-gray);
-}
-
-.dice__die:not(.frozen):hover,
-.dice__die:not(.frozen):focus {
-	color: var(--color-gray);
-}
-
-.dice__die.frozen {
-	color: var(--color-secondary);
-}
-
-.dice__die.frozen:hover,
-.dice__die.frozen:focus {
-	color: var(--color-primary);
-}
-
-.dice__die:hover,
-.dice__die:focus {
-	cursor: pointer;
-	transform: scale(1.2);
 }
 
 /* Chat */
-
 .chat {
 	display: flex;
-	height: 100%;
+	min-height: var(--chat-min-height);
+	height: var(--chat-min-height);
 	flex-direction: column;
 	border-bottom: none;
 }
@@ -228,49 +188,171 @@ aside {
 
 .chat__input {
 	display: block;
-	flex: 1;
+	width: 0;
+	flex: 1 0 auto;
 }
 
 .chat__send {
 	display: block;
-	width: 3em;
+	flex: 0 0 3em;
+}
+
+/* Game */
+.game {
+	display: grid;
+
+	gap: 20px;
+	grid-template-areas:
+		"yamb"
+		"dice"
+		"scoreboard"
+		"chat";
+}
+
+@media only screen and (min-width: 768px) {
+	.game {
+		grid-template-areas:
+			"yamb       dice"
+			"yamb       scoreboard"
+			"chat       chat";
+		grid-template-columns: 1fr 1fr;
+	}
+}
+
+/* Yamb */
+.yamb__wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.yamb {
+	border-collapse: collapse;
+	white-space: nowrap;
+	width: 100%;
+	max-width: 10em;
+}
+
+.yamb th,
+.yamb td {
+	border: 3px solid var(--color-primary);
+	font-size: 0.8em;
+}
+
+.yamb th {
+	text-align: center;
+	background-color: var(--color-lightblue);
+	padding: 0 2px;
+}
+
+.cell {
+	border: none;
+	background: none;
+	width: 100%;
+	min-width: 3em;
+	height: 100%;
+}
+
+.legal {
+	opacity: 0.4;
+}
+
+.legal:hover,
+.legal:focus {
+	opacity: 1;
+	cursor: pointer;
+}
+
+/* Dice */
+.dice__container {
+	max-width: 20em;
+	margin: 0 auto;
+	display: grid;
+	grid-template-rows: repeat(2, 1fr);
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.dice__die {
+	border: none;
+	background: none;
+	font-size: 3em;
+	width: 80%;
+	margin: 0 auto;
+}
+
+.dice__roll {
+	display: block;
+	text-align: center;
+	font-size: 1.1em;
+}
+
+.dice__roll-dice {
+	display: block;
+	margin: 0 auto;
+}
+
+.dice__die:not(.frozen) {
+	color: var(--color-lightgray);
+}
+
+.dice__die:not(.frozen):hover,
+.dice__die:not(.frozen):focus {
+	color: var(--color-gray);
+}
+
+.dice__die.frozen {
+	color: var(--color-lightblue);
+}
+
+.dice__die.frozen:hover,
+.dice__die.frozen:focus {
+	color: var(--color-blue);
+}
+
+.dice__die:hover,
+.dice__die:focus {
+	cursor: pointer;
+	transform: scale(1.1);
 }
 
 /* Scoreboard */
-
 .scoreboard {
-	margin-top: 1em;
-}
-
-/* Lobby */
-
-.lobby {
 	width: 100%;
-	height: 100vh;
-	display: flex;
-	padding: 1em;
 }
 
-.members {
-	width: 50%;
+/* Grid */
+.grid--players {
+	grid-area: players;
 }
 
-/* Game setup */
-.game-setup {
-	display: flex;
+.grid--chat {
+	grid-area: chat;
 }
 
-.game-setup__column {
-	width: 50%;
+.grid--settings {
+	grid-area: settings;
 }
 
-.game-setup label {
-	display: block;
+.grid--yamb {
+	grid-area: yamb;
+}
+
+.grid--dice {
+	grid-area: dice;
+}
+
+.grid--scoreboard {
+	grid-area: scoreboard;
+}
+
+/* GameOver */
+.game-over {
+	max-width: 20em;
+	width: 100%;
 }
 
 /* Tooltip */
 /* Courtesy of https://blog.logrocket.com/creating-beautiful-tooltips-with-only-css/ */
-
 .tooltip {
 	position: relative; /* making the .tooltip span a container for the tooltip text */
 	border-bottom: 1px dashed #000; /* little indicater to indicate it's hoverable */
@@ -279,6 +361,7 @@ aside {
 .tooltip:before {
 	content: attr(data-text); /* here's the magic */
 	position: absolute;
+	z-index: 1;
 
 	/* vertically center */
 	top: 50%;

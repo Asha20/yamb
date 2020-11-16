@@ -2,6 +2,10 @@ import m from "mithril";
 import { Player } from "common";
 import { state } from "../state";
 
+interface ScoreboardAttrs {
+	sorted?: boolean;
+}
+
 function playerName(player: Player) {
 	let name = player.name;
 	if (player.name === state.self.name) {
@@ -26,16 +30,25 @@ function playerName(player: Player) {
 	return name;
 }
 
-export const Scoreboard: m.Component = {
-	view() {
+export const Scoreboard: m.Component<ScoreboardAttrs> = {
+	view({ attrs }) {
+		const { sorted = true } = attrs;
+		const players = [...state.initialPlayers].map(x => ({
+			player: x,
+			score: state.gameManager.score(x),
+		}));
+		if (sorted) {
+			players.sort((a, b) => b.score - a.score);
+		}
+
 		return m("table.scoreboard", [
 			m("thead", [m("tr", [m("th", "Player"), m("th", "Score")])]),
 			m(
 				"tbody",
-				state.initialPlayers.map(player =>
+				players.map(({ player, score }) =>
 					m("tr", { key: player.id }, [
 						m("td", playerName(player)),
-						m("td", state.gameManager.score(player)),
+						m("td", score),
 					]),
 				),
 			),
