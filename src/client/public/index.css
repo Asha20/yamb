@@ -1,6 +1,6 @@
 :root {
 	--color-background: #eee;
-	--color-primary: #444;
+	--color-text: #444;
 
 	--color-blue: rgb(59, 177, 255);
 	--color-lightblue: rgb(129, 205, 255);
@@ -10,6 +10,15 @@
 
 	--chat-min-height: 15em;
 	--chat-max-height: calc(100vh - 40px);
+
+	--color-player-red: hsl(0, 100%, 75%);
+	--color-player-orange: hsl(30, 100%, 75%);
+	--color-player-yellow: hsl(60, 100%, 75%);
+	--color-player-green: hsl(120, 100%, 75%);
+	--color-player-lightblue: hsl(180, 100%, 75%);
+	--color-player-blue: hsl(240, 100%, 75%);
+	--color-player-purple: hsl(270, 100%, 75%);
+	--color-player-pink: hsl(300, 100%, 75%);
 }
 
 *,
@@ -37,7 +46,7 @@ body {
 body,
 input[type="text"],
 button {
-	color: var(--color-primary);
+	color: var(--color-text);
 }
 
 h1,
@@ -72,6 +81,32 @@ button {
 
 .text-center {
 	text-align: center;
+}
+
+/* Colors */
+.color--red {
+	color: var(--color-player-red);
+}
+.color--orange {
+	color: var(--color-player-orange);
+}
+.color--yellow {
+	color: var(--color-player-yellow);
+}
+.color--green {
+	color: var(--color-player-green);
+}
+.color--lightblue {
+	color: var(--color-player-lightblue);
+}
+.color--blue {
+	color: var(--color-player-blue);
+}
+.color--purple {
+	color: var(--color-player-purple);
+}
+.color--pink {
+	color: var(--color-player-pink);
 }
 
 /* Home */
@@ -135,6 +170,20 @@ button {
 	.lobby .chat {
 		height: var(--chat-max-height);
 	}
+}
+
+/* PlayerList */
+.players__li {
+	list-style-type: none;
+}
+
+.players__color {
+	font-size: 1em;
+	margin-right: 0.5em;
+}
+
+.players__name {
+	color: var(--color-text);
 }
 
 /* Settings */
@@ -235,14 +284,38 @@ button {
 
 .yamb th,
 .yamb td {
-	border: 3px solid var(--color-primary);
+	border: 3px solid var(--color-text);
 	font-size: 0.8em;
 }
 
-.yamb th {
+.yamb__th {
 	text-align: center;
-	background-color: var(--color-lightblue);
 	padding: 0 2px;
+}
+
+.yamb--red th {
+	background-color: var(--color-player-red);
+}
+.yamb--orange th {
+	background-color: var(--color-player-orange);
+}
+.yamb--yellow th {
+	background-color: var(--color-player-yellow);
+}
+.yamb--green th {
+	background-color: var(--color-player-green);
+}
+.yamb--lightblue th {
+	background-color: var(--color-player-lightblue);
+}
+.yamb--blue th {
+	background-color: var(--color-player-blue);
+}
+.yamb--purple th {
+	background-color: var(--color-player-purple);
+}
+.yamb--pink th {
+	background-color: var(--color-player-pink);
 }
 
 .cell {

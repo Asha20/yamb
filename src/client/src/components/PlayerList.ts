@@ -19,16 +19,23 @@ function playerName(player: Player) {
 	return name;
 }
 
+function colorClass(color: Player["color"]) {
+	return "color--" + color;
+}
+
 export const PlayerList: m.Component<PlayerListAttrs> = {
 	view({ attrs }) {
 		const { players } = attrs;
 
 		return m("section.players", [
-			m("h2.players__heading", "Players"),
+			m("h2.text-center", "Players"),
 			m(
 				"ul.players__ul",
 				players.map(player =>
-					m("li.players__li", { key: player.id }, playerName(player)),
+					m("li.players__li", { key: player.id }, [
+						m("span.players__color", { class: colorClass(player.color) }, "⬤"),
+						m("span.players__name", playerName(player)),
+					]),
 				),
 			),
 		]);

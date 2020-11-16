@@ -86,9 +86,11 @@ const Cell: m.Component<CellAttrs> = {
 export const Yamb: m.Component<YambAttrs> = {
 	view({ attrs }) {
 		const { player } = attrs;
-		const { rows, columns } = state.gameManager;
+		const { rows, columns, currentPlayer } = state.gameManager;
 
-		return m("table.yamb", [
+		const colorClass = "yamb--" + currentPlayer.color;
+
+		return m("table.yamb", { class: colorClass }, [
 			m("colgroup", [
 				m("col.rows"),
 				m("col.columns", { span: columns.length }),
@@ -96,7 +98,7 @@ export const Yamb: m.Component<YambAttrs> = {
 
 			m("thead", [
 				m("tr", [
-					m("th"),
+					m("th", currentPlayer.name),
 					columns.map(col =>
 						m("th", { key: col.name }, m(Tooltip, { tip: col.tip }, col.name)),
 					),

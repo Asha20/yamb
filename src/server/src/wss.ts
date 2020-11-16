@@ -1,6 +1,12 @@
 import * as WebSocket from "ws";
 import { Server } from "http";
-import { GameManager, ChatMessage, ServerMessage, COLUMNS } from "common";
+import {
+	GameManager,
+	ChatMessage,
+	ServerMessage,
+	COLUMNS,
+	playerColors,
+} from "common";
 import { Room, RoomManager } from "./roomManager";
 
 const nameRegex = /^[\w\s]+$/;
@@ -12,7 +18,7 @@ export const gamesSet = new Set<string>();
 export const games = new Map<Room, GameManager>();
 export const chatLogs = new Map<Room, ChatMessage[]>();
 
-const MAX_ROOM_SIZE = 1;
+const MAX_ROOM_SIZE = playerColors.length;
 
 export function listen(server: Server): void {
 	wss = new WebSocket.Server({ server });

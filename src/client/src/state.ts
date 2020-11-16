@@ -16,7 +16,7 @@ interface State {
 }
 
 const initialState = (): State => ({
-	self: { id: "", name: "", owner: false },
+	self: { id: "", name: "", owner: false, color: "red" },
 	initialPlayers: [],
 	players: [],
 	gameManager: new GameManager([], [], []),

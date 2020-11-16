@@ -7,6 +7,8 @@ import {
 	jsonParse,
 	isClientMessage,
 	codes,
+	PlayerColor,
+	playerColors,
 } from "common";
 
 interface SocketInfo {
@@ -45,6 +47,8 @@ export interface Room {
 	members: Set<SocketInfo>;
 	owner: Player | null;
 	players: Player[];
+	memberToColor: Map<SocketInfo["id"], PlayerColor>;
+	colorToMember: Map<PlayerColor, SocketInfo["id"]>;
 }
 
 function sendMessage(client: WebSocket, msg: ServerMessage) {
@@ -77,6 +81,8 @@ export class RoomManager {
 			get players() {
 				return [...this.members].map(x => x.player).filter(x => x.name);
 			},
+			memberToColor: new Map(),
+			colorToMember: new Map(),
 		};
 		if (createIfMissing) {
 			this.rooms.set(id, room);
@@ -100,11 +106,18 @@ export class RoomManager {
 
 			const room = this.getRoom(roomId);
 
+			const availableColors = playerColors.filter(
+				x => !room.colorToMember.has(x),
+			);
+
 			const id = nanoid();
+			const newPlayerColor = availableColors[0];
+			room.colorToMember.set(newPlayerColor, id);
+			room.memberToColor.set(id, newPlayerColor);
 			const socketInfo: SocketInfo = {
 				id,
 				socket: ws,
-				player: { id, name: "", owner: false },
+				player: { id, name: "", owner: false, color: availableColors[0] },
 			};
 
 			const reply = sendMessage.bind(null, ws);
@@ -143,6 +156,11 @@ export class RoomManager {
 
 			ws.on("close", () => {
 				room.members.delete(socketInfo);
+				const ownColor = room.memberToColor.get(socketInfo.id);
+				room.memberToColor.delete(socketInfo.id);
+				if (ownColor) {
+					room.colorToMember.delete(ownColor);
+				}
 				this.handlers.leave.forEach(handler => handler(params));
 			});
 		});

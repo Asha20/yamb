@@ -127,11 +127,7 @@ export function Lobby(): m.Component {
 				return m(NamePrompt);
 			}
 
-			const classes = classNames({
-				"lobby--owner": state.self.owner,
-				"lobby--player": !state.self.owner,
-			});
-			return m(".lobby.expand", { class: classes }, [
+			return m(".lobby.expand", [
 				m(".grid--players", [
 					m("h1.text-center", "Lobby"),
 					m(PlayerList, { players: state.players.filter(x => x.name) }),

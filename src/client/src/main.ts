@@ -4,6 +4,7 @@ import { Home } from "./pages/Home";
 import { Lobby } from "./pages/Lobby";
 import { Game } from "./pages/Game";
 import { API } from "common";
+import { state } from "./state";
 
 /** Workaround because Mithril typings are missing the m.route.SKIP property. */
 /* eslint-disable-next-line @typescript-eslint/ban-types */
@@ -26,3 +27,5 @@ m.route(document.body, "/", {
 	},
 	"/game/:id": Game,
 });
+
+Object.defineProperty(window, "state", { value: state });

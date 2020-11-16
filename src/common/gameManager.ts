@@ -8,18 +8,32 @@ import {
 } from "./yamb";
 import { Dice, DieSide } from "./dice";
 
+export const playerColors = [
+	"red",
+	"orange",
+	"yellow",
+	"green",
+	"lightblue",
+	"blue",
+	"purple",
+	"pink",
+] as const;
+
+export type PlayerColor = typeof playerColors[number];
+
 export interface Player {
 	id: string;
 	name: string;
 	owner: boolean;
+	color: PlayerColor;
 }
 
 export class GameManager {
+	private currentPlayerId = 0;
 	players: Player[];
 	rows: readonly Row[];
 	columns: readonly Column[];
 	games: Map<string, Yamb>;
-	currentPlayerId = 0;
 	dice = new Dice(6);
 
 	constructor(
