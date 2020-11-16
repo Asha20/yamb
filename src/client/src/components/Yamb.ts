@@ -46,7 +46,8 @@ const Cell: m.Component<CellAttrs> = {
 			!state.gameManager.calling() &&
 			state.gameManager.roll === 1
 		) {
-			return m("td", [
+			return m(
+				"td",
 				m(
 					"button.cell.legal",
 					{
@@ -55,7 +56,7 @@ const Cell: m.Component<CellAttrs> = {
 					},
 					"Call",
 				),
-			]);
+			);
 		}
 
 		const potentialScore = state.gameManager.getScore(player, row, column);
@@ -63,7 +64,8 @@ const Cell: m.Component<CellAttrs> = {
 		const legalMove =
 			potentialScore !== undefined && state.gameManager.roll > 0;
 
-		return m("td", [
+		return m(
+			"td",
 			m(
 				"button.cell",
 				{
@@ -77,7 +79,7 @@ const Cell: m.Component<CellAttrs> = {
 				},
 				cellValue(filled, player, row, column),
 			),
-		]);
+		);
 	},
 };
 
@@ -96,9 +98,7 @@ export const Yamb: m.Component<YambAttrs> = {
 				m("tr", [
 					m("th"),
 					columns.map(col =>
-						m("th", { key: col.name }, [
-							m(Tooltip, { tip: col.tip }, col.name),
-						]),
+						m("th", { key: col.name }, m(Tooltip, { tip: col.tip }, col.name)),
 					),
 				]),
 			]),
@@ -107,7 +107,7 @@ export const Yamb: m.Component<YambAttrs> = {
 				"tbody",
 				rows.map(row =>
 					m("tr", { key: row.name }, [
-						m("th", [m(Tooltip, { tip: row.tip }, row.name)]),
+						m("th", m(Tooltip, { tip: row.tip }, row.name)),
 						columns.map(col =>
 							m(Cell, {
 								key: col.name,

@@ -42,7 +42,7 @@ export const Scoreboard: m.Component<ScoreboardAttrs> = {
 		}
 
 		return m("table.scoreboard", [
-			m("thead", [m("tr", [m("th", "Player"), m("th", "Score")])]),
+			m("thead", m("tr", [m("th", "Player"), m("th", "Score")])),
 			m(
 				"tbody",
 				players.map(({ player, score }) =>

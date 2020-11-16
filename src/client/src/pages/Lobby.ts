@@ -41,14 +41,15 @@ function NamePrompt(): m.Component {
 
 		view() {
 			const error = errorMessages[status];
-			return m(".center-child.expand", [
+			return m(
+				".center-child.expand",
 				m("section.name", [
 					m("label.name__label[for=player-name]", "Enter a name:"),
 					m("input.name__input#player-name[type=text]"),
 					m("button.name__submit", { onclick: submitName }, "Submit"),
 					m("p.name__error", {}, error),
 				]),
-			]);
+			);
 		},
 	};
 }
@@ -79,13 +80,15 @@ function Settings(): m.Component {
 				m(
 					".settings__column-selection",
 					COLUMNS.map(x =>
-						m("label.settings__label", { key: x.tip }, [
+						m(
+							"label.settings__label",
+							{ key: x.tip },
 							m("input.settings__checkbox[type=checkbox]", {
 								checked: colsEnabled[x.tip],
 								onclick: () => (colsEnabled[x.tip] = !colsEnabled[x.tip]),
 							}),
 							x.tip,
-						]),
+						),
 					),
 				),
 				m("p.settings__error", rowColumnError),
@@ -133,8 +136,8 @@ export function Lobby(): m.Component {
 					m("h1.text-center", "Lobby"),
 					m(PlayerList, { players: state.players.filter(x => x.name) }),
 				]),
-				state.self.owner && m(".grid--settings", [m(Settings)]),
-				m("aside.grid--chat", [m(Chat, { canSend: !!state.self.name })]),
+				state.self.owner && m(".grid--settings", m(Settings)),
+				m("aside.grid--chat", m(Chat, { canSend: !!state.self.name })),
 			]);
 		},
 	};
