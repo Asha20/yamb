@@ -12,7 +12,7 @@
 		"server:build": "webpack --config src/server/webpack.config.js --mode production",
 		"server:watch": "tsnd --no-notify --project src/server/tsconfig.json --require tsconfig-paths/register src/server/src/server.ts",
 		"prettier": "prettier --write",
-		"lint": "eslint --fix src/ --ext .js,.ts"
+		"lint": "eslint --max-warnings=0 --fix src/ --ext .js,.ts"
 	},
 	"husky": {
 		"hooks": {
