@@ -1,0 +1,22 @@
+@use "../base";
+
+.game {
+	display: grid;
+
+	gap: 20px;
+	grid-template-areas:
+		"yamb"
+		"dice"
+		"scoreboard"
+		"chat";
+}
+
+@media only screen and (min-width: base.$tablet) {
+	.game {
+		grid-template-areas:
+			"yamb       dice"
+			"yamb       scoreboard"
+			"chat       chat";
+		grid-template-columns: 1fr 1fr;
+	}
+}

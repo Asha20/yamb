@@ -1,0 +1,45 @@
+$background: #eee;
+$text: #444;
+
+$blue: rgb(59, 177, 255);
+$lightblue: rgb(129, 205, 255);
+
+$gray: rgb(95, 95, 95);
+$lightgray: rgb(133, 133, 133);
+
+$chat-min-height: 15em;
+$chat-max-height: calc(100vh - 40px);
+
+$player-red: hsl(0, 100%, 75%);
+$player-orange: hsl(30, 100%, 75%);
+$player-yellow: hsl(60, 100%, 75%);
+$player-green: hsl(120, 100%, 75%);
+$player-lightblue: hsl(180, 100%, 75%);
+$player-blue: hsl(240, 100%, 75%);
+$player-purple: hsl(270, 100%, 75%);
+$player-pink: hsl(300, 100%, 75%);
+
+.color--red {
+	color: $player-red;
+}
+.color--orange {
+	color: $player-orange;
+}
+.color--yellow {
+	color: $player-yellow;
+}
+.color--green {
+	color: $player-green;
+}
+.color--lightblue {
+	color: $player-lightblue;
+}
+.color--blue {
+	color: $player-blue;
+}
+.color--purple {
+	color: $player-purple;
+}
+.color--pink {
+	color: $player-pink;
+}

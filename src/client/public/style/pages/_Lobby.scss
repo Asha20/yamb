@@ -1,0 +1,25 @@
+@use "../base";
+@use "../components/Chat";
+
+.lobby {
+	display: grid;
+
+	gap: 20px;
+	grid-template-areas:
+		"players"
+		"settings"
+		"chat";
+}
+
+@media only screen and (min-width: base.$tablet) {
+	.lobby {
+		grid-template-areas:
+			"players  chat"
+			"settings chat";
+		grid-template-columns: 1fr 1fr;
+	}
+
+	.lobby .chat {
+		height: Chat.$max-height;
+	}
+}

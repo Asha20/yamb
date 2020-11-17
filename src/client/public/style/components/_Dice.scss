@@ -1,0 +1,52 @@
+@use "../colors";
+
+.dice__container {
+	max-width: 20em;
+	margin: 0 auto;
+	display: grid;
+	grid-template-rows: repeat(2, 1fr);
+	grid-template-columns: repeat(3, 1fr);
+}
+
+.dice__die {
+	border: none;
+	background: none;
+	font-size: 3em;
+	width: 80%;
+	margin: 0 auto;
+}
+
+.dice__roll {
+	display: block;
+	text-align: center;
+	font-size: 1.1em;
+}
+
+.dice__roll-dice {
+	display: block;
+	margin: 0 auto;
+}
+
+.dice__die:not(.frozen) {
+	color: colors.$lightgray;
+}
+
+.dice__die:not(.frozen):hover,
+.dice__die:not(.frozen):focus {
+	color: colors.$gray;
+}
+
+.dice__die.frozen {
+	color: colors.$lightblue;
+}
+
+.dice__die.frozen:hover,
+.dice__die.frozen:focus {
+	color: colors.$blue;
+}
+
+.dice__die:hover,
+.dice__die:focus {
+	cursor: pointer;
+	transform: scale(1.1);
+}

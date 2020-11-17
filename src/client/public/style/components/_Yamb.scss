@@ -1,0 +1,68 @@
+@use "../colors";
+
+.yamb__wrapper {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.yamb {
+	border-collapse: collapse;
+	white-space: nowrap;
+	width: 100%;
+	max-width: 10em;
+}
+
+.yamb th,
+.yamb td {
+	border: 3px solid colors.$text;
+	font-size: 0.8em;
+}
+
+.yamb__th {
+	text-align: center;
+	padding: 0 2px;
+}
+
+.yamb--red th {
+	background-color: colors.$player-red;
+}
+.yamb--orange th {
+	background-color: colors.$player-orange;
+}
+.yamb--yellow th {
+	background-color: colors.$player-yellow;
+}
+.yamb--green th {
+	background-color: colors.$player-green;
+}
+.yamb--lightblue th {
+	background-color: colors.$player-lightblue;
+}
+.yamb--blue th {
+	background-color: colors.$player-blue;
+}
+.yamb--purple th {
+	background-color: colors.$player-purple;
+}
+.yamb--pink th {
+	background-color: colors.$player-pink;
+}
+
+.cell {
+	border: none;
+	background: none;
+	width: 100%;
+	min-width: 3em;
+	height: 100%;
+}
+
+.legal {
+	opacity: 0.4;
+}
+
+.legal:hover,
+.legal:focus {
+	opacity: 1;
+	cursor: pointer;
+}

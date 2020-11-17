@@ -1,0 +1,17 @@
+@use "base";
+@use "colors";
+@use "grid";
+
+@use "components/NamePrompt";
+@use "components/Chat";
+@use "components/PlayersList";
+@use "components/Settings";
+@use "components/Yamb";
+@use "components/Dice";
+@use "components/Scoreboard";
+@use "components/GameOver";
+@use "components/Tooltip";
+
+@use "pages/Home";
+@use "pages/Lobby";
+@use "pages/Game";
