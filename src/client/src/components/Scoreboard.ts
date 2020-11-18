@@ -1,6 +1,7 @@
 import m from "mithril";
 import { Player } from "common";
 import { state } from "../state";
+import { ColorCircle } from "./ColorCircle";
 
 interface ScoreboardAttrs {
 	sorted?: boolean;
@@ -47,7 +48,13 @@ export const Scoreboard: m.Component<ScoreboardAttrs> = {
 				"tbody",
 				players.map(({ player, score }) =>
 					m("tr", { key: player.id }, [
-						m("td", playerName(player)),
+						m("td", [
+							m(ColorCircle, {
+								color: player.color,
+								selected: state.gameManager.currentPlayer.id === player.id,
+							}),
+							m("span.players__name", playerName(player)),
+						]),
 						m("td", score),
 					]),
 				),

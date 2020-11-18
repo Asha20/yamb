@@ -1,8 +1,8 @@
 import m from "mithril";
 import * as socket from "../socket";
 import { state, actions, init as initState } from "../state";
-import { PlayerList, Chat } from "../components";
-import { COLUMNS, NameStatus, classNames } from "common";
+import { PlayersList, Chat } from "../components";
+import { COLUMNS, NameStatus } from "common";
 
 const qs = document.querySelector.bind(document);
 
@@ -130,7 +130,7 @@ export function Lobby(): m.Component {
 			return m(".lobby.expand", [
 				m(".grid--players", [
 					m("h1.text-center", "Lobby"),
-					m(PlayerList, { players: state.players.filter(x => x.name) }),
+					m(PlayersList, { players: state.players.filter(x => x.name) }),
 				]),
 				state.self.owner && m(".grid--settings", m(Settings)),
 				m("aside.grid--chat", m(Chat, { canSend: !!state.self.name })),
