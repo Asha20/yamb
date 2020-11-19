@@ -1,5 +1,5 @@
 import * as m from "mithril";
-import { GameManager, Player, ChatMessage } from "common";
+import { GameManager, Player, ChatMessage, PlayerColor } from "common";
 import * as socket from "./socket";
 import { COLUMNS } from "common/yamb";
 
@@ -39,6 +39,13 @@ export const actions = {
 			COLUMNS.filter(x => columns.includes(x.name)),
 		);
 		state.gameState = "active";
+	},
+
+	changeColor(playerId: Player["id"], color: PlayerColor): void {
+		const player = state.players.find(x => x.id === playerId);
+		if (player) {
+			player.color = color;
+		}
 	},
 
 	endGame(): void {

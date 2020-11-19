@@ -143,6 +143,29 @@ export function listen(server: Server): void {
 			serverMessage(room, broadcast, `${name} joined.`);
 		},
 
+		changeColor({ msg, member, room, broadcast }) {
+			if (room.colorToMember.has(msg.color)) {
+				return;
+			}
+
+			const oldColor = room.memberToColor.get(msg.sender);
+			if (oldColor) {
+				room.memberToColor.delete(msg.sender);
+				room.colorToMember.delete(oldColor);
+			}
+
+			room.colorToMember.set(msg.color, msg.sender);
+			room.memberToColor.set(msg.sender, msg.color);
+
+			member.player.color = msg.color;
+
+			broadcast({
+				type: "changeColorResponse",
+				player: msg.sender,
+				color: msg.color,
+			});
+		},
+
 		chatMessage({ msg, room, broadcast }) {
 			const chatLog = getChatLog(room);
 			chatLog.push(msg.message);
@@ -190,7 +213,6 @@ export function listen(server: Server): void {
 		move({ msg, room, broadcast }) {
 			const { row, column, sender } = msg;
 			const game = getGame(room);
-			const player = game.currentPlayer;
 			if (game.currentPlayer.id !== sender || game.roll === 0) {
 				return;
 			}
@@ -205,7 +227,7 @@ export function listen(server: Server): void {
 			try {
 				game.play(row, column);
 				game.findNextAvailablePlayer(room.players);
-				broadcast({ type: "moveResponse", player, row, column });
+				broadcast({ type: "moveResponse", row, column });
 
 				if (!game.active(room.players)) {
 					broadcast({ type: "gameEnded" });

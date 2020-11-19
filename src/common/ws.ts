@@ -1,5 +1,5 @@
 import { DieSide } from "./dice";
-import { Player } from "./gameManager";
+import { Player, PlayerColor, playerColors } from "./gameManager";
 import { ChatMessage } from "./chat";
 
 export type SetName = { type: "setName"; name: string };
@@ -9,6 +9,7 @@ export type ToggleFreeze = { type: "toggleFreeze"; index: number };
 export type RollDice = { type: "rollDice" };
 export type SendChatMessage = { type: "chatMessage"; message: ChatMessage };
 export type RequestCall = { type: "requestCall"; row: string };
+export type ChangeColor = { type: "changeColor"; color: PlayerColor };
 
 type WithSender<T> = T & { sender: string };
 type UnknownObject = Record<string, unknown>;
@@ -21,6 +22,7 @@ export type ClientMessage = WithSender<
 	| RollDice
 	| SendChatMessage
 	| RequestCall
+	| ChangeColor
 >;
 
 interface Message {
@@ -86,6 +88,12 @@ function requestCall(x: Message): x is RequestCall {
 	return x.type === "requestCall" && typeof x.row === "string";
 }
 
+function changeColor(x: Message): x is ChangeColor {
+	return (
+		x.type === "changeColor" && playerColors.includes(x.color as PlayerColor)
+	);
+}
+
 export function isClientMessage(x: unknown): x is ClientMessage {
 	if (!message(x)) {
 		return false;
@@ -102,7 +110,8 @@ export function isClientMessage(x: unknown): x is ClientMessage {
 		toggleFreeze(x) ||
 		rollDice(x) ||
 		chatMessage(x) ||
-		requestCall(x)
+		requestCall(x) ||
+		changeColor(x)
 	);
 }
 
@@ -121,14 +130,15 @@ export type ServerMessage =
 	  }
 	| { type: "nameResponse"; status: "ok"; player: Player }
 	| { type: "gameStarted"; columns: string[] }
-	| { type: "moveResponse"; player: Player; row: string; column: string }
+	| { type: "moveResponse"; row: string; column: string }
 	| { type: "toggleFreezeResponse"; index: number }
 	| { type: "rollDiceResponse"; roll: number; dice: DieSide[] }
 	| { type: "findNextAvailablePlayer" }
 	| { type: "gameEnded" }
 	| { type: "chatSync"; messages: ChatMessage[] }
 	| { type: "receiveChatMessage"; message: ChatMessage }
-	| { type: "confirmCall"; row: string };
+	| { type: "confirmCall"; row: string }
+	| { type: "changeColorResponse"; player: Player["id"]; color: PlayerColor };
 
 export const codes = {
 	ROOM_FULL: 4000,

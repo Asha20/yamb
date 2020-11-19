@@ -17,7 +17,7 @@ export const Game: m.Component = {
 				case "moveResponse":
 					state.gameManager.play(msg.row, msg.column);
 					m.redraw();
-					await sleep(2000);
+					await sleep(1000);
 					state.gameManager.findNextAvailablePlayer(state.players);
 					break;
 				case "findNextAvailablePlayer":
