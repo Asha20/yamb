@@ -1,16 +1,20 @@
 @use "../colors";
 
 .color-circle__shell {
-	display: inline-flex;
+	display: flex;
 	justify-content: center;
 	align-items: center;
 	width: 1em;
 	height: 1em;
-	vertical-align: text-top;
 
 	border-radius: 100%;
-	margin-right: 0.5em;
 	background-color: colors.$text;
+}
+
+.color-circle__shell--inline {
+	display: inline-flex;
+	vertical-align: text-top;
+	margin-right: 0.5em;
 }
 
 .color-circle {

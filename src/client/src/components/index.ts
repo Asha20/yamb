@@ -6,3 +6,4 @@ export * from "./Scoreboard";
 export * from "./Yamb";
 export * from "./Tooltip";
 export * from "./ColorCircle";
+export * from "./Settings";

@@ -1,7 +1,7 @@
 import m from "mithril";
 import { Player } from "common";
 import { state } from "../state";
-import { ColorCircle } from "./ColorCircle";
+import { InlineColorCircle } from "./ColorCircle";
 
 interface PlayerListAttrs {
 	players: Player[];
@@ -30,7 +30,7 @@ export const PlayersList: m.Component<PlayerListAttrs> = {
 				"ul.players__ul",
 				players.map(player =>
 					m("li.players__li", { key: player.id }, [
-						m(ColorCircle, { color: player.color }),
+						m(InlineColorCircle, { color: player.color }),
 						m("span.players__name", playerName(player)),
 					]),
 				),

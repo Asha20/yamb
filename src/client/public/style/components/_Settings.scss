@@ -16,5 +16,27 @@
 }
 
 .settings__start {
+	margin: 20px auto 0;
+}
+
+.settings__color-selection {
+	display: flex;
+	justify-content: space-around;
+
+	max-width: 15em;
 	margin: 0 auto;
+}
+
+.settings__color-button {
+	border: none;
+	background: none;
+}
+
+.settings__color-button:not(:disabled):hover,
+.settings__color-button:not(:disabled):focus {
+	transform: scale(1.1);
+}
+
+.settings__color-button:not(:disabled):hover {
+	cursor: pointer;
 }
