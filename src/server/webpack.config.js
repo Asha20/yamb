@@ -2,43 +2,49 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const nodeExternals = require("webpack-node-externals");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
 function root(...pathNames) {
 	return path.resolve(PROJECT_ROOT, ...pathNames);
 }
 
-module.exports = {
-	target: "node",
-	node: {
-		__dirname: false,
-		__filename: false,
-	},
-	devtool: "source-map",
-	context: path.resolve(__dirname),
-	entry: "./src/server.ts",
-	output: {
-		path: path.resolve(__dirname, "dist"),
-		filename: "server.js",
-		devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
-	},
-	resolve: {
-		extensions: [".js", ".ts"],
-		alias: {
-			common: root("src/common"),
+module.exports = function (env) {
+	return {
+		target: "node",
+		node: {
+			__dirname: false,
+			__filename: false,
 		},
-	},
-	module: {
-		rules: [
-			{
-				test: /\.ts$/,
-				loader: "ts-loader",
-				exclude: /node_modules/,
+		devtool: "source-map",
+		context: path.resolve(__dirname),
+		mode: env.production ? "production" : "development",
+		entry: "./src/server.ts",
+		output: {
+			path: path.resolve(__dirname, "dist"),
+			filename: "server.js",
+			devtoolModuleFilenameTemplate: "file:///[absolute-resource-path]",
+		},
+		resolve: {
+			extensions: [".js", ".ts"],
+			alias: {
+				common: root("src/common"),
 			},
-		],
-	},
+		},
+		module: {
+			rules: [
+				{
+					test: /\.ts$/,
+					loader: "ts-loader",
+					exclude: /node_modules/,
+				},
+			],
+		},
 
-	externals: [nodeExternals()],
+		plugins: env.production ? [new CleanWebpackPlugin()] : [],
 
-	stats: "minimal",
+		externals: [nodeExternals()],
+
+		stats: "minimal",
+	};
 };
