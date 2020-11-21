@@ -1,5 +1,6 @@
 import { ClientMessage, ServerMessage, DistributeOmit } from "common";
 import { state } from "./state";
+import * as logger from "./logger";
 
 let socket: WebSocket | undefined;
 
@@ -9,7 +10,7 @@ export function send(msg: DistributeOmit<ClientMessage, "sender">): void {
 	}
 
 	const msgWithSender = { ...msg, sender: state.self.id };
-	console.log("Sending %o", msgWithSender);
+	logger.info("Sending", msgWithSender);
 	socket.send(JSON.stringify(msgWithSender));
 }
 
@@ -18,10 +19,10 @@ export function open(): void {
 	const wsUrl = location.href.replace(location.protocol, protocol);
 	socket = new WebSocket(wsUrl);
 
-	console.log("Socket opened");
+	logger.info("Socket opened");
 
 	onMessage(msg => {
-		console.log("Received: %o", msg);
+		logger.info("Received", msg);
 	});
 }
 

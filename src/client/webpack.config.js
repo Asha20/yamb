@@ -4,6 +4,7 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const CleanWebpackPlugin = require("clean-webpack-plugin");
+const { DefinePlugin } = require("webpack");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
 
@@ -37,6 +38,9 @@ module.exports = function (env) {
 			],
 		},
 		plugins: [
+			new DefinePlugin({
+				PRODUCTION: JSON.stringify(env.production),
+			}),
 			new HtmlWebpackPlugin({
 				title: "Yamb",
 				template: "public/index.html",
