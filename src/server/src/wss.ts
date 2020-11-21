@@ -8,6 +8,7 @@ import {
 	playerColors,
 } from "common";
 import { Room, RoomManager } from "./roomManager";
+import { logger } from "./logger";
 
 const nameRegex = /^[\w\s]+$/;
 
@@ -68,10 +69,12 @@ export function listen(server: Server): void {
 	roomManager.onJoin(({ member, room, reply, broadcast }) => {
 		if (games.has(room)) {
 			member.socket.close();
+			logger.info(
+				`Player ${member.id} tried joining room ${room.id} but it was full.`,
+			);
 			return;
 		}
 
-		console.log(`Player ${member.id} joined room ${room.id}`);
 		broadcast({ type: "players", players: room.players });
 
 		if (!chatLogs.has(room)) {
@@ -80,6 +83,7 @@ export function listen(server: Server): void {
 
 		const chatLog = getChatLog(room);
 		reply({ type: "chatSync", messages: chatLog });
+		logger.info(`Player ${member.id} joined room ${room.id}`);
 	});
 
 	roomManager.onLeave(({ room, member, broadcast }) => {
@@ -87,6 +91,7 @@ export function listen(server: Server): void {
 			const nextOwner = room.players[0];
 			room.owner = nextOwner;
 			nextOwner.owner = true;
+			logger.info(`Player ${nextOwner.id} become owner of room ${room.id}`);
 		}
 
 		broadcast({ type: "players", players: room.players });
@@ -108,7 +113,12 @@ export function listen(server: Server): void {
 
 		if (member.player.name) {
 			serverMessage(room, broadcast, `${member.player.name} left.`);
+			logger.info(`Player ${member.id} left room ${room.id}`);
 		}
+	});
+
+	roomManager.onMessage(({ msg }) => {
+		logger.info("Received message", { msg });
 	});
 
 	roomManager.onMessage({
@@ -233,7 +243,7 @@ export function listen(server: Server): void {
 					broadcast({ type: "gameEnded" });
 				}
 			} catch (e) {
-				console.log(e);
+				logger.error(e);
 			}
 		},
 
@@ -250,7 +260,7 @@ export function listen(server: Server): void {
 					broadcast({ type: "confirmCall", row: msg.row });
 				}
 			} catch (e) {
-				console.log(e);
+				logger.error(e);
 			}
 		},
 	});

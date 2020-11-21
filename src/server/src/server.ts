@@ -3,6 +3,7 @@ import * as path from "path";
 import * as express from "express";
 import * as wss from "./wss";
 import { router as apiRouter } from "./api";
+import { logger } from "./logger";
 
 const PROJECT_SRC = path.resolve(__dirname, "..", "..");
 function root(filePath: string) {
@@ -40,5 +41,5 @@ wss.listen(server);
 const EXPRESS_PORT = process.env.PORT || 3000;
 
 server.listen(EXPRESS_PORT, () => {
-	console.log("Express server open on port:", EXPRESS_PORT);
+	logger.info("Express server open on port:", EXPRESS_PORT);
 });

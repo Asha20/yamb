@@ -1,15 +1,15 @@
 {
-  "compilerOptions": {
-    "target": "es2015",
-    "strict": true,
-    "sourceMap": true,
-    "moduleResolution": "node",
-    "allowSyntheticDefaultImports": true,
-    "noFallthroughCasesInSwitch": true,
-    "baseUrl": ".",
-    "paths": {
-      "common/*": ["src/common/*"],
-      "common": ["src/common"]
-    }
-  }
+	"compilerOptions": {
+		"target": "es2015",
+		"strict": true,
+		"sourceMap": true,
+		"moduleResolution": "node",
+		"allowSyntheticDefaultImports": true,
+		"noFallthroughCasesInSwitch": true,
+		"baseUrl": ".",
+		"paths": {
+			"common": ["src/common"],
+			"common/*": ["src/common/*"]
+		}
+	}
 }
