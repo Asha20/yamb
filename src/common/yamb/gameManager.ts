@@ -1,11 +1,5 @@
-import {
-	Column,
-	create as createYamb,
-	Row,
-	ROWS,
-	Yamb,
-	call as callColumn,
-} from "./yamb";
+import { Column, Row, ROWS, call as callColumn } from "./rowsAndColumns";
+import { create as createYamb, Yamb } from "./yamb";
 import { Dice, DieSide } from "./dice";
 
 export const playerColors = [

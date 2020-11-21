@@ -1,5 +1,4 @@
-import { DieSide } from "./dice";
-import { Player, PlayerColor, playerColors } from "./gameManager";
+import { DieSide, Player, PlayerColor, playerColors } from "./yamb";
 import { ChatMessage } from "./chat";
 
 export type SetName = { type: "setName"; name: string };

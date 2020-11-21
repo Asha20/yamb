@@ -1,4 +1,4 @@
-import { array } from "./util";
+import { array } from "../util";
 
 export type DieSide = 1 | 2 | 3 | 4 | 5 | 6;
 
