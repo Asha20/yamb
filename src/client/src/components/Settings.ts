@@ -16,14 +16,14 @@ export function Settings(): m.Component<SettingsAttrs> {
 	let unsubscribe: (() => void) | null = null;
 
 	const colsEnabled = COLUMNS.reduce((acc, x) => {
-		acc[x.tip] = true;
+		acc[x.name] = true;
 		return acc;
-	}, {} as Record<typeof COLUMNS[number]["tip"], boolean>);
+	}, {} as Record<typeof COLUMNS[number]["name"], boolean>);
 
 	let noColumnsError = "";
 
 	function startGame() {
-		const columns = COLUMNS.filter(x => colsEnabled[x.tip]).map(x => x.name);
+		const columns = COLUMNS.filter(x => colsEnabled[x.name]).map(x => x.name);
 		if (columns.length) {
 			socket.send({ type: "startGame", columns });
 			noColumnsError = "";
@@ -39,12 +39,12 @@ export function Settings(): m.Component<SettingsAttrs> {
 			COLUMNS.map(x =>
 				m(
 					"label.settings__label",
-					{ key: x.tip },
+					{ key: x.name },
 					m("input.settings__checkbox[type=checkbox]", {
-						checked: colsEnabled[x.tip],
-						onclick: () => (colsEnabled[x.tip] = !colsEnabled[x.tip]),
+						checked: colsEnabled[x.name],
+						onclick: () => (colsEnabled[x.name] = !colsEnabled[x.name]),
 					}),
-					x.tip,
+					x.display.longName,
 				),
 			),
 		),

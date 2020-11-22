@@ -25,7 +25,11 @@ export const Yamb: m.Component<YambAttrs> = {
 				m("tr", [
 					m("th", currentPlayer.name),
 					columns.map(col =>
-						m("th", { key: col.name }, m(Tooltip, { tip: col.tip }, col.name)),
+						m(
+							"th",
+							{ key: col.name },
+							m(Tooltip, { tip: col.display.tip }, col.display.shortName),
+						),
 					),
 				]),
 			]),
@@ -33,7 +37,10 @@ export const Yamb: m.Component<YambAttrs> = {
 			m("tbody", [
 				rows.map(row =>
 					m("tr", { key: row.name }, [
-						m("th", m(Tooltip, { tip: row.tip }, row.name)),
+						m(
+							"th",
+							m(Tooltip, { tip: row.display.tip }, row.display.shortName),
+						),
 						columns.map(col =>
 							m(YambCell, {
 								key: col.name,

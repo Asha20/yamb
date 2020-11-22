@@ -3,14 +3,22 @@ import { Yamb } from "./yamb";
 
 export interface Row<T extends string = string> {
 	name: T;
-	tip: string;
+	display: {
+		longName: string;
+		shortName: string;
+		tip: string;
+	};
 	sum: boolean;
 	score(context: ScoreContext): number | undefined;
 }
 
 export interface Column<T extends string = string> {
 	name: T;
-	tip: string;
+	display: {
+		longName: string;
+		shortName: string;
+		tip: string;
+	};
 	score(context: ScoreContext): number | undefined;
 }
 
@@ -45,26 +53,33 @@ function sumDice(dice: DiceCount) {
 
 function row<T extends string>(
 	name: Row<T>["name"],
+	longName: string,
+	shortName: string,
 	tip: string,
 	score: Row<T>["score"],
 	sum = false,
 ): Row<T> {
-	return { name, tip, sum, score };
+	return { name, display: { longName, shortName, tip }, sum, score };
 }
 
 function sumRow<T extends string>(
 	name: Row<T>["name"],
+	longName: string,
+	shortName: string,
+	tip: string,
 	score: Row["score"],
 ): Row<T> {
-	return row(name, "", score, true);
+	return row(name, longName, shortName, tip, score, true);
 }
 
 function column<T extends string>(
 	name: Column<T>["name"],
+	longName: string,
+	shortName: string,
 	tip: string,
 	score: Column<T>["score"],
 ): Column<T> {
-	return { name, tip, score };
+	return { name, display: { longName, shortName, tip }, score };
 }
 
 const sumUnlessAllEmpty = (rows: Row[]) => ({ game, column }: ScoreContext) => {
@@ -83,37 +98,88 @@ const sumUnlessAllEmpty = (rows: Row[]) => ({ game, column }: ScoreContext) => {
 };
 
 // First part
-export const one = row("1", "Sum of ones", ({ count }) => 1 * count[1]);
-export const two = row("2", "Sum of twos", ({ count }) => 2 * count[2]);
-export const three = row("3", "Sum of threes", ({ count }) => 3 * count[3]);
-export const four = row("4", "Sum of fours", ({ count }) => 4 * count[4]);
-export const five = row("5", "Sum of fives", ({ count }) => 5 * count[5]);
-export const six = row("6", "Sum of sixes", ({ count }) => 6 * count[6]);
+export const one = row(
+	"one",
+	"Ones",
+	"1",
+	"Sum of ones",
+	({ count }) => 1 * count[1],
+);
+export const two = row(
+	"two",
+	"Twos",
+	"2",
+	"Sum of twos",
+	({ count }) => 2 * count[2],
+);
+export const three = row(
+	"three",
+	"Threes",
+	"3",
+	"Sum of threes",
+	({ count }) => 3 * count[3],
+);
+export const four = row(
+	"four",
+	"Fours",
+	"4",
+	"Sum of fours",
+	({ count }) => 4 * count[4],
+);
+export const five = row(
+	"five",
+	"Fives",
+	"5",
+	"Sum of fives",
+	({ count }) => 5 * count[5],
+);
+export const six = row(
+	"six",
+	"Sixes",
+	"6",
+	"Sum of sixes",
+	({ count }) => 6 * count[6],
+);
 
 export const sumOnesToSixes = sumRow(
-	"Sum 1",
+	"sumOnesToSixes",
+	"Sum",
+	"Sum",
+	"Sum from Ones to Sixes",
 	sumUnlessAllEmpty([one, two, three, four, five, six]),
 );
 
 // Second part
-export const max = row("Max", "Sum of all dice", ({ count }) => sumDice(count));
-export const min = row("Min", "Sum of all dice", ({ count }) => sumDice(count));
+export const max = row("max", "Max", "Max", "Sum of all dice", ({ count }) =>
+	sumDice(count),
+);
+export const min = row("min", "Min", "Min", "Sum of all dice", ({ count }) =>
+	sumDice(count),
+);
 
-export const sumMaxMin = sumRow("Sum 2", ctx => {
-	const { game, column } = ctx;
-	const maxValue = game.field(max.name, column.name);
-	const minValue = game.field(min.name, column.name);
-	const multiplier = game.field(one.name, column.name) ?? 1;
+export const sumMaxMin = sumRow(
+	"sumMaxMin",
+	"Sum",
+	"Sum",
+	"Ones * (Max - Min)",
+	ctx => {
+		const { game, column } = ctx;
+		const maxValue = game.field(max.name, column.name);
+		const minValue = game.field(min.name, column.name);
+		const multiplier = game.field(one.name, column.name) ?? 1;
 
-	if (maxValue === undefined || minValue === undefined) {
-		return undefined;
-	}
+		if (maxValue === undefined || minValue === undefined) {
+			return undefined;
+		}
 
-	return multiplier * (maxValue - minValue);
-});
+		return multiplier * (maxValue - minValue);
+	},
+);
 
 // Third part
 export const straight = row(
+	"straight",
+	"Straight",
 	"Straight",
 	"1-2-3-4-5 or 2-3-4-5-6",
 	({ count, roll }) => {
@@ -146,6 +212,8 @@ function findFullHouse(dice: DiceCount) {
 }
 
 export const threeOfAKind = row(
+	"threeOfAKind",
+	"Three of a kind",
 	"3 of a kind",
 	"Three same dice",
 	({ count }) => {
@@ -155,6 +223,8 @@ export const threeOfAKind = row(
 );
 
 export const fullHouse = row(
+	"fullHouse",
+	"Full House",
 	"Full House",
 	"3 of a kind + 4 of a kind",
 	({ count }) => {
@@ -169,18 +239,33 @@ export const fullHouse = row(
 	},
 );
 
-export const fourOfAKind = row("4 of a kind", "Four same dice", ({ count }) => {
-	const fourOfAKind = findDie(count, amount => amount >= 4);
-	return fourOfAKind ? 50 + 4 * fourOfAKind : 0;
-});
+export const fourOfAKind = row(
+	"fourOfAKind",
+	"Four of a kind",
+	"4 of a kind",
+	"Four same dice",
+	({ count }) => {
+		const fourOfAKind = findDie(count, amount => amount >= 4);
+		return fourOfAKind ? 50 + 4 * fourOfAKind : 0;
+	},
+);
 
-export const yahtzee = row("Yahtzee", "Five same dice", ({ count }) => {
-	const fiveOfAKind = findDie(count, amount => amount >= 5);
-	return fiveOfAKind ? 50 + 5 * fiveOfAKind : 0;
-});
+export const yahtzee = row(
+	"yahtzee",
+	"Yahtzee",
+	"Yahtzee",
+	"Five same dice",
+	({ count }) => {
+		const fiveOfAKind = findDie(count, amount => amount >= 5);
+		return fiveOfAKind ? 50 + 5 * fiveOfAKind : 0;
+	},
+);
 
 export const sumStraightToYahtzee = sumRow(
-	"Sum 3",
+	"sumStraightToYahtzee",
+	"Sum",
+	"Sum",
+	"Sum from Straight to Yahtzee",
 	sumUnlessAllEmpty([straight, threeOfAKind, fullHouse, fourOfAKind, yahtzee]),
 );
 
@@ -198,30 +283,48 @@ function findRow(rows: readonly Row[], start: Row, delta: number): Row | null {
 	return null;
 }
 
-export const topDown = column("↓", "Top-down", ({ row, column, game }) => {
-	const prevRow = findRow(game.rows, row, -1);
-	if (prevRow) {
-		return game.filled(prevRow.name, column.name) ? 0 : undefined;
-	}
-	return 0;
-});
-
-export const free = column("↓↑", "Free", () => 0);
-
-export const bottomUp = column("↑", "Bottom-up", ({ row, column, game }) => {
-	const nextRow = findRow(game.rows, row, 1);
-	if (nextRow) {
-		return game.filled(nextRow.name, column.name) ? 0 : undefined;
-	}
-	return 0;
-});
-
-export const call = column("C", "Call", ({ game }) => {
-	if (game.calling()) {
+export const topDown = column(
+	"topDown",
+	"Top-down",
+	"↓",
+	"Must fill downwards from the top",
+	({ row, column, game }) => {
+		const prevRow = findRow(game.rows, row, -1);
+		if (prevRow) {
+			return game.filled(prevRow.name, column.name) ? 0 : undefined;
+		}
 		return 0;
-	}
-	return undefined;
-});
+	},
+);
+
+export const free = column("free", "Free", "↓↑", "Fill any field", () => 0);
+
+export const bottomUp = column(
+	"bottomUp",
+	"Bottom-up",
+	"↑",
+	"Must fill upwards from the bottom",
+	({ row, column, game }) => {
+		const nextRow = findRow(game.rows, row, 1);
+		if (nextRow) {
+			return game.filled(nextRow.name, column.name) ? 0 : undefined;
+		}
+		return 0;
+	},
+);
+
+export const call = column(
+	"call",
+	"Call",
+	"C",
+	"Must call a field before playing",
+	({ game }) => {
+		if (game.calling()) {
+			return 0;
+		}
+		return undefined;
+	},
+);
 
 export const ROWS = [
 	one,
