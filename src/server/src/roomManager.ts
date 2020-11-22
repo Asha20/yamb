@@ -79,7 +79,7 @@ export class RoomManager {
 			members: new Set(),
 			owner: null,
 			get players() {
-				return [...this.members].map(x => x.player).filter(x => x.name);
+				return [...this.members].map(x => x.player);
 			},
 			memberToColor: new Map(),
 			colorToMember: new Map(),
@@ -169,6 +169,11 @@ export class RoomManager {
 	roomIsFull(roomId: string): boolean {
 		const room = this.getRoom(roomId, false);
 		return room.members.size === this.maxSize;
+	}
+
+	nameAvailable(roomId: string, name: string): boolean {
+		const room = this.getRoom(roomId, false);
+		return room.players.every(player => player.name !== name);
 	}
 
 	deleteRoom(id: string): boolean {

@@ -14,16 +14,20 @@ export function send(msg: DistributeOmit<ClientMessage, "sender">): void {
 	socket.send(JSON.stringify(msgWithSender));
 }
 
-export function open(): void {
-	const protocol =
-		!PRODUCTION || location.hostname === "localhost" ? "ws:" : "wss:";
-	const wsUrl = location.href.replace(location.protocol, protocol);
-	socket = new WebSocket(wsUrl);
+export function open(): Promise<WebSocket> {
+	return new Promise(resolve => {
+		const protocol =
+			!PRODUCTION || location.hostname === "localhost" ? "ws:" : "wss:";
+		const wsUrl = location.href.replace(location.protocol, protocol);
+		socket = new WebSocket(wsUrl);
 
-	logger.info("Socket opened");
+		logger.info("Socket opened");
 
-	onMessage(msg => {
-		logger.info("Received", msg);
+		socket.addEventListener("open", () => resolve(socket), { once: true });
+
+		onMessage(msg => {
+			logger.info("Received", msg);
+		});
 	});
 }
 
@@ -33,6 +37,11 @@ export function get(): WebSocket {
 	}
 
 	return socket;
+}
+
+export function onOpen(fn: (e: Event) => void): () => void {
+	get().addEventListener("open", fn);
+	return () => get().removeEventListener("open", fn);
 }
 
 export function onMessage(fn: (msg: ServerMessage) => void): () => void {

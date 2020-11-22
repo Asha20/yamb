@@ -91,7 +91,7 @@ export function listen(server: Server): void {
 			const nextOwner = room.players[0];
 			room.owner = nextOwner;
 			nextOwner.owner = true;
-			logger.info(`Player ${nextOwner.id} become owner of room ${room.id}`);
+			logger.info(`Player ${nextOwner.id} became owner of room ${room.id}`);
 		}
 
 		broadcast({ type: "players", players: room.players });

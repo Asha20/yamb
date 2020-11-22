@@ -1,13 +1,10 @@
 import m from "mithril";
-import { API } from "common";
+import * as api from "../api";
 
 function createGame() {
-	m.request<API.CreateGame>({
-		method: "GET",
-		url: "/api/create-game",
-	}).then(response => {
-		m.route.set("/lobby/:id", { id: response.id });
-	});
+	api
+		.createGame()
+		.then(response => m.route.set("/lobby/:id", { id: response.id }));
 }
 
 export const Home: m.Component = {
