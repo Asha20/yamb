@@ -25,7 +25,7 @@ export function listen(server: Server): void {
 	wss = new WebSocket.Server({ server });
 
 	const newRoomManager = new RoomManager(wss, MAX_ROOM_SIZE, url => {
-		const lobbyRegex = /^\/lobby\/(\d+)$/;
+		const lobbyRegex = /^\/lobby\/([a-z0-9_-]+)$/i;
 		const lobbyMatch = url.match(lobbyRegex);
 		return lobbyMatch && lobbyMatch[1];
 	});

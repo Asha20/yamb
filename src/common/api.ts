@@ -1,5 +1,5 @@
 export interface CreateGame {
-	id: number;
+	id: string;
 }
 
 export interface RoomFull {
