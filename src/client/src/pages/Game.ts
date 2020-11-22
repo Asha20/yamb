@@ -2,10 +2,7 @@ import m from "mithril";
 import { Yamb, Dice, Scoreboard, GameOver, Chat } from "../components";
 import { state, actions } from "../state";
 import * as socket from "../socket";
-
-function sleep(ms: number) {
-	return new Promise(resolve => setTimeout(resolve, ms));
-}
+import { sleep, HIGHLIGHT_MOVE_DELAY } from "../util";
 
 export const Game: m.Component = {
 	oninit() {
@@ -17,7 +14,7 @@ export const Game: m.Component = {
 				case "moveResponse":
 					state.gameManager.play(msg.row, msg.column);
 					m.redraw();
-					await sleep(1000);
+					await sleep(HIGHLIGHT_MOVE_DELAY);
 					state.gameManager.findNextAvailablePlayer(state.players);
 					break;
 				case "findNextAvailablePlayer":

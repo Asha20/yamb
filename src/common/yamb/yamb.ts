@@ -173,7 +173,6 @@ class Yamb<
 				this.scoreContext(sumRow, this.columns[columnIndex], dice.context()),
 			);
 			this.matrix[sumRowIndex][columnIndex] = newScore;
-			console.log(newScore);
 		}
 
 		if (this.callRow && this.callRow === row) {

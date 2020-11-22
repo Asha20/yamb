@@ -43,3 +43,11 @@
 .yamb--pink .yamb-cell__td--sum {
 	background-color: colors.$player-pink;
 }
+
+.yamb-cell__td--highlighted {
+	background-color: colors.$text;
+
+	.yamb-cell {
+		color: colors.$background;
+	}
+}

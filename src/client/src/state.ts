@@ -1,4 +1,4 @@
-import * as m from "mithril";
+import m from "mithril";
 import { GameManager, Player, ChatMessage, PlayerColor } from "common";
 import * as socket from "./socket";
 import { COLUMNS } from "common/yamb";
