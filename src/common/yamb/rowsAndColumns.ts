@@ -185,7 +185,6 @@ export const sumStraightToYahtzee = sumRow(
 );
 
 // Columns
-
 function findRow(rows: readonly Row[], start: Row, delta: number): Row | null {
 	const rowIndex = rows.findIndex(x => x === start);
 	if (rowIndex === -1) {

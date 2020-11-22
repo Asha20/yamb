@@ -1,0 +1,45 @@
+@use "../colors";
+
+.yamb-cell {
+	border: none;
+	background: none;
+	width: 100%;
+	min-width: 3em;
+	height: 100%;
+	text-align: center;
+}
+
+.legal {
+	opacity: 0.4;
+}
+
+.legal:hover,
+.legal:focus {
+	opacity: 1;
+	cursor: pointer;
+}
+
+.yamb--red .yamb-cell__td--sum {
+	background-color: colors.$player-red;
+}
+.yamb--orange .yamb-cell__td--sum {
+	background-color: colors.$player-orange;
+}
+.yamb--yellow .yamb-cell__td--sum {
+	background-color: colors.$player-yellow;
+}
+.yamb--green .yamb-cell__td--sum {
+	background-color: colors.$player-green;
+}
+.yamb--lightblue .yamb-cell__td--sum {
+	background-color: colors.$player-lightblue;
+}
+.yamb--blue .yamb-cell__td--sum {
+	background-color: colors.$player-blue;
+}
+.yamb--purple .yamb-cell__td--sum {
+	background-color: colors.$player-purple;
+}
+.yamb--pink .yamb-cell__td--sum {
+	background-color: colors.$player-pink;
+}

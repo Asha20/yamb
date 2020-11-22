@@ -14,12 +14,12 @@ class Yamb<
 	private callRow: null | _RowName;
 	private cellFilled: boolean[][];
 	private matrix: Array<Array<number | undefined>>;
+	private readonly sumRows: TRows;
 
 	public readonly rows: TRows;
 	public readonly columns: TColumns;
 
 	constructor(rows: TRows, columns: TColumns) {
-		this.turnsLeft = rows.length * columns.length;
 		this.rows = rows;
 		this.columns = columns;
 		this.callRow = null;
@@ -29,6 +29,10 @@ class Yamb<
 		this.matrix = array(rows.length, () =>
 			array(columns.length, () => undefined),
 		);
+
+		this.sumRows = (rows.filter(x => x.sum) as unknown) as TRows;
+
+		this.turnsLeft = (rows.length - this.sumRows.length) * columns.length;
 	}
 
 	calling(): null | _RowName {
@@ -41,11 +45,13 @@ class Yamb<
 
 	score(): number {
 		let score = 0;
-		for (const row of this.matrix) {
-			for (const val of row) {
-				if (val !== undefined) {
-					score += val;
-				}
+		for (const row of this.sumRows) {
+			for (const column of this.columns) {
+				const [rowIndex, columnIndex] = this.getPos(
+					row.name as _RowName,
+					column.name as _ColName,
+				);
+				score += this.matrix[rowIndex][columnIndex] ?? 0;
 			}
 		}
 
@@ -135,6 +141,11 @@ class Yamb<
 			return row === this.callRow && column === call.name;
 		}
 
+		const rowObject = this.rows.find(x => x.name === row);
+		if (rowObject && rowObject.sum) {
+			return false;
+		}
+
 		return (
 			!this.filled(row, column) &&
 			this.getScore(dice, row, column) !== undefined
@@ -154,6 +165,16 @@ class Yamb<
 		this.matrix[rowIndex][columnIndex] = score;
 		this.cellFilled[rowIndex][columnIndex] = true;
 		this.turnsLeft -= 1;
+
+		for (const sumRow of this.sumRows) {
+			const sumRowName = sumRow.name as _RowName;
+			const [sumRowIndex] = this.getPos(sumRowName, column);
+			const newScore = sumRow.score(
+				this.scoreContext(sumRow, this.columns[columnIndex], dice.context()),
+			);
+			this.matrix[sumRowIndex][columnIndex] = newScore;
+			console.log(newScore);
+		}
 
 		if (this.callRow && this.callRow === row) {
 			this.callRow = null;
