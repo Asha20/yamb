@@ -2,14 +2,16 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require("path");
 const nodeExternals = require("webpack-node-externals");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
 function root(...pathNames) {
 	return path.resolve(PROJECT_ROOT, ...pathNames);
 }
 
-module.exports = function (env) {
+module.exports = function (env, argv) {
+	const production = argv.mode === "production";
+
 	return {
 		target: "node",
 		node: {
@@ -18,7 +20,7 @@ module.exports = function (env) {
 		},
 		devtool: "source-map",
 		context: path.resolve(__dirname),
-		mode: env.production ? "production" : "development",
+		mode: production ? "production" : "development",
 		entry: "./src/server.ts",
 		output: {
 			path: path.resolve(__dirname, "dist"),
@@ -41,7 +43,7 @@ module.exports = function (env) {
 			],
 		},
 
-		plugins: env.production ? [new CleanWebpackPlugin()] : [],
+		plugins: production ? [new CleanWebpackPlugin()] : [],
 
 		externals: [nodeExternals()],
 

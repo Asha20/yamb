@@ -3,15 +3,17 @@
 const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
-const CleanWebpackPlugin = require("clean-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { DefinePlugin } = require("webpack");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
 
-module.exports = function (env) {
+module.exports = function (env, argv) {
+	const production = argv.mode === "production";
+
 	return {
 		context: path.resolve(__dirname),
-		mode: env.production ? "production" : "development",
+		mode: production ? "production" : "development",
 		entry: "./src/main.ts",
 		output: {
 			path: path.resolve(__dirname, "dist"),
@@ -39,14 +41,14 @@ module.exports = function (env) {
 		},
 		plugins: [
 			new DefinePlugin({
-				PRODUCTION: JSON.stringify(env.production),
+				PRODUCTION: JSON.stringify(production),
 			}),
 			new HtmlWebpackPlugin({
 				title: "Yamb",
 				template: "public/index.html",
 			}),
 			new MiniCssExtractPlugin(),
-			env.production && new CleanWebpackPlugin(),
+			production && new CleanWebpackPlugin(),
 		].filter(Boolean),
 
 		stats: "minimal",
