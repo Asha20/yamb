@@ -1,35 +1,20 @@
 import * as WebSocket from "ws";
 import { Server } from "http";
-import {
-	GameManager,
-	ChatMessage,
-	ServerMessage,
-	COLUMNS,
-	playerColors,
-} from "common";
-import { Room, RoomManager } from "./roomManager";
+import { GameManager, ChatMessage, ServerMessage, COLUMNS } from "common";
+import { Room, gameRoomManager } from "./roomManager";
 import { logger } from "./logger";
 
 const nameRegex = /^[\w\s]+$/;
 
 let wss: WebSocket.Server | null = null;
-let roomManager: RoomManager | null = null;
 
 export const gamesSet = new Set<string>();
 export const games = new Map<Room, GameManager>();
 export const chatLogs = new Map<Room, ChatMessage[]>();
 
-const MAX_ROOM_SIZE = playerColors.length;
-
 export function listen(server: Server): void {
 	wss = new WebSocket.Server({ server });
-
-	const newRoomManager = new RoomManager(wss, MAX_ROOM_SIZE, url => {
-		const lobbyRegex = /^\/lobby\/([a-z0-9_-]+)$/i;
-		const lobbyMatch = url.match(lobbyRegex);
-		return lobbyMatch && lobbyMatch[1];
-	});
-	roomManager = newRoomManager;
+	gameRoomManager.attach(wss);
 
 	function serverMessage(
 		room: Room,
@@ -66,7 +51,7 @@ export function listen(server: Server): void {
 		}
 	}
 
-	roomManager.onJoin(({ member, room, reply, broadcast }) => {
+	gameRoomManager.onJoin(({ member, room, reply, broadcast }) => {
 		if (games.has(room)) {
 			member.socket.close();
 			logger.info(
@@ -86,7 +71,7 @@ export function listen(server: Server): void {
 		logger.info(`Player ${member.id} joined room ${room.id}`);
 	});
 
-	roomManager.onLeave(({ room, member, broadcast }) => {
+	gameRoomManager.onLeave(({ room, member, broadcast }) => {
 		if (member.player.owner && room.players.length) {
 			const nextOwner = room.players[0];
 			room.owner = nextOwner;
@@ -105,7 +90,7 @@ export function listen(server: Server): void {
 		}
 
 		if (!room.players.length) {
-			newRoomManager.deleteRoom(room.id);
+			gameRoomManager.deleteRoom(room.id);
 			games.delete(room);
 			chatLogs.delete(room);
 			gamesSet.delete(room.id);
@@ -117,11 +102,11 @@ export function listen(server: Server): void {
 		}
 	});
 
-	roomManager.onMessage(({ msg }) => {
+	gameRoomManager.onMessage(({ msg }) => {
 		logger.info("Received message", { msg });
 	});
 
-	roomManager.onMessage({
+	gameRoomManager.onMessage({
 		setName({ msg, member, room, reply, broadcast }) {
 			const name = msg.name.trim();
 
@@ -268,8 +253,4 @@ export function listen(server: Server): void {
 
 export function close(): void {
 	wss?.close();
-}
-
-export function getRoomManager(): RoomManager | null {
-	return roomManager;
 }

@@ -58,11 +58,12 @@ function sendMessage(client: WebSocket, msg: ServerMessage) {
 }
 
 export class RoomManager {
-	wss: WebSocket.Server;
-	rooms = new Map<string, Room>();
-	maxSize: number;
+	wss: WebSocket.Server | null = null;
+	private rooms = new Map<string, Room>();
+	private maxSize: number;
+	private getId: (url: string) => string | null;
 
-	handlers = {
+	private handlers = {
 		join: [] as Array<RoomJoinLeaveHandler>,
 		leave: [] as Array<RoomJoinLeaveHandler>,
 		message: [] as MessageHandler[],
@@ -90,15 +91,15 @@ export class RoomManager {
 		return room;
 	}
 
-	constructor(
-		wss: WebSocket.Server,
-		maxSize: number,
-		getId: (url: string) => string | null,
-	) {
-		this.wss = wss;
+	constructor(maxSize: number, getId: (url: string) => string | null) {
 		this.maxSize = maxSize;
+		this.getId = getId;
+	}
+
+	attach(wss: WebSocket.Server): void {
+		this.wss = wss;
 		wss.on("connection", (ws, req) => {
-			const roomId = getId(req.url ?? "");
+			const roomId = this.getId(req.url ?? "");
 
 			if (roomId === null) {
 				return;
@@ -123,7 +124,7 @@ export class RoomManager {
 			const reply = sendMessage.bind(null, ws);
 			const broadcast = this.broadcast.bind(this, roomId);
 
-			if (room.members.size === maxSize) {
+			if (room.members.size === this.maxSize) {
 				ws.close(codes.ROOM_FULL);
 				return;
 			}
@@ -198,3 +199,10 @@ export class RoomManager {
 		}
 	}
 }
+
+const MAX_ROOM_SIZE = playerColors.length;
+export const gameRoomManager = new RoomManager(MAX_ROOM_SIZE, url => {
+	const lobbyRegex = /^\/lobby\/([a-z0-9_-]+)$/i;
+	const lobbyMatch = url.match(lobbyRegex);
+	return lobbyMatch && lobbyMatch[1];
+});

@@ -1,6 +1,6 @@
 import * as express from "express";
 import { API } from "common";
-import { getRoomManager } from "./wss";
+import { gameRoomManager } from "./roomManager";
 import { nanoid } from "nanoid";
 
 export const router = express.Router();
@@ -11,17 +11,13 @@ router.get("/create-game", (_, res) => {
 });
 
 router.get("/room-full/:id", (req, res) => {
-	const roomManager = getRoomManager();
-	if (roomManager) {
-		const response: API.RoomFull = {
-			isFull: roomManager.roomIsFull(req.params.id),
-		};
-		res.json(response);
-	}
+	const response: API.RoomFull = {
+		isFull: gameRoomManager.roomIsFull(req.params.id),
+	};
+	res.json(response);
 });
 
 router.get("/check-name/:id", (req, res) => {
-	const roomManager = getRoomManager();
 	const nameRegex = /^[\w\s]+$/;
 	const name = req.query.name;
 	let response: API.CheckName;
@@ -36,7 +32,7 @@ router.get("/check-name/:id", (req, res) => {
 		response = { status: "too-long" };
 	} else if (!nameRegex.test(name)) {
 		response = { status: "invalid" };
-	} else if (roomManager && !roomManager.nameAvailable(req.params.id, name)) {
+	} else if (!gameRoomManager.nameAvailable(req.params.id, name)) {
 		response = { status: "unavailable" };
 	} else {
 		response = { status: "ok" };
