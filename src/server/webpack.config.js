@@ -3,11 +3,17 @@
 const path = require("path");
 const nodeExternals = require("webpack-node-externals");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
 function root(...pathNames) {
 	return path.resolve(PROJECT_ROOT, ...pathNames);
 }
+
+const babelOptions = {
+	presets: ["@babel/preset-env", "@babel/preset-typescript"],
+	plugins: ["@babel/plugin-proposal-class-properties"],
+};
 
 module.exports = function (env, argv) {
 	const production = argv.mode === "production";
@@ -37,16 +43,20 @@ module.exports = function (env, argv) {
 			rules: [
 				{
 					test: /\.ts$/,
-					loader: "ts-loader",
+					loader: "babel-loader",
 					exclude: /node_modules/,
+					options: babelOptions,
 				},
 			],
 		},
 
-		plugins: production ? [new CleanWebpackPlugin()] : [],
+		plugins: [
+			new ForkTsCheckerWebpackPlugin(),
+			production && new CleanWebpackPlugin(),
+		].filter(Boolean),
 
 		externals: [nodeExternals()],
 
-		stats: "minimal",
+		stats: production ? "normal" : "minimal",
 	};
 };

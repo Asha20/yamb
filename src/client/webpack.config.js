@@ -5,8 +5,23 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { DefinePlugin } = require("webpack");
+const ForkTsCheckerWebpackPlugin = require("fork-ts-checker-webpack-plugin");
 
 const PROJECT_ROOT = path.resolve(__dirname, "..", "..");
+
+const babelOptions = {
+	presets: [
+		[
+			"@babel/preset-env",
+			{ targets: "defaults", useBuiltIns: "usage", corejs: 3 },
+		],
+		["@babel/preset-typescript"],
+	],
+	plugins: [
+		"@babel/plugin-proposal-class-properties",
+		"@babel/plugin-transform-runtime",
+	],
+};
 
 module.exports = function (env, argv) {
 	const production = argv.mode === "production";
@@ -30,8 +45,9 @@ module.exports = function (env, argv) {
 			rules: [
 				{
 					test: /\.ts$/,
-					loader: "ts-loader",
+					loader: "babel-loader",
 					exclude: /node_modules/,
+					options: babelOptions,
 				},
 				{
 					test: /\.s[ac]ss$/,
@@ -46,9 +62,19 @@ module.exports = function (env, argv) {
 			new HtmlWebpackPlugin({
 				title: "Yamb",
 				template: "public/index.html",
+				chunks: "all",
 			}),
+			new ForkTsCheckerWebpackPlugin({
+				typescript: {
+					diagnosticOptions: {
+						semantic: true,
+						syntactic: true,
+					},
+				},
+			}),
+
 			new MiniCssExtractPlugin(),
-			production && new CleanWebpackPlugin(),
+			new CleanWebpackPlugin(),
 		].filter(Boolean),
 
 		stats: production ? "normal" : "minimal",

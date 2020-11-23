@@ -1,10 +1,9 @@
 import m from "mithril";
 import * as api from "../api";
 
-function createGame() {
-	api
-		.createGame()
-		.then(response => m.route.set("/lobby/:id", { id: response.id }));
+async function createGame() {
+	const response = await api.createGame();
+	m.route.set("/lobby/:id", { id: response.id });
 }
 
 export const Home: m.Component = {

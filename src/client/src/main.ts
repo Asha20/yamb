@@ -11,7 +11,14 @@ import { state } from "./state";
 const SKIP = ((m.route as unknown) as { SKIP: m.Component }).SKIP;
 
 m.route.prefix = "";
-m.route(document.body, "/", {
+
+const app = document.querySelector("#app");
+
+if (!app) {
+	throw new Error("Missing app div.");
+}
+
+m.route(app, "/", {
 	"/": Home,
 	"/lobby/:id": {
 		async onmatch(args) {
