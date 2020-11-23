@@ -2,6 +2,7 @@ import * as http from "http";
 import * as path from "path";
 import * as express from "express";
 import * as wss from "./wss";
+import * as compression from "compression";
 import { router as apiRouter } from "./api";
 import { logger } from "./logger";
 
@@ -22,6 +23,8 @@ const redirect = (to: string) => (
 };
 
 const app = express();
+
+app.use(compression());
 
 app.use("/public", express.static(root("client/dist")));
 
