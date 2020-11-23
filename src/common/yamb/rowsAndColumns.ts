@@ -146,7 +146,13 @@ export const sumOnesToSixes = sumRow(
 	"Sum",
 	"Sum",
 	"Sum from Ones to Sixes",
-	sumUnlessAllEmpty([one, two, three, four, five, six]),
+	ctx => {
+		const score = sumUnlessAllEmpty([one, two, three, four, five, six])(ctx);
+		if (score === undefined) {
+			return undefined;
+		}
+		return score >= 60 ? score + 30 : score;
+	},
 );
 
 // Second part
