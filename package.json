@@ -4,6 +4,8 @@
 	"version": "1.0.0",
 	"description": "Play Yamb with friends online",
 	"main": "index.js",
+	"author": "Vukašin Stepanović <vukasinstepanovic@gmail.com>",
+	"license": "MIT",
 	"scripts": {
 		"start": "node src/server/dist/server.js",
 		"build": "npm run client:build && npm run server:build",
@@ -28,8 +30,15 @@
 			"npm run lint"
 		]
 	},
-	"author": "Vukašin Stepanović <vukasinstepanovic@gmail.com>",
-	"license": "MIT",
+	"postcss": {
+		"plugins": {
+			"autoprefixer": {},
+			"cssnano": {}
+		}
+	},
+	"browserslist": [
+		"defaults"
+	],
 	"devDependencies": {
 		"@babel/core": "^7.12.7",
 		"@babel/plugin-proposal-class-properties": "^7.12.1",
@@ -45,9 +54,11 @@
 		"@types/ws": "^7.2.6",
 		"@typescript-eslint/eslint-plugin": "^4.6.1",
 		"@typescript-eslint/parser": "^4.6.1",
+		"autoprefixer": "^10.0.2",
 		"babel-loader": "^8.2.1",
 		"clean-webpack-plugin": "^3.0.0",
 		"css-loader": "^4.0.0",
+		"cssnano": "^4.1.10",
 		"eslint": "^7.13.0",
 		"eslint-config-prettier": "^6.15.0",
 		"fork-ts-checker-webpack-plugin": "^6.0.3",
@@ -56,6 +67,8 @@
 		"jest": "^26.1.0",
 		"lint-staged": "^10.5.1",
 		"mini-css-extract-plugin": "^0.9.0",
+		"postcss": "^8.1.9",
+		"postcss-loader": "^4.1.0",
 		"prettier": "^2.1.2",
 		"sass": "^1.29.0",
 		"sass-loader": "^10.1.0",

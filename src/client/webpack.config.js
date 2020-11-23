@@ -51,7 +51,12 @@ module.exports = function (env, argv) {
 				},
 				{
 					test: /\.s[ac]ss$/,
-					use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+					use: [
+						MiniCssExtractPlugin.loader,
+						"css-loader",
+						production && "postcss-loader",
+						"sass-loader",
+					].filter(Boolean),
 				},
 			],
 		},
