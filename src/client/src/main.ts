@@ -5,6 +5,7 @@ import { Lobby } from "./pages/Lobby";
 import { Game } from "./pages/Game";
 import * as api from "./api";
 import { state } from "./state";
+import { send } from "./socket";
 
 /** Workaround because Mithril typings are missing the m.route.SKIP property. */
 /* eslint-disable-next-line @typescript-eslint/ban-types */
@@ -28,4 +29,7 @@ m.route(app, "/", {
 	"/game/:id": Game,
 });
 
-Object.defineProperty(window, "state", { value: state });
+if (!PRODUCTION) {
+	Object.defineProperty(window, "state", { value: state });
+	Object.defineProperty(window, "send", { value: send });
+}
