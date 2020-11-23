@@ -18,7 +18,7 @@ module.exports = function (env, argv) {
 		output: {
 			path: path.resolve(__dirname, "dist"),
 			publicPath: "/public",
-			filename: "bundle.js",
+			filename: "[name].[contenthash].js",
 		},
 		resolve: {
 			extensions: [".js", ".ts"],
@@ -51,15 +51,21 @@ module.exports = function (env, argv) {
 			production && new CleanWebpackPlugin(),
 		].filter(Boolean),
 
-		stats: "minimal",
-		devServer: {
-			stats: "minimal",
-			writeToDisk: true,
-			proxy: {
-				"/api": {
-					target: "http://localhost:3000",
-				},
-			},
-		},
+		stats: production ? "normal" : "minimal",
+
+		optimization: !production
+			? {}
+			: {
+					runtimeChunk: "single",
+					splitChunks: {
+						cacheGroups: {
+							vendor: {
+								test: /[\\/]node_modules[\\/]/,
+								name: "vendors",
+								chunks: "all",
+							},
+						},
+					},
+			  },
 	};
 };
