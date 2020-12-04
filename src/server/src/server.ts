@@ -44,5 +44,5 @@ wss.listen(server);
 const EXPRESS_PORT = process.env.PORT || 3000;
 
 server.listen(EXPRESS_PORT, () => {
-	logger.info("Express server open on port:", EXPRESS_PORT);
+	logger.info(`Express server open on port: ${EXPRESS_PORT}`);
 });

@@ -70,16 +70,16 @@ export function listen(server: Server): void {
 			return;
 		}
 
+		if (!room.owner) {
+			room.owner = member.player;
+			member.player.owner = true;
+		}
+
 		reply({ type: "playerJoined", player: member.player });
 		broadcast({ type: "players", players: room.players });
 
 		if (!chatLogs.has(room)) {
 			chatLogs.set(room, []);
-		}
-
-		if (!room.owner) {
-			room.owner = member.player;
-			member.player.owner = true;
 		}
 
 		serverMessage(room, broadcast, `${member.player.name} joined.`);
