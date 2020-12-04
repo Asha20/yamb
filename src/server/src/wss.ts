@@ -4,7 +4,13 @@ import { GameManager, ChatMessage, ServerMessage, COLUMNS } from "common";
 import { Room, gameRoomManager } from "./roomManager";
 import { logger } from "./logger";
 
+/**
+ * Heroku disconnects web sockets after 55 seconds of inactivity,
+ * so the ping interval needs to be shorter.
+ */
+const PING_INTERVAL = 45_000;
 let wss: WebSocket.Server | null = null;
+let pingId: NodeJS.Timeout;
 
 export const gamesSet = new Set<string>();
 export const games = new Map<Room, GameManager>();
@@ -13,6 +19,12 @@ export const chatLogs = new Map<Room, ChatMessage[]>();
 export function listen(server: Server): void {
 	wss = new WebSocket.Server({ server });
 	gameRoomManager.attach(wss);
+
+	clearInterval(pingId);
+	pingId = setInterval(() => {
+		logger.info("Sending out ping");
+		gameRoomManager.ping();
+	}, PING_INTERVAL);
 
 	function serverMessage(
 		room: Room,

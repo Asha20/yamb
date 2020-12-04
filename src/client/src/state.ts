@@ -86,6 +86,8 @@ export function init(): void {
 			case "confirmCall":
 				state.gameManager.call(message.row);
 				break;
+			case "ping":
+				socket.send({ type: "pong" });
 		}
 		m.redraw();
 	});

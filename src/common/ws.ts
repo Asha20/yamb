@@ -8,6 +8,7 @@ export type RollDice = { type: "rollDice" };
 export type SendChatMessage = { type: "chatMessage"; message: ChatMessage };
 export type RequestCall = { type: "requestCall"; row: string };
 export type ChangeColor = { type: "changeColor"; color: PlayerColor };
+export type Pong = { type: "pong" };
 
 type WithSender<T> = T & { sender: string };
 type UnknownObject = Record<string, unknown>;
@@ -20,6 +21,7 @@ export type ClientMessage = WithSender<
 	| SendChatMessage
 	| RequestCall
 	| ChangeColor
+	| Pong
 >;
 
 interface Message {
@@ -87,6 +89,10 @@ function changeColor(x: Message): x is ChangeColor {
 	);
 }
 
+function pong(x: Message): x is Pong {
+	return x.type === "pong";
+}
+
 export function isClientMessage(x: unknown): x is ClientMessage {
 	if (!message(x)) {
 		return false;
@@ -103,7 +109,8 @@ export function isClientMessage(x: unknown): x is ClientMessage {
 		rollDice(x) ||
 		chatMessage(x) ||
 		requestCall(x) ||
-		changeColor(x)
+		changeColor(x) ||
+		pong(x)
 	);
 }
 
@@ -130,7 +137,8 @@ export type ServerMessage =
 	| { type: "chatSync"; messages: ChatMessage[] }
 	| { type: "receiveChatMessage"; message: ChatMessage }
 	| { type: "confirmCall"; row: string }
-	| { type: "changeColorResponse"; player: Player["id"]; color: PlayerColor };
+	| { type: "changeColorResponse"; player: Player["id"]; color: PlayerColor }
+	| { type: "ping" };
 
 export const codes = {
 	ROOM_FULL: 4000,

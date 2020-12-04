@@ -206,6 +206,14 @@ export class RoomManager {
 			sendMessage(member.socket, msg);
 		}
 	}
+
+	ping(): void {
+		for (const room of this.rooms.values()) {
+			for (const member of room.members) {
+				sendMessage(member.socket, { type: "ping" });
+			}
+		}
+	}
 }
 
 const MAX_ROOM_SIZE = playerColors.length;
