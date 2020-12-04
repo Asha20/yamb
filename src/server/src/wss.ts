@@ -4,8 +4,6 @@ import { GameManager, ChatMessage, ServerMessage, COLUMNS } from "common";
 import { Room, gameRoomManager } from "./roomManager";
 import { logger } from "./logger";
 
-const nameRegex = /^[\w\s]+$/;
-
 let wss: WebSocket.Server | null = null;
 
 export const gamesSet = new Set<string>();
@@ -55,32 +53,31 @@ export function listen(server: Server): void {
 		if (games.has(room)) {
 			member.socket.close();
 			logger.info(
-				`Player ${member.id} tried joining room ${room.id} but it was full.`,
+				`Player ${member.player.name} tried joining room ${room.id} but it was full.`,
 			);
 			return;
 		}
 
+		reply({ type: "playerJoined", player: member.player });
 		broadcast({ type: "players", players: room.players });
 
 		if (!chatLogs.has(room)) {
 			chatLogs.set(room, []);
 		}
 
+		if (!room.owner) {
+			room.owner = member.player;
+			member.player.owner = true;
+		}
+
+		serverMessage(room, broadcast, `${member.player.name} joined.`);
+
 		const chatLog = getChatLog(room);
 		reply({ type: "chatSync", messages: chatLog });
-		logger.info(`Player ${member.id} joined room ${room.id}`);
+		logger.info(`Player ${member.player.name} joined room ${room.id}`);
 	});
 
 	gameRoomManager.onLeave(({ room, member, broadcast }) => {
-		if (member.player.owner && room.players.length) {
-			const nextOwner = room.players[0];
-			room.owner = nextOwner;
-			nextOwner.owner = true;
-			logger.info(`Player ${nextOwner.id} became owner of room ${room.id}`);
-		}
-
-		broadcast({ type: "players", players: room.players });
-
 		const game = games.get(room);
 
 		if (game?.currentPlayer.id === member.id) {
@@ -96,10 +93,17 @@ export function listen(server: Server): void {
 			gamesSet.delete(room.id);
 		}
 
-		if (member.player.name) {
-			serverMessage(room, broadcast, `${member.player.name} left.`);
-			logger.info(`Player ${member.id} left room ${room.id}`);
+		serverMessage(room, broadcast, `${member.player.name} left.`);
+		logger.info(`Player ${member.player.name} left room ${room.id}`);
+
+		if (member.player.owner && room.players.length) {
+			const nextOwner = room.players[0];
+			room.owner = nextOwner;
+			nextOwner.owner = true;
+			logger.info(`Player ${nextOwner.name} became owner of room ${room.id}`);
 		}
+
+		broadcast({ type: "players", players: room.players });
 	});
 
 	gameRoomManager.onMessage(({ msg }) => {
@@ -107,37 +111,6 @@ export function listen(server: Server): void {
 	});
 
 	gameRoomManager.onMessage({
-		setName({ msg, member, room, reply, broadcast }) {
-			const name = msg.name.trim();
-
-			if (msg.name.length === 0) {
-				reply({ type: "nameResponse", status: "name-missing" });
-				return;
-			}
-			if (msg.name.length > 16) {
-				reply({ type: "nameResponse", status: "too-long" });
-				return;
-			}
-			if (name.length === 0 || !nameRegex.test(msg.name)) {
-				reply({ type: "nameResponse", status: "invalid" });
-				return;
-			}
-			if (room.players.some(x => x.name === name)) {
-				reply({ type: "nameResponse", status: "unavailable" });
-				return;
-			}
-
-			if (!room.owner) {
-				room.owner = member.player;
-				member.player.owner = true;
-			}
-
-			member.player.name = name;
-			reply({ type: "nameResponse", status: "ok", player: member.player });
-			broadcast({ type: "players", players: room.players });
-			serverMessage(room, broadcast, `${name} joined.`);
-		},
-
 		changeColor({ msg, member, room, broadcast }) {
 			if (room.colorToMember.has(msg.color)) {
 				return;

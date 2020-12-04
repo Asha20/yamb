@@ -26,10 +26,8 @@ export function Lobby(): m.Component {
 			const response = await api.nameAvailable(m.route.param("id"), name);
 			status = response.status;
 			if (response.status === "ok") {
-				await socket.open();
+				await socket.open(name);
 				initState();
-
-				socket.send({ type: "setName", name });
 
 				unsubscribe = socket.onMessage(message => {
 					if (message.type === "gameStarted") {
@@ -41,11 +39,8 @@ export function Lobby(): m.Component {
 						}
 					}
 
-					if (message.type === "nameResponse") {
-						status = message.status;
-						if (message.status === "ok") {
-							state.self = message.player;
-						}
+					if (message.type === "playerJoined") {
+						state.self = message.player;
 					}
 				});
 			}

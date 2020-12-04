@@ -10,6 +10,7 @@ import {
 	PlayerColor,
 	playerColors,
 } from "common";
+import { URLSearchParams } from "url";
 
 interface SocketInfo {
 	id: string;
@@ -99,10 +100,17 @@ export class RoomManager {
 	attach(wss: WebSocket.Server): void {
 		this.wss = wss;
 		wss.on("connection", (ws, req) => {
-			const roomId = this.getId(req.url ?? "");
+			const url = req.url ?? "";
+			const roomId = this.getId(url);
 
 			if (roomId === null) {
 				return;
+			}
+
+			const searchParams = new URLSearchParams(url.split("?")[1]);
+			const name = searchParams.get("name");
+			if (!name) {
+				throw new Error("Missing socket name.");
 			}
 
 			const room = this.getRoom(roomId);
@@ -118,7 +126,7 @@ export class RoomManager {
 			const socketInfo: SocketInfo = {
 				id,
 				socket: ws,
-				player: { id, name: "", owner: false, color: availableColors[0] },
+				player: { id, name, owner: false, color: availableColors[0] },
 			};
 
 			const reply = sendMessage.bind(null, ws);
@@ -202,7 +210,7 @@ export class RoomManager {
 
 const MAX_ROOM_SIZE = playerColors.length;
 export const gameRoomManager = new RoomManager(MAX_ROOM_SIZE, url => {
-	const lobbyRegex = /^\/lobby\/([a-z0-9_-]+)$/i;
+	const lobbyRegex = /^\/lobby\/([a-z0-9_-]+)/i;
 	const lobbyMatch = url.match(lobbyRegex);
 	return lobbyMatch && lobbyMatch[1];
 });

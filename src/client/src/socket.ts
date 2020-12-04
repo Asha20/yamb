@@ -14,12 +14,12 @@ export function send(msg: DistributeOmit<ClientMessage, "sender">): void {
 	socket.send(JSON.stringify(msgWithSender));
 }
 
-export function open(): Promise<WebSocket> {
+export function open(name: string): Promise<WebSocket> {
 	return new Promise(resolve => {
 		const protocol =
 			!PRODUCTION || location.hostname === "localhost" ? "ws:" : "wss:";
 		const wsUrl = location.href.replace(location.protocol, protocol);
-		socket = new WebSocket(wsUrl);
+		socket = new WebSocket(wsUrl + "?name=" + encodeURIComponent(name));
 
 		logger.info("Socket opened");
 

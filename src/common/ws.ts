@@ -1,7 +1,6 @@
 import { DieSide, Player, PlayerColor, playerColors } from "./yamb";
 import { ChatMessage } from "./chat";
 
-export type SetName = { type: "setName"; name: string };
 export type StartGame = { type: "startGame"; columns: string[] };
 export type Move = { type: "move"; row: string; column: string };
 export type ToggleFreeze = { type: "toggleFreeze"; index: number };
@@ -14,7 +13,6 @@ type WithSender<T> = T & { sender: string };
 type UnknownObject = Record<string, unknown>;
 
 export type ClientMessage = WithSender<
-	| SetName
 	| StartGame
 	| Move
 	| ToggleFreeze
@@ -35,10 +33,6 @@ function message(x: unknown): x is Message {
 		typeof x === "object" &&
 		typeof (x as UnknownObject).type === "string"
 	);
-}
-
-function setName(x: Message): x is SetName {
-	return x.type === "setName" && typeof x.name === "string";
 }
 
 function startGame(x: Message): x is StartGame {
@@ -103,7 +97,6 @@ export function isClientMessage(x: unknown): x is ClientMessage {
 	}
 
 	return (
-		setName(x) ||
 		startGame(x) ||
 		move(x) ||
 		toggleFreeze(x) ||
@@ -127,7 +120,7 @@ export type ServerMessage =
 			type: "nameResponse";
 			status: Exclude<NameStatus, "ok">;
 	  }
-	| { type: "nameResponse"; status: "ok"; player: Player }
+	| { type: "playerJoined"; player: Player }
 	| { type: "gameStarted"; columns: string[] }
 	| { type: "moveResponse"; row: string; column: string }
 	| { type: "toggleFreezeResponse"; index: number }
