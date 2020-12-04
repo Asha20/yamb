@@ -279,10 +279,14 @@ export const sumStraightToYahtzee = sumRow(
 function findRow(rows: readonly Row[], start: Row, delta: number): Row | null {
 	const rowIndex = rows.findIndex(x => x === start);
 	if (rowIndex === -1) {
-		throw new Error("Could not find row.");
+		throw new Error("Could not find starting row.");
 	}
 
-	const wantedRowIndex = rowIndex + delta;
+	let wantedRowIndex = rowIndex + delta;
+	while (rows[wantedRowIndex] && rows[wantedRowIndex].sum) {
+		wantedRowIndex += Math.sign(delta);
+	}
+
 	if (wantedRowIndex >= 0 && wantedRowIndex < rows.length) {
 		return rows[wantedRowIndex];
 	}
@@ -332,6 +336,56 @@ export const call = column(
 	},
 );
 
+export const hand = column(
+	"hand",
+	"Hand",
+	"H",
+	"Must play after the first roll",
+	({ roll }) => {
+		return roll === 1 ? 0 : undefined;
+	},
+);
+
+export const medial = column(
+	"medial",
+	"Medial",
+	"M",
+	"Fill towards the center",
+	({ row, column, game }) => {
+		const nextRow = findRow(game.rows, row, 1);
+		const prevRow = findRow(game.rows, row, -1);
+
+		const nextRowFilled = !!nextRow && game.filled(nextRow.name, column.name);
+		const prevRowFilled = !!prevRow && game.filled(prevRow.name, column.name);
+		if (!nextRow || nextRowFilled || !prevRow || prevRowFilled) {
+			return 0;
+		}
+		return undefined;
+	},
+);
+
+export const antiMedial = column(
+	"antiMedial",
+	"Anti-Medial",
+	"AM",
+	"Fill away from the center",
+	({ row, column, game }) => {
+		if (row === max || row === min) {
+			return 0;
+		}
+
+		const nextRow = findRow(game.rows, row, 1);
+		const prevRow = findRow(game.rows, row, -1);
+
+		const nextRowFilled = !!nextRow && game.filled(nextRow.name, column.name);
+		const prevRowFilled = !!prevRow && game.filled(prevRow.name, column.name);
+		if (nextRowFilled || prevRowFilled) {
+			return 0;
+		}
+		return undefined;
+	},
+);
+
 export const ROWS = [
 	one,
 	two,
@@ -353,4 +407,12 @@ export const ROWS = [
 	sumStraightToYahtzee,
 ] as const;
 
-export const COLUMNS = [topDown, free, bottomUp, call] as const;
+export const COLUMNS = [
+	topDown,
+	free,
+	bottomUp,
+	call,
+	hand,
+	medial,
+	antiMedial,
+] as const;

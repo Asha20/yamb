@@ -1,5 +1,13 @@
 import m from "mithril";
-import { COLUMNS, PlayerColor, playerColors } from "common";
+import {
+	COLUMNS,
+	PlayerColor,
+	playerColors,
+	topDown,
+	free,
+	bottomUp,
+	call,
+} from "common";
 import * as socket from "../socket";
 import { ColorCircle } from "./ColorCircle";
 import { actions, state } from "../state";
@@ -12,11 +20,18 @@ function changeColor(color: PlayerColor) {
 	socket.send({ type: "changeColor", color });
 }
 
+const defaultColumns = new Set<string>([
+	topDown.name,
+	free.name,
+	bottomUp.name,
+	call.name,
+]);
+
 export function Settings(): m.Component<SettingsAttrs> {
 	let unsubscribe: (() => void) | null = null;
 
 	const colsEnabled = COLUMNS.reduce((acc, x) => {
-		acc[x.name] = true;
+		acc[x.name] = defaultColumns.has(x.name);
 		return acc;
 	}, {} as Record<typeof COLUMNS[number]["name"], boolean>);
 
