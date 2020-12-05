@@ -68,7 +68,7 @@ export const Scoreboard: m.Component<ScoreboardAttrs> = {
 								}),
 								m("span.players__name", playerName(player)),
 							]),
-							m("td", score),
+							m("td.text-center", score),
 						],
 					),
 				),

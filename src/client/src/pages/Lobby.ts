@@ -53,7 +53,7 @@ export function Lobby(): m.Component {
 					".center-child.expand",
 					m("section.name", [
 						m("label.name__label[for=player-name]", "Enter a name:"),
-						m("input.name__input#player-name[type=text]"),
+						m("input.name__input#player-name[type=text][autocomplete=off]"),
 						m("button.name__submit", { onclick: submitName }, "Submit"),
 						m("p.name__error", {}, error),
 					]),
