@@ -57,7 +57,9 @@ export function Settings(): m.Component<SettingsAttrs> {
 					{ key: x.name },
 					m("input.settings__checkbox[type=checkbox]", {
 						checked: colsEnabled[x.name],
-						onclick: () => (colsEnabled[x.name] = !colsEnabled[x.name]),
+						onclick: () => {
+							colsEnabled[x.name] = !colsEnabled[x.name];
+						},
 					}),
 					x.display.longName,
 				),
