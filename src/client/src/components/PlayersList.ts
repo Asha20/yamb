@@ -1,5 +1,5 @@
 import m from "mithril";
-import { Player } from "common";
+import { Player, comparePlayers } from "common";
 import { state } from "../state";
 import { InlineColorCircle } from "./ColorCircle";
 
@@ -9,7 +9,7 @@ interface PlayerListAttrs {
 
 function playerName(player: Player) {
 	let name = player.name;
-	if (player.name === state.self.name) {
+	if (comparePlayers(player, state.self)) {
 		name += " (you)";
 	}
 

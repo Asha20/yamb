@@ -1,5 +1,5 @@
 import m from "mithril";
-import { Player, classNames } from "common";
+import { Player, classNames, comparePlayers } from "common";
 import { state } from "../state";
 import { InlineColorCircle } from "./ColorCircle";
 
@@ -10,7 +10,7 @@ interface ScoreboardAttrs {
 
 function playerName(player: Player) {
 	let name = player.name;
-	if (player.name === state.self.name) {
+	if (comparePlayers(player, state.self)) {
 		name += " (you)";
 	}
 
@@ -20,12 +20,12 @@ function playerName(player: Player) {
 
 	if (
 		state.gameState === "active" &&
-		player.name === state.gameManager.currentPlayer.name
+		comparePlayers(player, state.gameManager.currentPlayer)
 	) {
 		name += " (playing)";
 	}
 
-	if (!state.players.find(x => x.id === player.id)) {
+	if (!state.players.find(x => comparePlayers(x, player))) {
 		name += " (quit)";
 	}
 
@@ -61,7 +61,10 @@ export const Scoreboard: m.Component<ScoreboardAttrs> = {
 							m("td", [
 								m(InlineColorCircle, {
 									color: player.color,
-									selected: state.gameManager.currentPlayer.id === player.id,
+									selected: comparePlayers(
+										state.gameManager.currentPlayer,
+										player,
+									),
 								}),
 								m("span.players__name", playerName(player)),
 							]),

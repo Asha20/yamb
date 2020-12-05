@@ -1,7 +1,7 @@
 import m from "mithril";
 import { state, actions } from "../state";
 import * as socket from "../socket";
-import { Player, classNames, call } from "common";
+import { Player, classNames, call, comparePlayers } from "common";
 import { sleep, HIGHLIGHT_MOVE_DELAY } from "../util";
 
 interface YambCellAttrs {
@@ -54,8 +54,10 @@ export const YambCell: m.FactoryComponent<YambCellAttrs> = ({ attrs }) => {
 		view({ attrs }) {
 			const { filled, row, column, player, sum } = attrs;
 
-			const viewingOwnTable =
-				player.name === state.gameManager.currentPlayer.name;
+			const viewingOwnTable = comparePlayers(
+				player,
+				state.gameManager.currentPlayer,
+			);
 
 			if (sum) {
 				return m(

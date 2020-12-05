@@ -1,3 +1,5 @@
+import { Player } from "./yamb";
+
 export type DistributeOmit<T, K extends keyof T> = T extends unknown
 	? Omit<T, K>
 	: never;
@@ -22,4 +24,8 @@ export function jsonParse<T>(str: string, fallback: T): T {
 	} catch (e) {
 		return fallback;
 	}
+}
+
+export function comparePlayers(a: Player, b: Player): boolean {
+	return a.id === b.id;
 }
