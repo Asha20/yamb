@@ -3,9 +3,14 @@
 	"private": true,
 	"version": "1.0.0",
 	"description": "Play Yamb with friends online",
-	"main": "index.js",
+	"main": "src/server/dist/server.js",
 	"author": "Vukašin Stepanović <vukasinstepanovic@gmail.com>",
 	"license": "MIT",
+	"homepage": "https://github.com/Asha20/yamb",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Asha20/yamb"
+	},
 	"scripts": {
 		"start": "node src/server/dist/server.js",
 		"build": "npm run client:build && npm run server:build",
@@ -15,7 +20,8 @@
 		"server:build": "webpack --config src/server/webpack.config.js --mode production",
 		"server:watch": "tsnd --no-notify --project src/server/tsconfig.json --require tsconfig-paths/register src/server/src/server.ts",
 		"prettier": "prettier --write",
-		"lint": "eslint --max-warnings=0 --fix src/ --ext .js,.ts"
+		"lint": "eslint --max-warnings=0 --fix src/ --ext .js,.ts",
+		"release": "standard-version"
 	},
 	"husky": {
 		"hooks": {
