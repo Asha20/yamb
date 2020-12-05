@@ -34,7 +34,7 @@ function playerName(player: Player) {
 
 export const Scoreboard: m.Component<ScoreboardAttrs> = {
 	view({ attrs }) {
-		const { sorted = true, onClick } = attrs;
+		const { sorted = false, onClick } = attrs;
 		const players = [...state.initialPlayers].map(x => ({
 			player: x,
 			score: state.gameManager.score(x),
