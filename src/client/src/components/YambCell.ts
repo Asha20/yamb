@@ -36,6 +36,7 @@ export const YambCell: m.FactoryComponent<YambCellAttrs> = ({ attrs }) => {
 			unsubscribe = socket.onMessage(async msg => {
 				if (msg.type === "moveResponse") {
 					if (attrs.row === msg.row && attrs.column === msg.column) {
+						state.viewingPlayer = state.gameManager.currentPlayer;
 						highlighted = true;
 						m.redraw();
 						await sleep(HIGHLIGHT_MOVE_DELAY);
@@ -52,6 +53,9 @@ export const YambCell: m.FactoryComponent<YambCellAttrs> = ({ attrs }) => {
 
 		view({ attrs }) {
 			const { filled, row, column, player, sum } = attrs;
+
+			const viewingOwnTable =
+				player.name === state.gameManager.currentPlayer.name;
 
 			if (sum) {
 				return m(
@@ -71,7 +75,7 @@ export const YambCell: m.FactoryComponent<YambCellAttrs> = ({ attrs }) => {
 				!state.gameManager.calling() &&
 				state.gameManager.roll === 1;
 
-			if (showCallButton) {
+			if (viewingOwnTable && showCallButton) {
 				return m(
 					"td",
 					m(
@@ -95,6 +99,12 @@ export const YambCell: m.FactoryComponent<YambCellAttrs> = ({ attrs }) => {
 			const legalMove =
 				potentialScore !== undefined && state.gameManager.roll > 0;
 
+			const value = viewingOwnTable
+				? cellValue(filled, player, row, column)
+				: filled
+				? cellValue(filled, player, row, column)
+				: undefined;
+
 			return m(
 				"td.yamb-cell__td",
 				{
@@ -108,13 +118,14 @@ export const YambCell: m.FactoryComponent<YambCellAttrs> = ({ attrs }) => {
 					{
 						class: classNames({
 							filled,
-							illegal: canPlay && !legalMove,
-							legal: canPlay && legalMove,
+							illegal: viewingOwnTable && canPlay && !legalMove,
+							legal: viewingOwnTable && canPlay && legalMove,
 						}),
-						disabled: filled || !legalMove || !state.ownTurn,
+						disabled:
+							!viewingOwnTable || filled || !legalMove || !state.ownTurn,
 						onclick: () => play(row, column),
 					},
-					cellValue(filled, player, row, column),
+					value,
 				),
 			);
 		},

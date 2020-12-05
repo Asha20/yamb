@@ -1,3 +1,7 @@
 .scoreboard {
 	width: 100%;
 }
+
+.scoreboard__tr--focusable:hover {
+	cursor: pointer;
+}

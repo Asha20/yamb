@@ -1,6 +1,6 @@
 import m from "mithril";
 import { state } from "../state";
-import { Player } from "common";
+import { Player, classNames } from "common";
 import { Tooltip } from "./Tooltip";
 import { YambCell } from "./YambCell";
 
@@ -13,7 +13,10 @@ export const Yamb: m.Component<YambAttrs> = {
 		const { player } = attrs;
 		const { rows, columns, currentPlayer } = state.gameManager;
 
-		const colorClass = "yamb--" + currentPlayer.color;
+		const colorClass = classNames({
+			["yamb--" + player.color]: true,
+			"yamb--shadow": player.name !== currentPlayer.name,
+		});
 
 		return m("table.yamb", { class: colorClass }, [
 			m("colgroup", [
@@ -23,7 +26,7 @@ export const Yamb: m.Component<YambAttrs> = {
 
 			m("thead", [
 				m("tr", [
-					m("th", currentPlayer.name),
+					m("th", player.name),
 					columns.map(col =>
 						m(
 							"th",

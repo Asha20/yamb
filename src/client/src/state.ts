@@ -7,16 +7,25 @@ export type GameState = "inactive" | "active" | "finished";
 
 interface State {
 	self: Player;
+	viewingPlayer: Player;
 	gameManager: GameManager;
 	initialPlayers: Player[];
 	players: Player[];
 	gameState: GameState;
-	ownTurn: boolean;
+	readonly ownTurn: boolean;
 	chat: ChatMessage[];
 }
 
+const emptyPlayer = (): Player => ({
+	id: "",
+	name: "",
+	owner: false,
+	color: "red",
+});
+
 const initialState = (): State => ({
-	self: { id: "", name: "", owner: false, color: "red" },
+	self: emptyPlayer(),
+	viewingPlayer: emptyPlayer(),
 	initialPlayers: [],
 	players: [],
 	gameManager: new GameManager([], [], []),
@@ -39,6 +48,7 @@ export const actions = {
 			COLUMNS.filter(x => columns.includes(x.name)),
 		);
 		state.gameState = "active";
+		state.viewingPlayer = state.gameManager.currentPlayer;
 	},
 
 	changeColor(playerId: Player["id"], color: PlayerColor): void {
