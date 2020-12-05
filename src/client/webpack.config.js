@@ -33,7 +33,7 @@ module.exports = function (env, argv) {
 		output: {
 			path: path.resolve(__dirname, "dist"),
 			publicPath: "/public",
-			filename: "[name].[contenthash].js",
+			filename: production ? "[name].[contenthash].js" : "[name].js",
 		},
 		resolve: {
 			extensions: [".js", ".ts"],
@@ -79,7 +79,7 @@ module.exports = function (env, argv) {
 			}),
 
 			new MiniCssExtractPlugin(),
-			new CleanWebpackPlugin(),
+			production && new CleanWebpackPlugin(),
 		].filter(Boolean),
 
 		stats: production ? "normal" : "minimal",
