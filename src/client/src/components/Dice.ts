@@ -28,6 +28,9 @@ export const Dice: m.Component = {
 	},
 
 	view() {
+		const times = state.gameManager.roll === 1 ? "time" : "times";
+		const rollText = `Rolled ${state.gameManager.roll} ${times}.`;
+
 		return m("section.dice", [
 			m(
 				"div.dice__container",
@@ -44,7 +47,7 @@ export const Dice: m.Component = {
 					),
 				),
 			),
-			m("span.dice__roll", "Roll: " + state.gameManager.roll),
+			m("span.dice__roll", rollText),
 			m(
 				"button.dice__roll-dice",
 				{

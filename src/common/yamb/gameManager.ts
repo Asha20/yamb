@@ -86,7 +86,6 @@ export class GameManager {
 
 	play(row: string, column: string): void {
 		this.getGame(this.currentPlayer).play(this.dice, row, column);
-		this.dice.reset();
 	}
 
 	field(player: Player, row: string, column: string): number | undefined {

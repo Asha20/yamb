@@ -22,6 +22,7 @@ export const Game: m.Component = {
 					state.gameManager.play(msg.row, msg.column);
 					m.redraw();
 					await sleep(HIGHLIGHT_MOVE_DELAY);
+					state.gameManager.resetDice();
 					state.gameManager.findNextAvailablePlayer(state.players);
 					state.viewingPlayer = state.gameManager.currentPlayer;
 					break;

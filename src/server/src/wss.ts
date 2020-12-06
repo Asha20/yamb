@@ -206,6 +206,7 @@ export function listen(server: Server): void {
 
 			try {
 				game.play(row, column);
+				game.resetDice();
 				game.findNextAvailablePlayer(room.players);
 				broadcast({ type: "moveResponse", row, column });
 
