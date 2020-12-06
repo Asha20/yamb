@@ -1,25 +1,29 @@
 import { DiceCount, DieSide, DiceContext } from "./dice";
 import { Yamb } from "./yamb";
 
-export interface Row<T extends string = string> {
-	name: T;
+export interface RowOrColumn<
+	TName extends string,
+	TContext extends DiceContext
+> {
+	name: TName;
 	display: {
 		longName: string;
 		shortName: string;
 		tip: string;
 	};
-	sum: boolean;
-	score(context: ScoreContext): number | undefined;
+	score(context: TContext): number | undefined;
 }
 
-export interface Column<T extends string = string> {
-	name: T;
-	display: {
-		longName: string;
-		shortName: string;
-		tip: string;
-	};
-	score(context: ScoreContext): number | undefined;
+export interface Row<T extends string = string>
+	extends RowOrColumn<T, ScoreContext> {
+	sum: boolean;
+}
+
+export type Column<T extends string = string> = RowOrColumn<T, ScoreContext>;
+
+interface SimpleRow<T extends string = string>
+	extends RowOrColumn<T, DiceContext> {
+	sum: boolean;
 }
 
 export interface ScoreContext extends DiceContext {
@@ -62,6 +66,17 @@ function row<T extends string>(
 	return { name, display: { longName, shortName, tip }, sum, score };
 }
 
+function simpleRow<T extends string>(
+	name: Row<T>["name"],
+	longName: string,
+	shortName: string,
+	tip: string,
+	score: Row<T>["score"],
+	sum = false,
+): SimpleRow<T> {
+	return { name, display: { longName, shortName, tip }, sum, score };
+}
+
 function sumRow<T extends string>(
 	name: Row<T>["name"],
 	longName: string,
@@ -98,42 +113,42 @@ const sumUnlessAllEmpty = (rows: Row[]) => ({ game, column }: ScoreContext) => {
 };
 
 // First part
-export const one = row(
+export const one = simpleRow(
 	"one",
 	"Ones",
 	"1",
 	"Sum of ones",
 	({ count }) => 1 * count[1],
 );
-export const two = row(
+export const two = simpleRow(
 	"two",
 	"Twos",
 	"2",
 	"Sum of twos",
 	({ count }) => 2 * count[2],
 );
-export const three = row(
+export const three = simpleRow(
 	"three",
 	"Threes",
 	"3",
 	"Sum of threes",
 	({ count }) => 3 * count[3],
 );
-export const four = row(
+export const four = simpleRow(
 	"four",
 	"Fours",
 	"4",
 	"Sum of fours",
 	({ count }) => 4 * count[4],
 );
-export const five = row(
+export const five = simpleRow(
 	"five",
 	"Fives",
 	"5",
 	"Sum of fives",
 	({ count }) => 5 * count[5],
 );
-export const six = row(
+export const six = simpleRow(
 	"six",
 	"Sixes",
 	"6",
@@ -156,11 +171,19 @@ export const sumOnesToSixes = sumRow(
 );
 
 // Second part
-export const max = row("max", "Max", "Max", "Sum of all dice", ({ count }) =>
-	sumDice(count),
+export const max = simpleRow(
+	"max",
+	"Max",
+	"Max",
+	"Sum of all dice",
+	({ count }) => sumDice(count),
 );
-export const min = row("min", "Min", "Min", "Sum of all dice", ({ count }) =>
-	sumDice(count),
+export const min = simpleRow(
+	"min",
+	"Min",
+	"Min",
+	"Sum of all dice",
+	({ count }) => sumDice(count),
 );
 
 export const sumMaxMin = sumRow(
@@ -183,7 +206,7 @@ export const sumMaxMin = sumRow(
 );
 
 // Third part
-export const straight = row(
+export const straight = simpleRow(
 	"straight",
 	"Straight",
 	"Straight",
@@ -217,7 +240,7 @@ function findFullHouse(dice: DiceCount) {
 	return twoOfAKind && ([threeOfAKind, twoOfAKind] as const);
 }
 
-export const threeOfAKind = row(
+export const threeOfAKind = simpleRow(
 	"threeOfAKind",
 	"Three of a kind",
 	"3 of a kind",
@@ -228,7 +251,7 @@ export const threeOfAKind = row(
 	},
 );
 
-export const fullHouse = row(
+export const fullHouse = simpleRow(
 	"fullHouse",
 	"Full House",
 	"Full House",
@@ -245,7 +268,7 @@ export const fullHouse = row(
 	},
 );
 
-export const fourOfAKind = row(
+export const fourOfAKind = simpleRow(
 	"fourOfAKind",
 	"Four of a kind",
 	"4 of a kind",
@@ -256,7 +279,7 @@ export const fourOfAKind = row(
 	},
 );
 
-export const yahtzee = row(
+export const yahtzee = simpleRow(
 	"yahtzee",
 	"Yahtzee",
 	"Yahtzee",
