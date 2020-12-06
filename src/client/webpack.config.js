@@ -32,8 +32,9 @@ module.exports = function (env, argv) {
 		entry: "./src/main.ts",
 		output: {
 			path: path.resolve(__dirname, "dist"),
-			publicPath: "/public",
+			publicPath: "/public/",
 			filename: production ? "[name].[contenthash].js" : "[name].js",
+			chunkFilename: "[name].[chunkhash].js",
 		},
 		resolve: {
 			extensions: [".js", ".ts"],

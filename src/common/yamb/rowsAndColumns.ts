@@ -255,7 +255,7 @@ export const fullHouse = simpleRow(
 	"fullHouse",
 	"Full House",
 	"Full House",
-	"3 of a kind + 4 of a kind",
+	"3 of a kind + 2 of a kind",
 	({ count }) => {
 		const fullHouse = findFullHouse(count);
 
@@ -279,10 +279,10 @@ export const fourOfAKind = simpleRow(
 	},
 );
 
-export const yahtzee = simpleRow(
-	"yahtzee",
-	"Yahtzee",
-	"Yahtzee",
+export const yamb = simpleRow(
+	"yamb",
+	"Yamb",
+	"Yamb",
 	"Five same dice",
 	({ count }) => {
 		const fiveOfAKind = findDie(count, amount => amount >= 5);
@@ -290,12 +290,12 @@ export const yahtzee = simpleRow(
 	},
 );
 
-export const sumStraightToYahtzee = sumRow(
-	"sumStraightToYahtzee",
+export const sumStraightToYamb = sumRow(
+	"sumStraightToYamb",
 	"Sum",
 	"Sum",
-	"Sum from Straight to Yahtzee",
-	sumUnlessAllEmpty([straight, threeOfAKind, fullHouse, fourOfAKind, yahtzee]),
+	"Sum from Straight to Yamb",
+	sumUnlessAllEmpty([straight, threeOfAKind, fullHouse, fourOfAKind, yamb]),
 );
 
 // Columns
@@ -426,8 +426,8 @@ export const ROWS = [
 	threeOfAKind,
 	fullHouse,
 	fourOfAKind,
-	yahtzee,
-	sumStraightToYahtzee,
+	yamb,
+	sumStraightToYamb,
 ] as const;
 
 export const COLUMNS = [

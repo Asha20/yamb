@@ -12,7 +12,7 @@ import {
 	threeOfAKind,
 	fullHouse,
 	fourOfAKind,
-	yahtzee,
+	yamb,
 } from "./rowsAndColumns";
 
 function d(strs: TemplateStringsArray): DiceContext;
@@ -116,13 +116,13 @@ describe("Rows", () => {
 			expect(fourOfAKind.score(d`66666666`)).toBe(74);
 		});
 
-		test("yahtzee", () => {
-			expect(yahtzee.score(d`111156`)).toBe(0);
-			expect(yahtzee.score(d`123456`)).toBe(0);
+		test("yamb", () => {
+			expect(yamb.score(d`111156`)).toBe(0);
+			expect(yamb.score(d`123456`)).toBe(0);
 
-			expect(yahtzee.score(d`555556`)).toBe(75);
-			expect(yahtzee.score(d`1111166666`)).toBe(80); // Prefer larger score
-			expect(yahtzee.score(d`555555`)).toBe(75);
+			expect(yamb.score(d`555556`)).toBe(75);
+			expect(yamb.score(d`1111166666`)).toBe(80); // Prefer larger score
+			expect(yamb.score(d`555555`)).toBe(75);
 		});
 	});
 });

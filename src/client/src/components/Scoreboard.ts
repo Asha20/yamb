@@ -2,6 +2,7 @@ import m from "mithril";
 import { Player, classNames, comparePlayers } from "common";
 import { state } from "../state";
 import { InlineColorCircle } from "./ColorCircle";
+import { i18n } from "../i18n";
 
 interface ScoreboardAttrs {
 	sorted?: boolean;
@@ -11,22 +12,22 @@ interface ScoreboardAttrs {
 function playerName(player: Player) {
 	let name = player.name;
 	if (comparePlayers(player, state.self)) {
-		name += " (you)";
+		name += " (" + i18n("you") + ")";
 	}
 
 	if (player.owner) {
-		name += " (owner)";
+		name += " (" + i18n("owner") + ")";
 	}
 
 	if (
 		state.gameState === "active" &&
 		comparePlayers(player, state.gameManager.currentPlayer)
 	) {
-		name += " (playing)";
+		name += " (" + i18n("playing") + ")";
 	}
 
 	if (!state.players.find(x => comparePlayers(x, player))) {
-		name += " (quit)";
+		name += " (" + i18n("quit") + ")";
 	}
 
 	return name;
@@ -46,7 +47,7 @@ export const Scoreboard: m.Component<ScoreboardAttrs> = {
 		const trClass = classNames({ "scoreboard__tr--focusable": !!onClick });
 
 		return m("table.scoreboard", [
-			m("thead", m("tr", [m("th", "Player"), m("th", "Score")])),
+			m("thead", m("tr", [m("th", i18n("Player")), m("th", i18n("Score"))])),
 			m(
 				"tbody",
 				players.map(({ player, score }) =>

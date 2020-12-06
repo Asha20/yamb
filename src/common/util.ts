@@ -4,6 +4,8 @@ export type DistributeOmit<T, K extends keyof T> = T extends unknown
 	? Omit<T, K>
 	: never;
 
+export type Compute<A> = { [K in keyof A]: A[K] };
+
 export function array<T>(length: number, fn: (index: number) => T): T[] {
 	return Array.from({ length }, (_, index) => fn(index));
 }

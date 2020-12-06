@@ -3,6 +3,7 @@ import { state } from "../state";
 import { Player, classNames } from "common";
 import { Tooltip } from "./Tooltip";
 import { YambCell } from "./YambCell";
+import { i18n, i18nVar } from "../i18n";
 
 interface YambAttrs {
 	player: Player;
@@ -31,7 +32,11 @@ export const Yamb: m.Component<YambAttrs> = {
 						m(
 							"th",
 							{ key: col.name },
-							m(Tooltip, { tip: col.display.tip }, col.display.shortName),
+							m(
+								Tooltip,
+								{ tip: i18nVar(col.display.tip) },
+								i18nVar(col.display.shortName),
+							),
 						),
 					),
 				]),
@@ -42,7 +47,11 @@ export const Yamb: m.Component<YambAttrs> = {
 					m("tr", { key: row.name }, [
 						m(
 							"th",
-							m(Tooltip, { tip: row.display.tip }, row.display.shortName),
+							m(
+								Tooltip,
+								{ tip: i18nVar(row.display.tip) },
+								i18nVar(row.display.shortName),
+							),
 						),
 						columns.map(col =>
 							m(YambCell, {
@@ -57,7 +66,7 @@ export const Yamb: m.Component<YambAttrs> = {
 					]),
 				),
 				m("tr", [
-					m("th", "Total"),
+					m("th", i18n("Total")),
 					m(
 						"td..yamb-cell__td.yamb-cell__td--sum",
 						{ colspan: columns.length },

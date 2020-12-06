@@ -4,6 +4,7 @@ import { state, actions, init as initState } from "../state";
 import { PlayersList, Chat, Settings } from "../components";
 import { NameStatus } from "common";
 import * as api from "../api";
+import { i18n } from "../i18n";
 
 const qs = document.querySelector.bind(document);
 
@@ -12,14 +13,6 @@ export function Lobby(): m.Component {
 
 	function NamePrompt(): m.Component {
 		let status: NameStatus = "ok";
-
-		const errorMessages: Record<NameStatus, string> = {
-			ok: "",
-			unavailable: "Name has already been taken.",
-			invalid: "Name cannot contain special characters.",
-			"name-missing": "You must enter a name.",
-			"too-long": "Maximum name length is 16 characters.",
-		};
 
 		async function submitName() {
 			const name = qs<HTMLInputElement>("#player-name")?.value ?? "";
@@ -48,13 +41,23 @@ export function Lobby(): m.Component {
 
 		return {
 			view() {
-				const error = errorMessages[status];
+				let error = "";
+				if (status === "unavailable") {
+					error = i18n("Name has already been taken.");
+				} else if (status === "invalid") {
+					error = i18n("Name cannot contain special characters.");
+				} else if (status === "name-missing") {
+					error = i18n("You must enter a name.");
+				} else if (status === "too-long") {
+					error = i18n("Maximum name length is 16 characters.");
+				}
+
 				return m(
 					".center-child.expand",
 					m("section.name", [
-						m("label.name__label[for=player-name]", "Enter a name:"),
+						m("label.name__label[for=player-name]", i18n("Enter a name:")),
 						m("input.name__input#player-name[type=text][autocomplete=off]"),
-						m("button.name__submit", { onclick: submitName }, "Submit"),
+						m("button.name__submit", { onclick: submitName }, i18n("Submit")),
 						m("p.name__error", {}, error),
 					]),
 				);
@@ -74,7 +77,7 @@ export function Lobby(): m.Component {
 
 			return m(".lobby.expand", [
 				m(".grid--players", [
-					m("h1.text-center", "Lobby"),
+					m("h1.text-center", i18n("Lobby")),
 					m(PlayersList, { players: state.players }),
 				]),
 				m(".grid--settings", m(Settings, { owner: state.self.owner })),

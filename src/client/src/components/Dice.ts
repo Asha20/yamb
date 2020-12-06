@@ -1,6 +1,7 @@
 import m from "mithril";
 import { state } from "../state";
 import * as socket from "../socket";
+import { i18n } from "../i18n";
 
 const diceLook = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
 
@@ -28,9 +29,6 @@ export const Dice: m.Component = {
 	},
 
 	view() {
-		const times = state.gameManager.roll === 1 ? "time" : "times";
-		const rollText = `Rolled ${state.gameManager.roll} ${times}.`;
-
 		return m("section.dice", [
 			m(
 				"div.dice__container",
@@ -47,7 +45,7 @@ export const Dice: m.Component = {
 					),
 				),
 			),
-			m("span.dice__roll", rollText),
+			m("span.dice__roll", i18n("Rolled $roll times.")(state.gameManager.roll)),
 			m(
 				"button.dice__roll-dice",
 				{
@@ -57,7 +55,7 @@ export const Dice: m.Component = {
 						state.gameManager.mustCall(),
 					onclick: rollDice,
 				},
-				"Roll dice",
+				i18n("Roll dice"),
 			),
 		]);
 	},

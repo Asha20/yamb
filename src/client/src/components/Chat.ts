@@ -1,6 +1,7 @@
 import m from "mithril";
 import { state, actions } from "../state";
 import { ChatMessage } from "common";
+import { i18n } from "../i18n";
 
 interface ChatAttrs {
 	canSend: boolean;
@@ -90,7 +91,7 @@ export function Chat(): m.Component<ChatAttrs> {
 					m(
 						"button.chat__send",
 						{ onclick: () => sendMessage(), disabled: !canSend },
-						"Send",
+						i18n("Send"),
 					),
 				]),
 			]);
