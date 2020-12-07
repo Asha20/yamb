@@ -6,9 +6,9 @@ import { Game } from "./pages/Game";
 import * as api from "./api";
 import { state } from "./state";
 import { send } from "./socket";
-import { setLanguage, language } from "./i18n";
+import { setLanguage, availableLanguages } from "./i18n";
 
-setLanguage("en");
+setLanguage("English");
 
 /** Workaround because Mithril typings are missing the m.route.SKIP property. */
 /* eslint-disable-next-line @typescript-eslint/ban-types */
@@ -37,13 +37,12 @@ if (!PRODUCTION) {
 	Object.defineProperty(window, "send", { value: send });
 	Object.defineProperty(window, "setLanguage", { value: setLanguage });
 
+	const languages = availableLanguages();
+	let currentLanguageId = 0;
 	window.addEventListener("keydown", e => {
 		if (e.key === "0") {
-			if (language() === "en") {
-				setLanguage("rs");
-			} else if (language() === "rs") {
-				setLanguage("en");
-			}
+			currentLanguageId = (currentLanguageId + 1) % languages.length;
+			setLanguage(languages[currentLanguageId]);
 		}
 	});
 }

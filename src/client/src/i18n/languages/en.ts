@@ -66,6 +66,9 @@ const terms = [
 	"Score",
 	"Game Over",
 	"Roll dice",
+	"English",
+	"Serbian (Latin)",
+	"Serbian (Cyrillic)",
 ] as const;
 
 export type Translation = Compute<

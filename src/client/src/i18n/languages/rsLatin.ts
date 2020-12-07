@@ -80,6 +80,10 @@ export const translation: Translation = Object.freeze({
 	"Game Over": "Kraj igre",
 	"Roll dice": "Baci kockice",
 
+	English: "Engleski",
+	"Serbian (Latin)": "Srpski (Latinica)",
+	"Serbian (Cyrillic)": "Srpski (Ćirilica)",
+
 	"Rolled $roll times.": (rolls: number) => {
 		let amount = String(rolls);
 		if (rolls === 0) amount = "nijednom";

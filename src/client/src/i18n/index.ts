@@ -5,18 +5,18 @@ import type { Translation } from "./languages/en";
 export type Language = keyof typeof languageMap;
 
 const languageMap = {
-	en: () => import("./languages/en"),
-	rs: () => import("./languages/rs"),
+	English: () => import("./languages/en"),
+	"Serbian (Latin)": () => import("./languages/rsLatin"),
+	"Serbian (Cyrillic)": () => import("./languages/rsCyrillic"),
 };
 
 let translation: Translation | null = null;
-let _language: Language | null = null;
+let currentLanguage: Language | null = null;
 
 export async function setLanguage(language: Language): Promise<boolean> {
 	try {
-		const x = await languageMap[language]();
-		translation = x.translation;
-		_language = language;
+		translation = (await languageMap[language]()).translation;
+		currentLanguage = language;
 		m.redraw();
 		return true;
 	} catch (e) {
@@ -56,7 +56,7 @@ export function i18nVar(key: string): string {
 
 	const value = translation[key as keyof Translation];
 	if (value === undefined) {
-		logger.error(`No entry for key "${key}" in language "${_language}".`);
+		logger.error(`No entry for key "${key}" in language "${currentLanguage}".`);
 		return "";
 	}
 
@@ -68,8 +68,8 @@ export function i18nVar(key: string): string {
 	return value;
 }
 
-export function language(): Language | null {
-	return _language;
+export function getLanguage(): Language | null {
+	return currentLanguage;
 }
 
 export function availableLanguages(): Language[] {

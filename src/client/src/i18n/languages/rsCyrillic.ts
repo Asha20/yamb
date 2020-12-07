@@ -1,0 +1,85 @@
+import type { Translation } from "./en";
+
+export const translation: Translation = Object.freeze({
+	"Create a game": "Креирај игру",
+	"Name has already been taken.": "Име је већ узето.",
+	"Name cannot contain special characters.":
+		"Име не сме да садржи специјалне карактере.",
+	"You must enter a name.": "Име је обавезно.",
+	"Maximum name length is 16 characters.":
+		"Максимална дужина имена је 16 карактера.",
+	"Enter a name:": "Унеси име:",
+	Submit: "Потврди",
+	Lobby: "Лоби",
+	"At least one column must be selected.":
+		"Барем једна колона мора бити изабрана.",
+	"Change color": "Промени боју",
+	you: "ти",
+	owner: "власник",
+	Columns: "Колоне",
+	Players: "Играчи",
+	Settings: "Подешавања",
+	"Start the game": "Започни игру",
+	Send: "Пошаљи",
+	"Top-down": "Надоле",
+	Free: "Слободна",
+	"Bottom-up": "Нагоре",
+	Call: "Најава",
+	Hand: "Ручна",
+	Medial: "Медијална",
+	"Anti-Medial": "Анти-медијална",
+	Sum: "Збир",
+	Max: "Маx",
+	Min: "Мин",
+	Straight: "Кента",
+	"3 of a kind": "Трилинг",
+	"Full House": "Фул",
+	"4 of a kind": "Каре",
+	Yamb: "Јамб",
+	Total: "Укупно",
+	C: "Н",
+	H: "Р",
+	M: "М",
+	AM: "АМ",
+	playing: "игра",
+	quit: "изашли",
+	"Must fill downwards from the top": "Мора да се попуњава одозго надоле",
+	"Fill any field": "Попуњава се било којим редоследом",
+	"Must fill upwards from the bottom": "Мора да се попуњава одоздо нагоре",
+	"Must call a field before playing": "Потребно најављивање пре попуњавања",
+	"Must play after the first roll": "Мора да се попуни после првог бацања",
+	"Fill towards the center": "Попуњавање према средини",
+	"Fill away from the center": "Попуњавање од средине",
+	"Sum of ones": "Збир јединица",
+	"Sum of twos": "Збир двојки",
+	"Sum of threes": "Збир тројки",
+	"Sum of fours": "Збир четворки",
+	"Sum of fives": "Збир петица",
+	"Sum of sixes": "Збир шестица",
+	"Sum from Ones to Sixes": "Збир редова од јединица до шестица",
+	"Sum of all dice": "Збир свих коцкица",
+	"Ones * (Max - Min)": "Јединице * (Макс - Мин)",
+	"1-2-3-4-5 or 2-3-4-5-6": "1-2-3-4-5 или 2-3-4-5-6",
+	"Three same dice": "Три исте коцкице",
+	"3 of a kind + 2 of a kind": "Три исте + две исте коцкице",
+	"Four same dice": "Четири исте коцкице",
+	"Five same dice": "Пет исте коцкице",
+	"Sum from Straight to Yamb": "Збир редова од кенте до јамба",
+	Player: "Играч",
+	Score: "Резултат",
+	"Game Over": "Крај игре",
+	"Roll dice": "Баци коцкице",
+
+	English: "Енглески",
+	"Serbian (Latin)": "Српски (латиница)",
+	"Serbian (Cyrillic)": "Српски (ћирилица)",
+
+	"Rolled $roll times.": (rolls: number) => {
+		let amount = String(rolls);
+		if (rolls === 0) amount = "ниједном";
+		if (rolls === 1) amount = "једанпут";
+		if (rolls === 2) amount = "двапут";
+		if (rolls === 3) amount = "трипут";
+		return `Бачено ${amount}.`;
+	},
+});
