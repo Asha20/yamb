@@ -70,6 +70,7 @@ export const translation: Translation = Object.freeze({
 	"Game Over": "Крај игре",
 	"Roll dice": "Баци коцкице",
 
+	"Change language": "Промени језик",
 	English: "Енглески",
 	"Serbian (Latin)": "Српски (латиница)",
 	"Serbian (Cyrillic)": "Српски (ћирилица)",

@@ -66,6 +66,7 @@ const terms = [
 	"Score",
 	"Game Over",
 	"Roll dice",
+	"Change language",
 	"English",
 	"Serbian (Latin)",
 	"Serbian (Cyrillic)",

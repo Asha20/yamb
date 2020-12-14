@@ -13,17 +13,21 @@ export const Home: m.Component = {
 			".center-child.expand",
 			m(".home", [
 				m("h1.text-center", i18n("Yamb")),
-				m("button", { onclick: createGame }, i18n("Create a game")),
+				m("button.home__start", { onclick: createGame }, i18n("Create a game")),
 
-				availableLanguages().map(lang =>
-					m(
-						"button",
-						{
-							onclick: () => {
-								setLanguage(lang);
+				m("h2.text-center", i18n("Change language")),
+				m(
+					".home__flex",
+					availableLanguages().map(lang =>
+						m(
+							"button.home__language",
+							{
+								onclick: () => {
+									setLanguage(lang);
+								},
 							},
-						},
-						lang,
+							lang,
+						),
 					),
 				),
 			]),

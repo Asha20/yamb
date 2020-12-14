@@ -2,3 +2,16 @@
 	max-width: 20em;
 	height: 30em;
 }
+
+.home__flex {
+	display: flex;
+	flex-direction: column;
+}
+
+.home__language {
+	margin-bottom: 10px;
+}
+
+.home__start {
+	margin: 0 auto;
+}
