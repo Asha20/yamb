@@ -24,6 +24,7 @@ export function open(name: string): Promise<WebSocket> {
 		logger.info("Socket opened");
 
 		socket.addEventListener("open", () => resolve(socket), { once: true });
+		socket.addEventListener("close", () => open(name), { once: true });
 
 		onMessage(msg => {
 			logger.info("Received", msg);
